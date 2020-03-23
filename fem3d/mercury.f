@@ -136,7 +136,7 @@ c eco-model cosimo
 
       real, save :: esolbound(nsolwst) = (/5.0,0.1/)   !default bound cond.solids in water  !grosati-OGS:calibration 
       real, save :: esolwinit(nsolwst) = (/3.0,1./)       !default in. cond. solids in water
-      real, save :: esolsinit(nsolsst) = (/3.,0./)       !initial OC%, dummy var.  
+      real, save :: esolsinit(nsolsst) = (/.3,0./)       !initial OC%, dummy var.  
 c       esolsinit: initial value is the OC% in sediment. From this value
 c       we compute the % of POM and weighted particle density
 
@@ -262,6 +262,7 @@ c       solids in sediment initialization
         POMin=DryD*10.**6*p_pom/100.
 
         write(*,*) 'siltin', siltin, 'DryD', DryD
+        write(*,*) 'OC%', p_poc, 'por', por
 
         esolsinit(1)=siltin     !GINEVRA FIXME, unità di misura
         esolsinit(2)=POMin
@@ -509,12 +510,29 @@ c      FIXME conz(l) da leggere nel ciclo sui livelli
            
               Dssink_sum=Dssink_sum+Dssink !claurent-OGS: stores sum of sinks for multiple ... 
               Dpsink_sum=Dpsink_sum+Dpsink !claurent-OGS: ... water levels above sea bed 
-           
+          
+        if (esolw(1) .LE. 0.0) then  !if
+        write(*,*) 'Siltw<=0 dopo sed4merc_wat kext=',k 
+c       stop
+        else if (esolw(2) .LE. 0.0) then
+        write(*,*) 'POMw<0 dopo sed4merc_wat kext=',k
+c       stop
+        end if
+ 
 c        write(86,*) Dssink, Dpsink, 'dssink and dpsink in mercury.f'
                 emsolw(l,k,:) = esolw(:)
 
                conz1=esolw(1)
                conz2=esolw(2)
+
+      if (conz1 .LE. 0.0) then  !if
+        write(*,*) 'Siltw<=0 dopo sed4merc_wat kext=',k
+c       stop
+        else if (conz2 .LE. 0.0) then
+        write(*,*) 'POMw<0 dopo sed4merc_wat kext=',k
+c       stop
+        end if
+
       call mercury_react(id,bsurf,bbottom,boxtype,dtday,vol
      +                  ,d,k,t,uws,area,s,qrad,epela,epload
      +                  ,Vds,Vdp,conz1,conz2,             !tday,
@@ -523,7 +541,16 @@ c        write(86,*) Dssink, Dpsink, 'dssink and dpsink in mercury.f'
 
               emp(l,k,:) = epela(:)
            
-          
+ 
+       if (esolw(1) .LE. 0.0) then  !if
+        write(*,*) 'Siltw<=0 dopo merc_wat kext=',k
+
+c        stop
+        else if (esolw(2) .LE. 0.0) then
+        write(*,*) 'POMw<0 dopo merc_wat kext=',k
+c        stop
+        end if
+         
         if (bbottom) then
         
           esedi(:)=ems(k,:)
@@ -535,11 +562,26 @@ c         write(6,*) esols, 'esols'
      +                           Sres,Pres,Vr,Bvels,Bvelp,
      +                        ds_gm2s, dp_gm2s,tcek(k),       !claurent-OGS: values required by sed4merc_sed
      +                        dZbed(k),dZactiv(k))    !claurent-OGS: get thicknesses for extraction of the fields in output                
-          
+
+      if (esolw(1) .LE. 0.0) then  !if
+        write(*,*) 'Siltw<=0 dopo merc_sed4sed kext=',k
+c        stop
+        else if (esolw(2) .LE. 0.0) then
+        write(*,*) 'POMw<0 dopo merc_sed4sed kext=',k
+c        stop
+        end if
+     
           emsolw(l,k,:)=esolw(:)
           emsols(k,:)=esols(:)
-        
-      
+ 
+      if (esolw(1) .LE. 0.0) then  !if
+        write(*,*) 'Siltw<=0 dopo merc_sed4sed II kext=',k
+c        stop
+        else if (esolw(2) .LE. 0.0) then
+        write(*,*) 'POMw<0 dopo merc_sed4sed II kext=',k
+c        stop
+        end if
+         
           silt=esols(1)
           pom= esols(2)
 
@@ -558,6 +600,19 @@ c               write(*,*) 'silt_dopo_sed4merc', silt
      +             faq1,faq2,fdoc1,fdoc2,
      +             silt,pom,Vr,Bvels,Bvelp)
          
+
+      if (epela(1) .LE. 0.0) then  !if
+        write(*,*),'Hg0<=0 dopo merc_sed kext=',k
+c        stop
+        else if (epela(2) .LE. 0.0) then
+        write(*,*),'HgII<0 dopo merc_sed kext=',k
+c        stop
+       else if (epela(3).LE. 0.0) then
+        write(*,*),'MeHg<0 dopo merc_sed kext=',k
+c        stop
+
+        end if
+
 
           ems(k,:) = esedi(:)
           emp(l,k,:) = epela(:)
@@ -923,11 +978,11 @@ c*************************************************************
         integer ie, ii,k,ia
         real tce,tcek(nkn),tceaux
         
-        tceaux=0.001
-        tce=0.001
+        tceaux=1
+        tce=1
 
         do k=1,nkn
-             tcek(k)=0.001
+             tcek(k)=1
         end do 
 
 
