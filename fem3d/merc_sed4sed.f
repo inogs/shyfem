@@ -131,11 +131,16 @@ C       processes sed4merc_sed
 c       __________________________________________________
             
          p_POM = POM/(POM+silt)*100.
-         DryD = (POM+silt)/10.**6.
+c        DryD = (POM+silt)/10.**6.
+        if (p_POM >20.) then
+        write(*,*) 'POM% >20', p_POM
+        p_POM=20.
+        end if
+ 
          OM_mg_g = 10.0 * p_POM
          OC_mg_g = OM_mg_g/1.7
          p_silt=100-p_POM
-
+         DryD=1.776-0.363*log(OC_mg_g)
 c___________ Compute weigthed particle density [g cm-3], porosity [-], Bulk density [g(s+w) cm-3]    
 
        Pdens = ((1.25*p_POM)+(2.65*(100.0 - p_POM)))/100.0  ![g(s)/cm3(s)]   
@@ -183,6 +188,8 @@ c
 c       write(665,*) k,es,logdme,BulkD,OC_mg_g
 c       write(666,*) k,taub,dme2, por 
 c       write(667,*) k,dme2, OC_mg_g 
+
+       write(6666,*) BulkD,por,DryD,Pdens,p_POM,silt,POM,ipext(k)
 
 c___________ Resuspension Occurrence _________________________________ 
 
@@ -274,6 +281,8 @@ c___________ Compute sediment thickness variations ____________________________
         cs(2)=cs(2)*prct_c+POM_s0*prct_0
         sed_vol_new=area*(dZactivk+dZit+dZdig)
         dZactivk=dZactivk+dZit+dZdig
+
+        write(7777,*), dZactivk, ipext(k), silt, POM
 c________________________________________________________________________________    
 c       
 c____________Positive burial push sediment below the active layer__________________
