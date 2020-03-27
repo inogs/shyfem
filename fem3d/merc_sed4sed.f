@@ -130,8 +130,8 @@ c       __________________________________________________
 C       processes sed4merc_sed
 c       __________________________________________________
             
-         p_POM = POM/(POM+silt)*100.
-c        DryD = (POM+silt)/10.**6.
+        p_POM = POM/(POM+silt)*100.
+        DryD = (POM+silt)/10.**6.
         if (p_POM >20.) then
         write(*,*) 'POM% >20', p_POM
         p_POM=20.
@@ -140,7 +140,7 @@ c        DryD = (POM+silt)/10.**6.
          OM_mg_g = 10.0 * p_POM
          OC_mg_g = OM_mg_g/1.7
          p_silt=100-p_POM
-         DryD=1.776-0.363*log(OC_mg_g)
+c        DryD=1.776-0.363*log(OC_mg_g)
 c___________ Compute weigthed particle density [g cm-3], porosity [-], Bulk density [g(s+w) cm-3]    
 
        Pdens = ((1.25*p_POM)+(2.65*(100.0 - p_POM)))/100.0  ![g(s)/cm3(s)]   
@@ -262,8 +262,11 @@ c       write(486,*) Dssink_sum, Dpsink_sum, 'sed4Merc_Sed'
 	if( c(1) < 0 ) write(6,*) '***** 3 ggu ',c
 	if( c(1) < 0 ) call mdebug('ggu 3',k,2,c)
 
-c        Bsflux=0.0
-c        Bpflux=0.0
+        Bsflux=0.0
+        Bpflux=0.0
+        Bvels=0
+        Bvelp=0
+
 c___________ Compute sediment thickness variations ____________________________   
       
         dZit=( (Dpsink_sum-Pres)/POM + (Dssink_sum-Sres)/silt) 
