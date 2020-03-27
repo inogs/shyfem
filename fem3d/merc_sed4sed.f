@@ -110,8 +110,8 @@
         endif
 
         dZact0=0.02
-        silt_s0 = 513767.
-        POM_s0 =  27613.
+        silt_s0 = 13701800. 
+        POM_s0 =  7032.
 c       _______________________________________________________
 c       assigne old value to water (sw,POMw) and sediment (silt, POM) variables
 
@@ -132,9 +132,9 @@ c       __________________________________________________
             
         p_POM = POM/(POM+silt)*100.
         DryD = (POM+silt)/10.**6.
-        if (p_POM >20.) then
-        write(*,*) 'POM% >20', p_POM
-        p_POM=20.
+        if (p_POM >17.) then
+        write(*,*) 'POM% >17', p_POM
+        p_POM=17.
         end if
  
          OM_mg_g = 10.0 * p_POM
