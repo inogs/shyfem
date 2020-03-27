@@ -142,6 +142,7 @@ fem3d/ouselab
 fem3d/extelab
 fem3d/shyelab
 fem3d/shyfem
+fem3d/shyfem-*.exe
 fem3d/shypre
 fem3d/shybas
 fem3d/flxelab
