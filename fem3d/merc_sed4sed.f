@@ -286,6 +286,10 @@ c___________ Compute sediment thickness variations ____________________________
         dZactivk=dZactivk+dZit+dZdig
 
         write(7777,*), dZactivk, ipext(k), silt, POM
+
+        if (ipext(k)==1372) then
+        write(8888,*) siltm,POMm,dZactivk
+        end if  
 c________________________________________________________________________________    
 c       
 c____________Positive burial push sediment below the active layer__________________
@@ -294,14 +298,16 @@ c____________Negative burial is equal to net resuspension thus not included_____
 	!if( nits >= 6498 .and. nits < 6530 ) then
 	if( abs(Sres) > 1.e+6 ) then
 	  call mdebug('burial',k,3,(/Dssink_sum,Sres,Bsflux/))
-	  Sres = 0.
-	  Bsflux = 0.
+        write(*,*) 'Correction mdebug ggu Sres', Sres, Bsflux
+          Sres = 0.
+          Bsflux = 0.
 	end if
 	if( abs(Pres) > 1.e+6 ) then
 	  call mdebug('burial',k,3,(/Dpsink_sum,Pres,Bpflux/))
-	  Pres = 0.
-	  Bpflux = 0.
-	end if
+         write(*,*) 'Correctionmdebug ggu Pres', Pres, Bpflux
+         Pres = 0.
+         Bpflux = 0.
+         end if
 
         if (Bsflux .GE. 0.) then
               CDS(1) =(Dssink_sum-Sres-Bsflux) *86400  ![g/day] silt sed 
