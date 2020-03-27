@@ -512,10 +512,10 @@ c      FIXME conz(l) da leggere nel ciclo sui livelli
               Dpsink_sum=Dpsink_sum+Dpsink !claurent-OGS: ... water levels above sea bed 
           
         if (esolw(1) .LE. 0.0) then  !if
-        write(*,*) 'Siltw<=0 dopo sed4merc_wat kext=',k 
+        write(*,*) 'Siltw<=0',esolw(1) ,'dopo sed4merc_wat kint=',k 
 c       stop
         else if (esolw(2) .LE. 0.0) then
-        write(*,*) 'POMw<0 dopo sed4merc_wat kext=',k
+        write(*,*) 'POMw<=0',esolw(2), 'dopo sed4merc_wat kint=',k
 c       stop
         end if
  
@@ -526,10 +526,10 @@ c        write(86,*) Dssink, Dpsink, 'dssink and dpsink in mercury.f'
                conz2=esolw(2)
 
       if (conz1 .LE. 0.0) then  !if
-        write(*,*) 'Siltw<=0 dopo sed4merc_wat kext=',k
+        write(*,*) 'conz1<=0',conz1,'dopo sed4merc_wat kint=',k
 c       stop
         else if (conz2 .LE. 0.0) then
-        write(*,*) 'POMw<0 dopo sed4merc_wat kext=',k
+        write(*,*) 'conz2<=0',conz2,'dopo sed4merc_wat kint=',k
 c       stop
         end if
 
@@ -543,11 +543,11 @@ c       stop
            
  
        if (esolw(1) .LE. 0.0) then  !if
-        write(*,*) 'Siltw<=0 dopo merc_wat kext=',k
+        write(*,*) 'Siltw<=0',esolw(1),'dopo merc_wat kint=',k
 
 c        stop
         else if (esolw(2) .LE. 0.0) then
-        write(*,*) 'POMw<0 dopo merc_wat kext=',k
+        write(*,*) 'POMw<=0',esolw(2),'dopo merc_wat kint',k
 c        stop
         end if
          
@@ -564,10 +564,10 @@ c         write(6,*) esols, 'esols'
      +                        dZbed(k),dZactiv(k))    !claurent-OGS: get thicknesses for extraction of the fields in output                
 
       if (esolw(1) .LE. 0.0) then  !if
-        write(*,*) 'Siltw<=0 dopo merc_sed4sed kext=',k
+        write(*,*) 'Siltw<=0',esolw(1),'dopo merc_sed4sed kint=',k
 c        stop
         else if (esolw(2) .LE. 0.0) then
-        write(*,*) 'POMw<0 dopo merc_sed4sed kext=',k
+        write(*,*) 'POMw<0',esolw(2),'dopo merc_sed4sed kint=',k
 c        stop
         end if
      
@@ -575,10 +575,10 @@ c        stop
           emsols(k,:)=esols(:)
  
       if (esolw(1) .LE. 0.0) then  !if
-        write(*,*) 'Siltw<=0 dopo merc_sed4sed II kext=',k
+        write(*,*) 'Siltw<=0',esolw(1),'dopo merc_sed4sed II kint=',k
 c        stop
         else if (esolw(2) .LE. 0.0) then
-        write(*,*) 'POMw<0 dopo merc_sed4sed II kext=',k
+        write(*,*) 'POMw<0',esolw(2),'dopo merc_sed4sed II kint=',k
 c        stop
         end if
          
