@@ -262,10 +262,10 @@ c       write(486,*) Dssink_sum, Dpsink_sum, 'sed4Merc_Sed'
 	if( c(1) < 0 ) write(6,*) '***** 3 ggu ',c
 	if( c(1) < 0 ) call mdebug('ggu 3',k,2,c)
 
-        Bsflux=0.0
-        Bpflux=0.0
-        Bvels=0
-        Bvelp=0
+        Bsflux=Bsflux/10.
+        Bpflux=Bpflux/10.
+        Bvels=Bvels/10.
+        Bvelp=Bvelp/10.
 
 c___________ Compute sediment thickness variations ____________________________   
       
@@ -351,13 +351,13 @@ c        write (987,*) (C(m), m=1,nstate),'k',k, 'SEdwater var beforer'
        stop
        end if
 
-       if (ipext(k) .EQ. 1372) then
-         write(999,*) ipext(k), Sres,Dssink_sum,Bvels
-       elseif(ipext(k) .EQ. 3057) then
-         write(998,*) ipext(k),Sres,Dssink_sum,Bvels
-      elseif(ipext(k) .EQ. 2654) then
-         write(997,*) ipext(k),Sres,Dssink_sum,Bvels
-       end if
+c      if (ipext(k) .EQ. 1372) then
+c        write(999,*) ipext(k), Sres,Dssink_sum,Bvels
+c      elseif(ipext(k) .EQ. 3057) then
+c        write(998,*) ipext(k),Sres,Dssink_sum,Bvels
+c     elseif(ipext(k) .EQ. 2654) then
+c        write(997,*) ipext(k),Sres,Dssink_sum,Bvels
+c      end if
 
 
 c        call merc_euler (2,dt,sed_vol_old,cs,cold,cds)
