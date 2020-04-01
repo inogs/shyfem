@@ -139,6 +139,7 @@ c       __________________________________________________
 c___________ Compute weigthed particle density [g cm-3], porosity [-], Bulk density [g(s+w) cm-3]    
 
        Pdens = ((1.25*p_POM)+(2.65*(100.0 - p_POM)))/100.0  ![g(s)/cm3(s)]   
+c	call massert('Pdens',k,Pdens,0.,5.)
        por = 1.0 - (DryD/Pdens)        ! [L(w)/L(s+w)]
        BulkD = por + DryD              ! [g/cm3] 
 c

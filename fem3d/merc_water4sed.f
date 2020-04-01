@@ -30,6 +30,8 @@
 !
 ! 30.05.2018    dmc&gr	integration of the 0d module into SHYFEM
 ! 10.07.2019    cl	3d sinking, debug
+! 31.03.2020    dmc     depth*area gives a value that is sometimes
+! different from vol. FIXME
 !
 ! notes :
 !
@@ -41,7 +43,7 @@
         subroutine sed4merc_water(bbottom,dtday,tday,wat_vol,
      +                          wdepth,k,temp,sal,taub,area,
      +                          C,Dssink,Dpsink,Vds,Vdp,
-     +                          ds_gm2s, dp_gm2s)
+     +                          ds_gm2s, dp_gm2s,vold)
 
 
        implicit none
@@ -69,6 +71,7 @@
       real g                  !acceleration gravity [m/sec2]
 
       real wdepth, area, wat_vol   !depth [m], area [m2] and volume [m3] of water elements
+        real vold            !here the same volnew has to be used!
       real Vss,Vsp                 !Stoke's settling vel for silt and POM               [m/s]
       real taub                    !bottom stress from subssed.f [Pa]
       real tCDs                    !critical shear stress for deposition                 [Pa]
@@ -105,7 +108,8 @@ c       ________________________________________________________
           area=2000. 
           wdepth = 1.8 
           temp = 15.
-          wat_vol = wdepth*area       ! m3
+
+          wat_vol = wdepth*area       ! m3 not sure FIXME
 
         else
           call sed4merc_gas_exchange(sal,temp,area,vis,swd)
@@ -113,6 +117,7 @@ c       ________________________________________________________
  
 c      write(*,*) 'RhoW', swd, 'Vis', vis, 'main'
 
+c        write(88,*) wat_vol,'wat_vol before computing it'
 
 c _______________________________________________________________
 c     silt and POM particle properties
@@ -181,19 +186,32 @@ c       end if
        POMwm = POMw *wat_vol  ! masses of soilds in water
 
         if (POMw .LE. 0.0) then  !if
-        write(*,*),'instability - negative POMw in sed4merc_wat kext=',
-     +  ipext(k)
+        write(*,*)'instability - negative POMw in sed4merc_wat kext=',
+     +  ipext(k),POMw
         stop
         else if (Sw .LE. 0.0) then 
-        write(*,*),'instability - negative siltw in sed4merc_wat kext=',
+        write(*,*)'instability - negative siltw in sed4merc_wat kext=',
      +  ipext(k)
         stop
         end if
+
       
+        if (C(2) .LE. 0.0) then  !if
+        write(*,*)'instability - negative POMw in sed4merc_wat kext=',
+     +  ipext(k),POMw
+        stop
+        else if (C(1) .LE. 0.0) then
+        write(*,*)'instability - negative siltw in sed4merc_wat kext=',
+     +  ipext(k)
+        stop
+        end if
 C       _________________________________________________________
 
         C(1)=Sw
         C(2)=POMw
+
+        !write(*,*)C(1), 'c1 s4m_wat'
+        !write(*,*)Sw, 'Sw s4m_wat'
 c       __________________________________________________________
 
 c         Dssink=Dssink    ! [g/sec] =Dsflux di Ginevra COMCelia: CANCELLED
@@ -203,14 +221,14 @@ c         Dsink=Dpsink     ! [g/sec] =Dflux di Ginevra COMCelia: CANCELLED
         CD(2) = -Dpsink *86400   !g/day
 
 c       call merc_euler (2,dtday,wat_vol,wat_vol,c,cold,cd)    ! c(i)=( c(i)*vol+dt*cd(i) )/vol
-        call merc_euler (2,dtday,wat_vol,c,cold,cd)   
+        call merc_euler (2,dtday,wat_vol,c,cold,cd,vold)   
 
 
-        if (POMw .LE. 0.0) then  !if
+        if (C(2) .LE. 0.0) then  !if
         write(*,*) 'POMw<=0',POMw,wdepth,ipext(k),'s4m_wat aft'
 c        write(449,*) 'POMw<=0',POMw,wdepth,ipext(k),'s4m_wat aft'
 c        stop
-        else if (Sw .LE. 0.0) then
+        else if (C(1) .LE. 0.0) then
         write(*,*) 'siltw<=0',Sw,wdepth,ipext(k),'s4m_wat aft'
 c        write(444,*) 'siltw<=0',Sw,wdepth,ipext(k),'s4m_wat aft'
 c        stop
@@ -425,14 +443,14 @@ c       &1.35576d-08*TEMP**3 + 2.15123d-06*SALIN + 3.59406d-11*SALIN**2
         a=0.0001529
         b=0.000016826
         p=1.013253
-        c=8.3885*(10**(-8))
+        c=8.3885*(10E-8)
         d=p**(2)
         e=0.0024727
-        g=4.8429*(10**(-5))
-        h=4.7172*(10**(-6))
-        m=7.5986*(10**(-8))
-        n=6.0574*(10**(-6))
-        o= 2.676*(10**(-9))
+        g=4.8429*(10E-5)
+        h=4.7172*(10E-6)
+        m=7.5986*(10E-8)
+        n=6.0574*(10E-6)
+        o= 2.676*(10E-9)
         v1= temp*(0.06144-temp*(0.001451-temp*b))
         v2=a*p
         v3=c*d

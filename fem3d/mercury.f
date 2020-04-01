@@ -15,6 +15,10 @@ c 5.9.2018      dmc Hg0atm è immesso cost in mercury_react,
 c                       da inserire come file esterno attraverso main
 c 24.2.2020     dmc     tcek reads from subroutine init_crit_thre_erosio
 c                       according to element type--> node
+c 31.03.2020    dmc     get areanode,volnode,depnode
+c 01.04.2020    dmc     Use of old and new volumes in merc_euler
+c 01.04.2020    dmc     only in the first integration (merc_water)
+c 01.04.2020    dmc     the one in merc_water4sed  needs only the actual vol
 c notes :
 c
 c********************************************************************
@@ -153,7 +157,9 @@ c       we compute the % of POM and weighted particle density
 	integer j
         real qrad
         real dtday
-        real area,vol
+        real area,vol,volold      !vol and vol previous step
+        real vsold
+        real volnode,areanode,depnode
         real getpar
         logical has_output,next_output
         logical has_output_d,next_output_d
@@ -452,7 +458,7 @@ c	-------------------------------------------------------------------
 c	loop on elements for reactor
 c	-------------------------------------------------------------------
 
-        mode = +1               !new time level for volume and depth
+       ! mode = +1               !new time level for volume and depth
 
 	if( breact ) then	!use reactor ?
 
@@ -464,6 +470,7 @@ c       mettere fuori? FIXME
         call init_crit_thre_erosion(tcek)
 
 	do k=1,nkn		!loop on nodes
+c       loops on levels to be done FIXME dmc 27/3/2020
 
           lmax = ilhkv(k)
 	  call get_light(k,qrad)
@@ -480,7 +487,14 @@ c       FIXME conz è letta fuori dal ciclo sui livelli, è la conz(lmax)
           Dpsink_sum=0.0   !claurent-OGS
           do l=1,lmax
         
-            call dvanode(l,k,mode,d,vol,area)   !gets depth, volume and area
+c            call dvanode(l,k,mode,d,vol,area)   !gets depth, volume and area
+        
+                 d = depnode(l,k,+1)
+                 vol = volnode(l,k,+1)
+                 volold = volnode(l,k,-1)
+                area=areanode(l,k,+1)
+
+                !write(88,*) vol,volold,'2 vols before...'
             call getts(l,k,t,s)                 !gets temp and salt
             call getuv(l,k,u,v)                 !gets velocities u/v
             vel = sqrt(u*u+v*v)
@@ -503,54 +517,61 @@ c       FIXME conz è letta fuori dal ciclo sui livelli, è la conz(lmax)
 c      FIXME conz(l) da leggere nel ciclo sui livelli
 
 
-        call sed4merc_water(bbottom,dtday,tday,vol,d,k,t,s,tau
-     +                          ,area,esolw,
-     +                          Dssink,Dpsink,Vds,Vdp,   
-     +                          ds_gm2s, dp_gm2s) !claurent-OGS:get values then send them to sed4merc_sed 
-           
-              Dssink_sum=Dssink_sum+Dssink !claurent-OGS: stores sum of sinks for multiple ... 
-              Dpsink_sum=Dpsink_sum+Dpsink !claurent-OGS: ... water levels above sea bed 
-          
-        if (esolw(1) .LE. 0.0) then  !if
-        write(*,*) 'Siltw<=0 dopo sed4merc_wat kext=',k 
-c       stop
-        else if (esolw(2) .LE. 0.0) then
-        write(*,*) 'POMw<0 dopo sed4merc_wat kext=',k
-c       stop
-        end if
- 
-c        write(86,*) Dssink, Dpsink, 'dssink and dpsink in mercury.f'
-                emsolw(l,k,:) = esolw(:)
-
                conz1=esolw(1)
                conz2=esolw(2)
 
       if (conz1 .LE. 0.0) then  !if
-        write(*,*) 'Siltw<=0 dopo sed4merc_wat kext=',k
+        write(*,*) 'Siltw<=0 before reactions kext=',k
 c       stop
         else if (conz2 .LE. 0.0) then
-        write(*,*) 'POMw<0 dopo sed4merc_wat kext=',k
+        write(*,*) 'POMw<0 before reactions kext=',k
 c       stop
         end if
+        
+        conz1=1
+        conz2=2
 
       call mercury_react(id,bsurf,bbottom,boxtype,dtday,vol
      +                  ,d,k,t,uws,area,s,qrad,epela,epload
      +                  ,Vds,Vdp,conz1,conz2,             !tday,
      +                  Shgsil,Shgpom,Smhgsil,Smhgpom,
-     +                  faq1,faq2,fdoc1,fdoc2)
+     +                  faq1,faq2,fdoc1,fdoc2,volold)
 
               emp(l,k,:) = epela(:)
            
  
-       if (esolw(1) .LE. 0.0) then  !if
-        write(*,*) 'Siltw<=0 dopo merc_wat kext=',k
+       if (conz1 .LE. 0.0) then  !if
+        write(*,*) 'conz1<=0 after merc_react kext=',k,conz1
 
 c        stop
-        else if (esolw(2) .LE. 0.0) then
-        write(*,*) 'POMw<0 dopo merc_wat kext=',k
+        else if (conz2 .LE. 0.0) then
+        write(*,*) 'conz2<0 after merc_react kext=',k,conz2
 c        stop
         end if
          
+
+        call sed4merc_water(bbottom,dtday,tday,vol,d,k,t,s,tau
+     +                          ,area,esolw,
+     +                          Dssink,Dpsink,Vds,Vdp,   
+     +                          ds_gm2s, dp_gm2s,volold) !claurent-OGS:get values then send them to sed4merc_sed 
+           
+c       check Dssink_sum: is now summing all the levels? dmc 27/3/2020
+
+              Dssink_sum=Dssink_sum+Dssink !claurent-OGS: stores sum of sinks for multiple ... 
+              Dpsink_sum=Dpsink_sum+Dpsink !claurent-OGS: ... water levels above sea bed 
+
+c        write(*,*)Dssink_sum,Dssink,esolw(1),l,k,dtday,'Dssink_sum'
+          
+        if (esolw(1) .LE. 0.0) then  !if
+        write(*,*) 'Siltw<=0 after sed4merc_wat kext=',k,esolw(1) 
+c       stop
+        else if (esolw(2) .LE. 0.0) then
+        write(*,*) 'POMw<0 after sed4merc_wat kext=',k,esolw(2)
+c       stop
+        end if
+ 
+c        write(86,*) Dssink, Dpsink, 'dssink and dpsink in mercury.f'
+                emsolw(l,k,:) = esolw(:)
         if (bbottom) then
         
           esedi(:)=ems(k,:)
@@ -600,6 +621,10 @@ c               write(*,*) 'silt_dopo_sed4merc', silt
      +             faq1,faq2,fdoc1,fdoc2,
      +             silt,pom,Vr,Bvels,Bvelp)
          
+
+      if (esedi(1) .LE. 0.0) then  !if
+        write(*,*),'esedi<=0 dopo merc_sed kext=',k
+        end if
 
       if (epela(1) .LE. 0.0) then  !if
         write(*,*),'Hg0<=0 dopo merc_sed kext=',k
@@ -853,7 +878,7 @@ c*************************************************************
 c*************************************************************
 c*************************************************************
 
-       subroutine merc_euler(nstate,dt,vol,c,cold,cds) !
+       subroutine merc_euler(nstate,dt,vol,c,cold,cds,volold) !
 
 ! new c is computed
 ! cold is returned which is just c before call
@@ -872,7 +897,6 @@ c*************************************************************
       real mass            !mass [g]
       real mder            !derivative [g/day]
 
-      volold = vol
       volnew = vol
 
       do i=1,nstate
@@ -881,18 +905,18 @@ c*************************************************************
         mder = cds(i)
         c(i) = ( mass + dt * mder ) / volnew
       !  write(88,*)dt,'dt-day'
-        !write(88,*) mder,'mder'
+       ! write(88,*) volold,vol,'volold,vol'
         !write(88,*) cds(i),'cds'
-        !write(88,*) i, c(i),nstate,'c(i)'
+       !if(c(i).lt.0.00001)  write(88,*) i, c(i),nstate,'c(i)'
         !if(c(i).lt.0.00001) c(i)=0.00001
       end do
       end
      
 c*************************************************************
 
-      subroutine merc_euler_sed(nstate,dt,volold,volnew,c,cold,cds) 
+      subroutine merc_euler_sed(nstate,dt,vsold,volnew,c,cold,cds) 
 
-claurent-OGS: differenciates volold and volnew
+claurent-OGS: differenciates vsold and volnew
 c      subroutine merc_euler(nstate,dt,vol,c,cold,cds) !
 
 ! new c is computed
@@ -903,7 +927,7 @@ c      subroutine merc_euler(nstate,dt,vol,c,cold,cds) !
       integer nstate            !number of state variables
       real dt                  !time step [day]
       real vol            !volume [m**3]
-      real volold,volnew      !volume [m**3]   ! claurent-OGS:
+      real vsold,volnew      !volume [m**3]   ! claurent-OGS:
       real c(nstate)            !state variable [mg/L] == [g/m**3]
       real cold(nstate)      !old state variable (return)
       real cds(nstate)      !source term [g/day]
@@ -917,7 +941,7 @@ c      volnew = vol
 
       do i=1,nstate
         cold(i) = c(i)
-        mass = c(i) * volold
+        mass = c(i) * vsold
         mder = cds(i)
         c(i) = ( mass + dt * mder ) / volnew
         !write(88,*)dt,'dt-day' 

@@ -28,12 +28,13 @@
 
 c 04.05.2017  dmc          updated mercury routine with merc_water
 c 17.05.2017  dmc & gr     add volatilization subroutine gas merc_gas_exchange
+c 31.03.2020  dmc       depth=abs(depth) --> ladj>0
 
       subroutine mercury_react(id,bsurf,bbottom,boxtype,dtday,vol
      +                         ,depth,k,temp,uwind10,area,sal,qrad
      +                         ,C,loads,vds,vdp,conz1,conz2,    !tday,
      +                         Shgsil,Shgpom,Smhgsil,Smhgpom,
-     +                         faq1,faq2,fdoc1,fdoc2)
+     +                         faq1,faq2,fdoc1,fdoc2,volold)
    
        implicit none
 
@@ -54,6 +55,7 @@ c 17.05.2017  dmc & gr     add volatilization subroutine gas merc_gas_exchange
         real dtday                 !time step                     [day]
         real qrad                  !irradiance                   [W/m2]
         real depth, area, vol      !dept, area, volume    [m],[m2],[m3]
+        real volold                       !volold
         real temp,sal                    !temperature, salinity [C],[-]
         real tkel                            !temperature - T       [K]
         real tkref                           !ref temperature, 293  [K]
@@ -140,6 +142,8 @@ c	---------------------------------------------------
 c        silt=conz        !mg/L
         DOC=3. !mg/L (INPUT)
 
+
+
         Hg0a=0.0016     ![ug/m3] atmospheric Hg concentration (INPUT)
 
 c	InHg2 = 0.001 !0.000005
@@ -216,6 +220,8 @@ c	temp=22.	!FIXME
 c	call rddepth (depth)	!depth of the element
 c        depth=1.        !FIXME 1 m
 c        vol=1.        !FIXME 1 m3
+
+        depth= abs(depth)
         
         skvo=0
         skox=0
@@ -434,7 +440,7 @@ c       write(777,*) 'mhgw<=0',C(3),'node',ipext(k),'z=',depth,'m_watbef'
       call load0d_merc(dtday,cd,loads,vol)
 c
 c      call merc_euler (3,dt,vol,vol,c,cold,cd)  ! claurent-OGS here volold=volnew=vol
-      call merc_euler (3,dtday,vol,c,cold,cd)  ! claurent-OGS here volold=volnew=vol
+      call merc_euler (3,dtday,vol,c,cold,cd,volold)  ! 
       
        if(C(1) .LT.0) then
        write(*,*) 'hg0W<=0',C(1),'node',ipext(k),'z=',depth,'m_wataft'
@@ -665,14 +671,14 @@ c       &1.35576d-08*TEMP**3 + 2.15123d-06*SALIN + 3.59406d-11*SALIN**2
         a=0.0001529
         b=0.000016826
         p=1.013253
-        c=8.3885*(10**(-8))
+        c=8.3885*(10E-8)
         d=p**(2)
         e=0.0024727
-        g=4.8429*(10**(-5))
-        h=4.7172*(10**(-6))
-        m=7.5986*(10**(-8))
-        n=6.0574*(10**(-6))
-        o= 2.676*(10**(-9))
+        g=4.8429*(10E-5)
+        h=4.7172*(10E-6)
+        m=7.5986*(10E-8)
+        n=6.0574*(10E-6)
+        o= 2.676*(10E-9)
         v1= temp*(0.06144-temp*(0.001451-temp*b))
         v2=a*p
         v3=c*d
