@@ -500,8 +500,8 @@ c            call dvanode(l,k,mode,d,vol,area)   !gets depth, volume and area
             vel = sqrt(u*u+v*v)
 
             id = 1000*k+l
-	    bsurf = (l==1)
-	    bbottom = (l==lmax)
+            bsurf = (l==1)
+            bbottom = (l==lmax)
                 
             depth=depth+d   !compute the depth at the centre of the element
 
@@ -516,49 +516,17 @@ c            call dvanode(l,k,mode,d,vol,area)   !gets depth, volume and area
             boxtype=.true.                
 c      FIXME conz(l) da leggere nel ciclo sui livelli
 
-
-<<<<<<< HEAD
-        call sed4merc_water(bbottom,dtday,tday,vol,d,k,t,s,tau
-     +                          ,area,esolw,
-     +                          Dssink,Dpsink,Vds,Vdp,   
-     +                          ds_gm2s, dp_gm2s) !claurent-OGS:get values then send them to sed4merc_sed 
-           
-              Dssink_sum=Dssink_sum+Dssink !claurent-OGS: stores sum of sinks for multiple ... 
-              Dpsink_sum=Dpsink_sum+Dpsink !claurent-OGS: ... water levels above sea bed 
-          
-        if (esolw(1) .LE. 0.0) then  !if
-        write(*,*) 'Siltw<=0',esolw(1) ,'dopo sed4merc_wat kint=',k 
-c       stop
-        else if (esolw(2) .LE. 0.0) then
-        write(*,*) 'POMw<=0',esolw(2), 'dopo sed4merc_wat kint=',k
-c       stop
-        end if
- 
-c        write(86,*) Dssink, Dpsink, 'dssink and dpsink in mercury.f'
-                emsolw(l,k,:) = esolw(:)
-
-=======
->>>>>>> 403e3ef119ea510fd86933920fb4da254c367d87
-               conz1=esolw(1)
-               conz2=esolw(2)
+            conz1=esolw(1)
+            conz2=esolw(2)
 
       if (conz1 .LE. 0.0) then  !if
-<<<<<<< HEAD
-        write(*,*) 'conz1<=0',conz1,'dopo sed4merc_wat kint=',k
+        write(*,*) 'Siltw<=0 before reactions kint=',k
 c       stop
         else if (conz2 .LE. 0.0) then
-        write(*,*) 'conz2<=0',conz2,'dopo sed4merc_wat kint=',k
-=======
-        write(*,*) 'Siltw<=0 before reactions kext=',k
-c       stop
-        else if (conz2 .LE. 0.0) then
-        write(*,*) 'POMw<0 before reactions kext=',k
->>>>>>> 403e3ef119ea510fd86933920fb4da254c367d87
+        write(*,*) 'POMw<0 before reactions kint=',k
 c       stop
         end if
         
-        conz1=1
-        conz2=2
 
       call mercury_react(id,bsurf,bbottom,boxtype,dtday,vol
      +                  ,d,k,t,uws,area,s,qrad,epela,epload
@@ -567,23 +535,12 @@ c       stop
      +                  faq1,faq2,fdoc1,fdoc2,volold)
 
               emp(l,k,:) = epela(:)
-           
- 
-<<<<<<< HEAD
-       if (esolw(1) .LE. 0.0) then  !if
-        write(*,*) 'Siltw<=0',esolw(1),'dopo merc_wat kint=',k
 
-c        stop
-        else if (esolw(2) .LE. 0.0) then
-        write(*,*) 'POMw<=0',esolw(2),'dopo merc_wat kint',k
-=======
        if (conz1 .LE. 0.0) then  !if
-        write(*,*) 'conz1<=0 after merc_react kext=',k,conz1
-
+        write(*,*) 'conz1<=0 after merc_react kint=',k,conz1
 c        stop
         else if (conz2 .LE. 0.0) then
-        write(*,*) 'conz2<0 after merc_react kext=',k,conz2
->>>>>>> 403e3ef119ea510fd86933920fb4da254c367d87
+        write(*,*) 'conz2<0 after merc_react kint=',k,conz2
 c        stop
         end if
          
@@ -601,10 +558,10 @@ c       check Dssink_sum: is now summing all the levels? dmc 27/3/2020
 c        write(*,*)Dssink_sum,Dssink,esolw(1),l,k,dtday,'Dssink_sum'
           
         if (esolw(1) .LE. 0.0) then  !if
-        write(*,*) 'Siltw<=0 after sed4merc_wat kext=',k,esolw(1) 
+        write(*,*) 'Siltw<=0 after sed4merc_wat kint=',k,esolw(1) 
 c       stop
         else if (esolw(2) .LE. 0.0) then
-        write(*,*) 'POMw<0 after sed4merc_wat kext=',k,esolw(2)
+        write(*,*) 'POMw<0 after sed4merc_wat kint=',k,esolw(2)
 c       stop
         end if
  
@@ -661,17 +618,17 @@ c               write(*,*) 'silt_dopo_sed4merc', silt
          
 
       if (esedi(1) .LE. 0.0) then  !if
-        write(*,*),'esedi<=0 dopo merc_sed kext=',k
+        write(*,*),'esedi<=0 dopo merc_sed kint=',k
         end if
 
       if (epela(1) .LE. 0.0) then  !if
-        write(*,*),'Hg0<=0 dopo merc_sed kext=',k
+        write(*,*),'Hg0<=0 dopo merc_sed kint=',k
 c        stop
         else if (epela(2) .LE. 0.0) then
-        write(*,*),'HgII<0 dopo merc_sed kext=',k
+        write(*,*),'HgII<0 dopo merc_sed kint=',k
 c        stop
        else if (epela(3).LE. 0.0) then
-        write(*,*),'MeHg<0 dopo merc_sed kext=',k
+        write(*,*),'MeHg<0 dopo merc_sed kint=',k
 c        stop
 
         end if
