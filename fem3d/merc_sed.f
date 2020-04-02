@@ -41,7 +41,7 @@ c	include 'mercury.h'
       real                :: CD(nvmerc)     !derivatives CD(1), CD(2)
       real                :: CDw(3)          !mercury in water derivative: Hg0, Hg2, MeHg [ug/s]
  
-      real depth, vol
+      real depth, vol,vold      !volold =vol here
       real dt    !time step, day
       real cold(nvmerc)
       real coldw(3)
@@ -462,8 +462,9 @@ c       stop
        call merc_euler_sed(nvmerc,dtday,vol,vol,c,cold,cd) !claurent-OGS:add second volume
 c       call merc_euler_sed (3,dtday,vol,vol,cw,coldw,cdw) !claurent-OGS:add second volume
 
+        vold=vol
 c       call merc_euler (nvmerc,dtday,vol,c,cold,cd) 
-       call merc_euler(3,dtday,vol,cw,coldw,cdw) 
+       call merc_euler(3,dtday,vol,cw,coldw,cdw,vold) 
 
        if(C(1) .LT.0) then
        write(*,*) 'Hg2Sed<=0',C(1),'at node',ipext(k),'merc_sed aft'
