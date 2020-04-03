@@ -263,10 +263,10 @@ c       write(486,*) Dssink_sum, Dpsink_sum, 'sed4Merc_Sed'
 	if( c(1) < 0 ) write(6,*) '***** 3 ggu ',c
 	if( c(1) < 0 ) call mdebug('ggu 3',k,2,c)
 
-        Bsflux=Bsflux/10.
-        Bpflux=Bpflux/10.
-        Bvels=Bvels/10.
-        Bvelp=Bvelp/10.
+c        Bsflux=Bsflux/10.
+c        Bpflux=Bpflux/10.
+c        Bvels=Bvels/10.
+c        Bvelp=Bvelp/10.
 
 c___________ Compute sediment thickness variations ____________________________   
       

@@ -372,10 +372,10 @@ c       Check Ginevra,
 c        C(1) = hgit              ! ug m-3
 c        C(2) = mehgt
 
-      Rhgsil=0.0
-      Rhgpom=0.0
-      Rmhgsil=0.0
-      Rmhgpom=0.0
+c      Rhgsil=0.0
+c      Rhgpom=0.0
+c      Rmhgsil=0.0
+c      Rmhgpom=0.0
 c      JHgD=0.0
 c      JMHgD=0.0    
  
