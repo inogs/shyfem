@@ -273,7 +273,7 @@ c       solids in sediment initialization
         esolsinit(1)=siltin     !GINEVRA FIXME, unità di misura
         esolsinit(2)=POMin
 
-       write(*,*) 'esols', esolsinit
+c       write(*,*) 'esols', esolsinit
 
 c       mercury in sediment initialization
 
