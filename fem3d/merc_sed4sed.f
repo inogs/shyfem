@@ -190,7 +190,7 @@ c       write(665,*) k,es,logdme,BulkD,OC_mg_g
 c       write(666,*) k,taub,dme2, por 
 c       write(667,*) k,dme2, OC_mg_g 
 
-       write(6666,*) BulkD,por,DryD,Pdens,p_POM,silt,POM,ipext(k)
+c       write(6666,*) BulkD,por,DryD,Pdens,p_POM,silt,POM,ipext(k)
 
 c___________ Resuspension Occurrence _________________________________ 
 
@@ -249,11 +249,11 @@ c
        POMm = POM*sed_vol_old                                 
 c       
 
-       if (ipext(k) .EQ. 1372) then
-       write(665,*) Bvels,Bvelp,Bsflux,Bpflux, 'Sed_4Merc_SED' 
-       write(664,*) silt, POM, 'sed4Merc_SED'
+c       if (ipext(k) .EQ. 1372) then
+c       write(665,*) Bvels,Bvelp,Bsflux,Bpflux, 'Sed_4Merc_SED' 
+c       write(664,*) silt, POM, 'sed4Merc_SED'
 c       write(486,*) Dssink_sum, Dpsink_sum, 'sed4Merc_Sed'
-       end if 
+c       end if 
       
         CS(1)=silt            ![g/m3]
         CS(2)=POM             ![g/m3]
@@ -286,7 +286,7 @@ c___________ Compute sediment thickness variations ____________________________
         sed_vol_new=area*(dZactivk+dZit+dZdig)
         dZactivk=dZactivk+dZit+dZdig
 
-        write(7777,*), dZactivk, ipext(k), silt, POM
+c        write(7777,*), dZactivk, ipext(k), silt, POM
 
         if (ipext(k)==1372) then
         write(8888,*) siltm,POMm,dZactivk
@@ -401,8 +401,8 @@ c       write(447,*) 'POMw<0',c(2), 's4m_sedaft kext=',ipext(k)
        write(*,*) 'POMw<0',c(2),wdep,'s4m_sedaft kext=',ipext(k) 
       end if
 
-        c(1)=max(0.001,c(1))  
-        c(2)=max(0.001,c(2))  ! Celia: allow POM_w to be NULL (for drying nodes)
+        c(1)=max(0.00001,c(1))  
+        c(2)=max(0.00001,c(2))  ! Celia: allow POM_w to be NULL (for drying nodes)
 
         ! Celia: if this trick is kept, unsinked silt and pom should be
         ! substracted from the bottom sediment (doing an inversed euler)

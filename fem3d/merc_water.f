@@ -99,7 +99,8 @@ c
       real R, Rcal     !universal gas constant  [J/mol K], [cal/mol K]
       real kox         !dark oxidation rate                      [1/d]
       real OxAct   !oxydation activation energy            [kcal/mol]
-      real ckox, skox
+      real skox
+      real kphox,skphox
 
 c     HgII sink reactions, parameters
 c
@@ -108,9 +109,10 @@ c
        real kmeth, ckmeth  !bacterial meth rate, T-adjusted rate   [1/d]
        real skph           !photoreduction                      [ug/m3d]
        real kphr,ckph      !photored rate, light-adjusted rate     [1/d]
-       real lref, ke  !reference light,extintion coefficient[w/m2],[1/m]
-       real ladj           !normalised irradiance
+       real ke             !extintion coefficient[w/m2],[1/m]
+       real ladj,PAR       !adjusted irradiance and visible light
        real xHg2d,xHg2DOC,xHg2sorb !activate Hg species in transformations
+       real bred, skbred   !biological reduction
 c
 c      MeHg sink reactions, parameters
        real skdem        !bacterial demethylation               [ug/m3d]
@@ -130,6 +132,8 @@ c      deposition fluxes and rates
        integer ipext,ipint,kext     !nodes external and internal numbers
        integer fortfilenum, iter
        real tday
+       real Remin, NPP
+       real HgR, MeHgR     !reactive Hg and MeHg
                        
 c       --------------------------------------------------
 c       volatilization formula
@@ -160,16 +164,19 @@ c	----------------------
         xHg2sorb=0.     !FIXME WASP:
         xMeHgd=1.
         xMeHgDOC=1.
-        xMeHgsorb=0.
+        xMeHgsorb=0
+       
+       HgR=0.26   !Kotnik et al., 2015 OR proportional to TDOM
+       MeHgR=0.50 !about double HgR (Soerensen et al., 2016) 
 c	---------------------
 c	partition coefficients for mercury into  silt,sand,DOC,ORG-sediment sorbed
 c	part coefficients are [L/kg]
 c	---------------------
-        k1silt=200000.   !Hg2 in silt     [L/kg]
+        k1silt=20000.   !Hg2 in silt     [L/kg]
         k1sand=0.       !Hg2 in sand     [L/kg]
         k1doc=20000.    !Hg2 in doc      [L/kg]
         k1org=400000.    !Hg2 in organic particles [L/kg]
-        k2silt=100000.   !MeHg in silt  [L/kg]
+        k2silt=10000.   !MeHg in silt  [L/kg]
         k2sand=0.       !MeHg in sand  [L/kg]   
         k2doc=10000.    !MeHg  in doc  [L/kg]
         k2org=500000.    !MeHg in organic particles [L/kg]
@@ -188,34 +195,41 @@ c	--------------
         R=8.314472      ![J K-1 mol-1] universal gas constant
 c        write(6,*) kvol
 c
-c       oxydation of Hg0d
+c       oxydation rate constant (Hg0d to Hg2)
 c	-----------------
-        OxAct=2 !activation energy for oxydation, WASP impl. FIXME =2 k[kcal mol-1]
-        kox=0.00001    !0001  !FIXME oxydation parameter 
+c       OxAct=2 !activation energy for oxydation, WASP impl =2 k[kcal mol-1]
+        kox=0.002       ![day-1] oxydation parameter (Soerensen et al., 2016)
+c     
+c       photoxidation rate constant
+c       -----------------------------------
+        kphox=0.55      ![day-1] photo-oxidation rate constant
+c	biological methylation rate constant (Hg to MeHg)
+c	------------------------------------
+       Remin=0.011      !mean of tested values  read from BIOGEOCHEM FIXME             
+       kmeth=Remin/100. ![day-1] wq  methylation rate at 20°C Monperrus et al., 2007
+c      Qbac = 1.5      
 c
-c	methylation
-c	----------
-        kmeth=0.006 ![day-1] wq  methylation rate at 20°C Monperrus et al., 2007
-        Qbac = 1.5      !FIXME 
-c
-c       photoreduction of Hg2d to Hg0
-c	----------------------------
-        kphr=0.05       ![day-1] photoreduction rate constant of HgII to Hg0 (default WASP) 
-        lref=240 !950                !reference light intensity for kph [watt/m2] FIXME (default WASP)
-        ke=1.05             !light extintion coefficient FIXME
+c       photoreduction rate constant (Hg2d to Hg0)
+c	-------------------------------------
+        kphr=0.15       ![day-1] photoreduction rate constant of HgII to Hg0 Soerensen et al., 2016  
+        ke=1.05         !light extintion coefficient FIXME read from BIOGEOCHEM (or read attenuated light)                   
+
+c       biological reduction rate constant (Hg2 to Hg0)
+        NPP=0.06        !mean of tested values  read from BIOGEOCHEM FIXME     
+        bred= 4.5*10.E-6*NPP 
 
 c	------------------------------------
-c	photoreductive demethylation
+c	photoreductive demethylation rate constant (MeHg to Hg0 and Hg2)
 c	--------------------------
-        kphdem=0.00015    ![day-1] source of this parameter? FIXME
+        kphdem=0.0025  ![day-1] (Soerensen et al., 2016)
 c	------------------------------------------------------------------------
 c	bacterial demethylation
 c	---------------------
-        Eadem=2 !WASP manual around 10 kcal/mol
-c ksdem lignano:0.159 s.andrea:0.093 buso:0.139 morgo:0.139 grado:0.064 primero:0.064 Hines et al. 2012
-        kdem=0.15     !069	!bacterial demethylation in water	!FIXME Monperrus?
+c       Eadem=2 !WASP manual around 10 kcal/mol
+c       ksdem lignano:0.159 s.andrea:0.093 buso:0.139 morgo:0.139 grado:0.064 primero:0.064 Hines et al. 2012
+        kdem=0.15      ! Calibration or site specific rates
 
-c	temp=22.	!FIXME
+c	temp=22.	
 
 c	call rddepth (depth)	!depth of the element
 c        depth=1.        !FIXME 1 m
@@ -227,13 +241,11 @@ c        vol=1.        !FIXME 1 m3
         skox=0
         skph=0 
         skphdem=0
-        skox=0
+        skphox=0 
         skph=0
         skdem=0
         skme=0
-        skdem=0
-        skphdem=0
-
+        skbred=0
 c       _______________________________________________________
 c       assigne old value to mercury variables
 
@@ -319,51 +331,54 @@ c        end if
         else
         skvo=0
         end if
+c       light attenuation
+c        --------------------------------------
+        ladj=qrad*exp(-ke*depth)    !irradiation [w/m2]   
+        PAR= ladj*0.432             !visible radiation        
 
-c       write(6,*) skvo,'skvo',bsurf, 'bsurf'
-c			--------------------
-c	Hg0d --> Hg2d oxydation
+        if (k==2240) then 
+        write(7878,*) ladj, qrad
+        end if
+
+c	---------------------------------------
+c	Hg0d --> Hg2d Dark oxydation
 c
-c	conversion of R, gas constant, from [J K-1 mol-1] to [cal k-1 mol-1]
-      ckox=kox*exp(OxAct*1000*((tkel-tkref)/(Rcal*tkel*tkref))) !1000: conversion from kcal to cal
-      skox=ckox*Hg0d
-c       write(81,*) tkel,skvo,skox !'volatilization,oxydation'
-c       ok
+        skox=kox*Hg0d           ![ug m-3 d-1]
+c       ---------------------------------------
+c       Hg0d --> Hg2d Photo-oxydation        
+        
+        skphox=kphox*ladj*Hg0d    ![ug m-3 d-1]
 
 c	----------------------------------------
-c		Hg2d--> Hg0d photoreduction 
+c	Hg2d--> Hg0d Photoreduction 
 c
-        ladj=qrad/lref*((1-exp(-ke*depth))/ke*depth)	
-        ckph=kphr*ladj   !FIXME unità di misura
-	skph=ckph*(Hg2d*xHg2d+Hg2DOC*xHg2DOC+Hg2sorb*xHg2sorb)	!FIXME unità di misura
+        skph=kphr*ladj*HgR*(Hg2d*xHg2d+Hg2DOC*xHg2DOC+Hg2sorb*xHg2sorb) ![ug m-3 d-1]
+
+c       ----------------------------------------
+c       Hg2 -->Hg0d Biological reduction
+
+        skbred=bred*HgR*Hg2       ![ug m-3 d-1]                 
 
 c	---------------------------------------------
-c		Hg2d --> MeHgd methylation
+c	Hg2d --> MeHgd methylation
 
-	ckmeth=kmeth*Qbac**((temp-20)/10)
-	skme=ckmeth*(Hg2d*xHg2d+Hg2DOC*xHg2DOC+Hg2sorb*xHg2sorb)
-c	write(83,*) temp, kmeth, Qbac, ckmeth, skme !, ' kmeth Qbac ckmeth skme'
-c        write(83,*) Hg2d,xHg2d,Hg2DOC,xHg2DOC,Hg2sorb,xHg2sorb,'test'
+        skme=kmeth*HgR*Hg2
 c
 c	----------------------------------------------
 c	MeHg --> Hg0 photoreductive demethylation in the water column
 c
-	ckphdem=kphdem*ladj	!FIXME insert a different ladj?
-	skphdem=ckphdem*(MeHgd*xMeHgd+MeHgDOC*xMeHgDOC+MeHgsorb*xMeHgsorb)
-c	write (85,*) skphdem,ckphdem !, ' photochemical demethylation'
+        ckphdem=kphdem*PAR*(-0.027*Sal+1.)
+        skphdem=ckphdem*(MeHgd*xMeHgd+MeHgDOC*xMeHgDOC
+     &           +MeHgsorb*xMeHgsorb)  !Black et al., 2012; Soerensen et al., 2016     
 c
 c       ______________________________________________
 c	MeHg --> HgII bacterial demethylation in water 
 c	
-c	bacterial demethylation
-c	real skdem,kdem
-c	real ckdem, Eadem
-	
-	cordem=exp(Eadem*1000*((tkel-tkref)/(Rcal*tkel*tkref)))
-	ckdem=kdem*cordem
-	skdem=ckdem*(MeHgd*xMeHgd+MeHgDOC*xMeHgDOC+MeHgsorb*xMeHgsorb)
-c	write (86,*) tkel,cordem,ckdem,skdem	!, ' water column bacterial demethylation'
-c
+c        ckdem=kdem*cordem
+         skdem=kdem*MeHgR*MeHg
+ 
+!(MeHgd*xMeHgd+MeHgDOC*xMeHgDOC+MeHgsorb*xMeHgsorb)
+
 c       Compute Compute deposition fluxes and rates 
 
         Dhgsil = vds*Hg2silt   ! [m s-1]*[g m-3]*[-]=[g m2s-1]
@@ -383,9 +398,10 @@ c       __________________________________________________
 c      write(6,*) C(1),Hg0d,C(2),Hg2,C(3),MeHg,'merc var'
 c	
 c	CD= transformations 1:Hg0 2:Hg2 3:MeHg	
-        CD(1) = -skvo*area+vol*(- skox + skph + skphdem) !g/day
-        CD(2) = -Shgsil-Shgpom+(skox - skph + skdem - skme)*vol        !g/day
-        CD(3) = -Smhgsil-Smhgpom+ (skme - skdem - skphdem)*vol    !mass, g/day
+        CD(1) = -skvo*area+vol*(-skox -skphox +skph +skbred +skphdem/2) !g/day
+        CD(2) = -Shgsil-Shgpom+(skox +skphox -skph -skbred +skdem 
+     &          +skphdem/2 -skme)*vol        !g/day
+        CD(3) = -Smhgsil-Smhgpom+ (skme -skdem -skphdem)*vol    !mass, g/day
 
       kext=ipext(k)
 c      if (kext .EQ. 1372) then 
