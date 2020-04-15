@@ -1007,16 +1007,16 @@ c*************************************************************
 
         do ie=1,nel
           ia = iarv(ie)
-          if( ia == 0 ) tce = 0.3      !FIXME
-          if( ia== 1 )  tce = 0.3
-          if( ia== 2 )  tce = 0.86
-          if( ia== 3 )  tce = 0.86
-          if( ia== 4 )  tce = 0.86
-          if( ia== 5 )  tce = 0.86
-          if( ia== 6 )  tce = 0.86
-          if( ia== 7 )  tce = 0.86
-          if( ia== 8 )  tce = 0.86
-          if( ia== 9 )  tce = 0.86
+          if( ia == 0 ) tce = 0.2      !FIXME
+          if( ia== 1 )  tce = 0.2
+          if( ia== 2 )  tce = 0.76
+          if( ia== 3 )  tce = 0.76
+          if( ia== 4 )  tce = 0.76
+          if( ia== 5 )  tce = 0.76
+          if( ia== 6 )  tce = 0.76
+          if( ia== 7 )  tce = 0.76
+          if( ia== 8 )  tce = 0.76
+          if( ia== 9 )  tce = 0.76
 
 c       mettere tutti gli if
           do ii=1,3
