@@ -1007,7 +1007,7 @@ c*************************************************************
 
         do ie=1,nel
           ia = iarv(ie)
-          if( ia == 0 ) tce = 0.2      !FIXME
+          if( ia == 0 ) tce = 0.2     !FIXME
           if( ia== 1 )  tce = 0.2
           if( ia== 2 )  tce = 0.76
           if( ia== 3 )  tce = 0.76

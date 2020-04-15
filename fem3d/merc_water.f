@@ -202,7 +202,9 @@ c       OxAct=2 !activation energy for oxydation, WASP impl =2 k[kcal mol-1]
 c     
 c       photoxidation rate constant
 c       -----------------------------------
-        kphox=0.55      ![day-1] photo-oxidation rate constant
+        kphox=0.55 ! in Soerensen, corrected x Fraction open sea 
+        ![day-1] photo-oxidation rate constant
+
 c	biological methylation rate constant (Hg to MeHg)
 c	------------------------------------
        Remin=0.011      !mean of tested values  read from BIOGEOCHEM FIXME             
@@ -357,25 +359,26 @@ c
 c       ----------------------------------------
 c       Hg2 -->Hg0d Biological reduction
 
-        skbred=bred*HgR*Hg2       ![ug m-3 d-1]                 
+c       skbred=bred*HgR*Hg2       ![ug m-3 d-1]                 
+        skbred=bred*HgR*(Hg2d*xHg2d+Hg2DOC*xHg2DOC+Hg2sorb*xHg2sorb) ![ug m-3 d-1]
 
 c	---------------------------------------------
 c	Hg2d --> MeHgd methylation
 
-        skme=kmeth*HgR*Hg2
+        skme=kmeth*HgR*(Hg2d*xHg2d+Hg2DOC*xHg2DOC+Hg2sorb*xHg2sorb) 
 c
 c	----------------------------------------------
 c	MeHg --> Hg0 photoreductive demethylation in the water column
 c
-        ckphdem=kphdem*PAR*(-0.027*Sal+1.)
+        ckphdem=kphdem*PAR*(-0.027*Sal+1.) !Black et al., 2012; Soerensen et al., 2016
         skphdem=ckphdem*(MeHgd*xMeHgd+MeHgDOC*xMeHgDOC
-     &           +MeHgsorb*xMeHgsorb)  !Black et al., 2012; Soerensen et al., 2016     
+     &           +MeHgsorb*xMeHgsorb)    
 c
-c       ______________________________________________
+c       ----------------------------------------------
 c	MeHg --> HgII bacterial demethylation in water 
 c	
-c        ckdem=kdem*cordem
-         skdem=kdem*MeHgR*MeHg
+c     ckdem=kdem*cordem
+      skdem=kdem*MeHgR*(MeHgd*xMeHgd+MeHgDOC*xMeHgD+MeHgsorb*xMeHgsorb)
  
 !(MeHgd*xMeHgd+MeHgDOC*xMeHgDOC+MeHgsorb*xMeHgsorb)
 
@@ -471,7 +474,10 @@ c      call merc_euler (3,dt,vol,vol,c,cold,cd)  ! claurent-OGS here volold=voln
        end if
 
 
-        if (C(1).le.0.) C(1)=0.00000001  !FIXME controllo mostruoso
+        if (C(1).le.0.) then
+        C(1)=0.00000001  !FIXME controllo mostruoso
+        write(*,*) "Hg0 adjusted in merc_water.f"
+        end if 
 c le trasf. di C1 la portano negativa! skvo e skox prevalgono	
 c       write(*,*) 'Hgod',Hg0d,'Hg2',Hg2,'MeHg',MeHg, 'nodo',k
 
