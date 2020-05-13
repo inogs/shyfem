@@ -137,7 +137,7 @@ c _______________________________________________________________
 c       Input critical shear for deposition and erosion
 c _______________________________________________________________
 
-        tCDs = 0.55 !0.7 (ORIG) !.08  !!da 0.06 a 1         !0.06*g*(spd-swd)*dsilt
+        tCDs = 0.65 !0.7 (ORIG) !.08  !!da 0.06 a 1         !0.06*g*(spd-swd)*dsilt
 
 c _______________________________________________________________
 c Compute Stoke's settling velocities for silt and POM
@@ -150,8 +150,8 @@ c ______________________________________________________________
 c _____ Deposition Occurrence 
 c ______________________________________________________________   
        
-       if (taub>1) then
-         taub=1
+       if (taub>1.) then
+         taub=1.
        end if
  
        if (taub < tCDs) then            ! DEPOSITION
@@ -217,8 +217,8 @@ c       __________________________________________________________
 c         Dssink=Dssink    ! [g/sec] =Dsflux di Ginevra COMCelia: CANCELLED
 c         Dsink=Dpsink     ! [g/sec] =Dflux di Ginevra COMCelia: CANCELLED
 
-        CD(1) = -Dssink *86400   !g/day
-        CD(2) = -Dpsink *86400   !g/day
+        CD(1) = -Dssink *86400.   !g/day
+        CD(2) = -Dpsink *86400.   !g/day
 
 c       call merc_euler (2,dtday,wat_vol,wat_vol,c,cold,cd)    ! c(i)=( c(i)*vol+dt*cd(i) )/vol
         call merc_euler (2,dtday,wat_vol,c,cold,cd,vold)   

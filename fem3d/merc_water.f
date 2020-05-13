@@ -166,20 +166,20 @@ c	----------------------
         xMeHgDOC=1.
         xMeHgsorb=0
        
-       HgR=0.26   !Kotnik et al., 2015 OR proportional to TDOM
-       MeHgR=0.50 !about double HgR (Soerensen et al., 2016) 
+        HgR=0.26   !Kotnik et al., 2015 OR proportional to TDOM
+        MeHgR=0.50 !about double HgR (Soerensen et al., 2016) 
 c	---------------------
 c	partition coefficients for mercury into  silt,sand,DOC,ORG-sediment sorbed
 c	part coefficients are [L/kg]
 c	---------------------
-        k1silt=20000.   !Hg2 in silt     [L/kg]
+        k1silt=100000.   !Hg2 in silt     [L/kg]
         k1sand=0.       !Hg2 in sand     [L/kg]
-        k1doc=20000.    !Hg2 in doc      [L/kg]
-        k1org=400000.    !Hg2 in organic particles [L/kg]
-        k2silt=10000.   !MeHg in silt  [L/kg]
+        k1doc=10000.    !Hg2 in doc      [L/kg]
+        k1org=100000.    !Hg2 in organic particles [L/kg]
+        k2silt=8000.   !MeHg in silt  [L/kg]
         k2sand=0.       !MeHg in sand  [L/kg]   
         k2doc=10000.    !MeHg  in doc  [L/kg]
-        k2org=500000.    !MeHg in organic particles [L/kg]
+        k2org=8000.    !MeHg in organic particles [L/kg]
 c       -----------------------------------------------------
 c	------------------------------------------------------
 c	initial conditions: mercury species concentration in [mg/L] or  [mg/kg]  (sed)
@@ -207,9 +207,9 @@ c       -----------------------------------
 
 c	biological methylation rate constant (Hg to MeHg)
 c	------------------------------------
-       Remin=0.011      !mean of tested values  read from BIOGEOCHEM FIXME             
-       kmeth=Remin/100. ![day-1] wq  methylation rate at 20°C Monperrus et al., 2007
-c      Qbac = 1.5      
+        Remin=0.011      !mean of tested values  read from BIOGEOCHEM FIXME             
+        kmeth=Remin/100. ![day-1] wq  methylation rate at 20°C Monperrus et al., 2007
+c       Qbac = 1.5      
 c
 c       photoreduction rate constant (Hg2d to Hg0)
 c	-------------------------------------
@@ -239,15 +239,15 @@ c        vol=1.        !FIXME 1 m3
 
         depth= abs(depth)
         
-        skvo=0
-        skox=0
-        skph=0 
-        skphdem=0
-        skphox=0 
-        skph=0
-        skdem=0
-        skme=0
-        skbred=0
+        skvo=0.
+        skox=0.
+        skph=0. 
+        skphdem=0.
+        skphox=0. 
+        skph=0.
+        skdem=0.
+        skme=0.
+        skbred=0.
 c       _______________________________________________________
 c       assigne old value to mercury variables
 
@@ -267,14 +267,14 @@ c       assigne old value to mercury variables
 
 c --------------------------------------------------------------
 c
-        tkel=temp+273
-        Rcal=R/4.184
+c        tkel=temp+273.
+c        Rcal=R/4.184
 c	------------------------------------
 c	partition of mercury spp (HG2 and MeHg) into solid phases
 c	--------------------------------------
 
         partden1=(k1silt*silt+K1sand*sand+K1org*org+K1doc*DOC)   
-        partden1=1+0.000001*partden1   
+        partden1=1.+0.000001*partden1   
           !1+(k1doc*DOC)+((k1org*org)+(k1silt*silt)+(k1sand*sand))   
         faq1=1./partden1!fraction of freely dissolved  Hg2
         fsilt1=(0.000001*k1silt*silt)/partden1
@@ -288,7 +288,7 @@ c	--------------------------------------
         ftot1=faq1+fsilt1+fsand1+ forg1+ fdoc1
 
         partden2=(k2silt*silt+K2sand*sand+K2org*org+K2doc*DOC)
-        partden2=1+0.000001*partden2
+        partden2=1.+0.000001*partden2
         faq2=1./partden2        !fraction of freely dissolved  MeHg
         fsilt2=(0.000001*k2silt*silt)/partden2 !silt sorbed MeHg
         fsand2=(0.000001*k2sand*sand)/partden2  !sand sorbed MeHg
@@ -331,7 +331,7 @@ c        write(6,*) ckvol, 'ckvol'
 c        skvo=ckvol*(Hg0d-(Hg0a/(He/R*tkel))) ![g/m3/day] of Hg0 exchanged with the atmosphere.
 c        end if
         else
-        skvo=0
+        skvo=0.
         end if
 c       light attenuation
 c        --------------------------------------
@@ -354,31 +354,31 @@ c       Hg0d --> Hg2d Photo-oxydation
 c	----------------------------------------
 c	Hg2d--> Hg0d Photoreduction 
 c
-        skph=kphr*ladj*HgR*(Hg2d*xHg2d+Hg2DOC*xHg2DOC+Hg2sorb*xHg2sorb) ![ug m-3 d-1]
+        skph=kphr*ladj*HgR*(Hg2d+Hg2DOC) ![ug m-3 d-1]
 
 c       ----------------------------------------
 c       Hg2 -->Hg0d Biological reduction
 
 c       skbred=bred*HgR*Hg2       ![ug m-3 d-1]                 
-        skbred=bred*HgR*(Hg2d*xHg2d+Hg2DOC*xHg2DOC+Hg2sorb*xHg2sorb) ![ug m-3 d-1]
+        skbred=bred*HgR*Hg2
+        !(Hg2d*xHg2d+Hg2DOC*xHg2DOC+Hg2sorb*xHg2sorb) ![ug m-3 d-1]
 
 c	---------------------------------------------
 c	Hg2d --> MeHgd methylation
 
-        skme=kmeth*HgR*(Hg2d*xHg2d+Hg2DOC*xHg2DOC+Hg2sorb*xHg2sorb) 
+        skme=kmeth*HgR*Hg2    !(Hg2d*xHg2d+Hg2DOC*xHg2DOC+Hg2sorb*xHg2sorb) 
 c
 c	----------------------------------------------
 c	MeHg --> Hg0 photoreductive demethylation in the water column
 c
         ckphdem=kphdem*PAR*(-0.027*Sal+1.) !Black et al., 2012; Soerensen et al., 2016
-        skphdem=ckphdem*(MeHgd*xMeHgd+MeHgDOC*xMeHgDOC
-     &           +MeHgsorb*xMeHgsorb)    
+        skphdem=ckphdem*(MeHgd+MeHgDOC)    
 c
 c       ----------------------------------------------
 c	MeHg --> HgII bacterial demethylation in water 
 c	
 c     ckdem=kdem*cordem
-      skdem=kdem*MeHgR*(MeHgd*xMeHgd+MeHgDOC*xMeHgD+MeHgsorb*xMeHgsorb)
+      skdem=kdem*MeHgR*MeHg !(MeHgd*xMeHgd+MeHgDOC*xMeHgD+MeHgsorb*xMeHgsorb)
  
 !(MeHgd*xMeHgd+MeHgDOC*xMeHgDOC+MeHgsorb*xMeHgsorb)
 
@@ -388,10 +388,10 @@ c       Compute Compute deposition fluxes and rates
         Dhgpom = vdp*Hg2org    ! [m s-1]*[g m-3]*[-]=[g m2s-1]
         Dmhgsil= vds*MeHgsilt  ! [m s-1]*[g m-3]*[-]=[g m2s-1]
         Dmhgpom= vdp*MeHgorg   ! [m s-1]*[g m-3]*[-]=[g m2s-1]
-        Shgsil = Dhgsil * area *86400  ! [g m-2 day-1] * [m2] = [g day-1] 
-        Shgpom = Dhgpom * area*86400 ! [g/day]
-        Smhgsil = Dmhgsil* area*86400 ![g/day]
-        Smhgpom = Dmhgpom* area*86400 ![g/day]
+        Shgsil = Dhgsil * area *86400.  ! [g m-2 day-1] * [m2] = [g day-1] 
+        Shgpom = Dhgpom * area*86400. ! [g/day]
+        Smhgsil = Dmhgsil* area*86400. ![g/day]
+        Smhgpom = Dmhgpom* area*86400. ![g/day]
 
 c       __________________________________________________
 
@@ -429,7 +429,6 @@ c       write(88,*) skox,skph,skphdem,skdem,skme
 c       write(88,*)areaivol,'area and vol'
 
 c      integration
-
 
 
        if(silt.LT.0) then

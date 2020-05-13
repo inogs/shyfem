@@ -222,8 +222,8 @@ c___________ Compute Resuspension Fluxes and rates _________________________
        Pres  = (Er*area)*(p_POM/100.)
        Tres  =  Sres + Pres  
 c  
-       rs_gm2s = Er*(p_silt/100)
-       rp_gm2s = Er*(p_POM/100)
+       rs_gm2s = Er*(p_silt/100.)
+       rp_gm2s = Er*(p_POM/100.)
        res_gm2s= Tres/area         
      
 c       if (ipext(k) .EQ. 2284) then 
@@ -277,7 +277,7 @@ c___________ Compute sediment thickness variations ____________________________
           prct_0=(dZdig/dZact0)
           prct_c=(dZact0-dZdig)/dZact0
         else
-          dZdig=0
+          dZdig=0.
           prct_0=0.
           prct_c=1.0
         endif    
@@ -311,15 +311,15 @@ c____________Negative burial is equal to net resuspension thus not included_____
          end if
 
         if (Bsflux .GE. 0.) then
-              CDS(1) =(Dssink_sum-Sres-Bsflux) *86400  ![g/day] silt sed 
+              CDS(1) =(Dssink_sum-Sres-Bsflux) *86400.  ![g/day] silt sed 
         else
-              CDS(1) =(Dssink_sum-Sres) *86400    
+              CDS(1) =(Dssink_sum-Sres) *86400.    
         end if 
         
         if (Bpflux .GE. 0.) then      
-              CDS(2) =(Dpsink_sum-Pres-Bpflux) *86400 ![g/day] pom sed 
+              CDS(2) =(Dpsink_sum-Pres-Bpflux) *86400. ![g/day] pom sed 
         else 
-              CDS(2) =(Dpsink_sum-Pres) *86400      
+              CDS(2) =(Dpsink_sum-Pres) *86400.      
         end if 
 c      
         CD(1) = (+Sres) *86400.    !variation in days
