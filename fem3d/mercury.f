@@ -221,8 +221,9 @@ c       we compute the % of POM and weighted particle density
         real, save :: rkpar,difmol
         integer, save :: icall = 0
         integer fortfilenum
-        integer itype
-         
+        integer itype, kext
+        
+        integer,external :: ipext, ipint     !nodes external and internal numbers
 
         include 'femtime.h'
 
@@ -264,8 +265,8 @@ c       solids in sediment initialization
         DryD=1.776-0.363*log(OC_mg_g)
 
         por=1.-(DryD/pdens)
-        siltin=DryD*10.**6*p_silt/100.
-        POMin=DryD*10.**6*p_pom/100.
+        siltin=DryD*10.**6.*p_silt/100.
+        POMin=DryD*10.**6.*p_pom/100.
 
         write(*,*) 'siltin', siltin, 'DryD', DryD
         write(*,*) 'OC%', p_poc, 'por', por
@@ -401,25 +402,25 @@ c normal call
 c-------------------------------------------------------------------
 
 	wsink = 0.
-        Shgsil=0
-        Shgpom=0
-        Smhgsil=0 
-        Smhgpom=0
-        Vdp=0
-        Vds=0
-        ds_gm2s=0
-        dp_gm2s=0
+        Shgsil=0.
+        Shgpom=0.
+        Smhgsil=0. 
+        Smhgpom=0.
+        Vdp=0.
+        Vds=0.
+        ds_gm2s=0.
+        dp_gm2s=0.
 
 c       FIX ME
-        Sres=0
-        Pres=0
-        Vr=0
-        Bvels=0
-        Bvelp=0
-        Rhgsil=0
-        Rhgpom=0
-        Rmhgsil=0
-        Rmhgpom=0        
+        Sres=0.
+        Pres=0.
+        Vr=0.
+        Bvels=0.
+        Bvelp=0.
+        Rhgsil=0.
+        Rhgpom=0.
+        Rmhgsil=0.
+        Rmhgpom=0.       
 c------------------------------------------------------------------
 c       compute loading/unit surface	!FIXME -> this could be done only once
 c------------------------------------------------------------------
@@ -435,7 +436,7 @@ c-------------------------------------------------------------------
 
         tsec = it
         tday = it / 86400. + t0         !time in days, FEM 0 is day t0
-
+       
 
        if( it .le.dtime0+dt ) then
          do fortfilenum=250,282
@@ -482,7 +483,7 @@ c       FIXME conz è letta fuori dal ciclo sui livelli, è la conz(lmax)
           uws=(wx*wx+wy*wy)**(1./2.)
                 
 
-          depth=0               !reinitialize the depth at each node
+          depth=0.          !reinitialize the depth at each node
           Dssink_sum=0.0   !claurent-OGS
           Dpsink_sum=0.0   !claurent-OGS
           do l=1,lmax
@@ -977,7 +978,7 @@ c*************************************************************
         end do
 
         do i=1,npstate
-          loadsup(i)=eploadin(i)*1000/areatot          !loading g/m2
+          loadsup(i)=eploadin(i)*1000./areatot          !loading g/m2
         end do
 
         !write(6,*) loadsup(1),areatot,'loadsup1,areatot'
@@ -996,7 +997,7 @@ c*************************************************************
 
         integer ie, ii,k,ia
         real tce,tcek(nkn),tceaux
-        
+        integer ipint, ipext, kext 
         tceaux=1
         tce=1
 
@@ -1004,20 +1005,23 @@ c*************************************************************
              tcek(k)=1
         end do 
 
-
         do ie=1,nel
           ia = iarv(ie)
-          if( ia == 0 ) tce = 0.2     !FIXME
-          if( ia== 1 )  tce = 0.2
-          if( ia== 2 )  tce = 0.76
-          if( ia== 3 )  tce = 0.76
-          if( ia== 4 )  tce = 0.76
-          if( ia== 5 )  tce = 0.76
-          if( ia== 6 )  tce = 0.76
-          if( ia== 7 )  tce = 0.76
-          if( ia== 8 )  tce = 0.76
-          if( ia== 9 )  tce = 0.76
+          if( ia == 0 ) tce = 0.05     !FIXME
+          if( ia== 1 )  tce = 0.05
+          if( ia== 2 )  tce = 0.05
+          if( ia== 3 )  tce = 0.2
+          if( ia== 4 )  tce = 0.2
+          if( ia== 5 )  tce = 0.2
+          if( ia== 6 )  tce = 0.05
+          if( ia== 7 )  tce = 0.05
+          if( ia== 8 )  tce = 0.05
+          if( ia== 9 )  tce = 0.2
 
+
+       kext=ipext(k)
+
+ 
 c       mettere tutti gli if
           do ii=1,3
             k = nen3v(ii,ie) !3 nodi --> 1 elemento 
@@ -1027,6 +1031,28 @@ c                val minimo              tcek(k)=minimo tra tce e tcek(k)
                 tceaux=max(tceaux,tce)
                  tcek(k)=tceaux
 c                 write(*,*) tce,k,tceaux,ia,ie
+
+       kext=ipext(k)
+
+       if (kext==2284) then
+       write(3333,*) 'eletype',ia,'tce', tceaux,'st Ve1',kext
+       elseif (kext==3216) then
+       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve2',kext
+       elseif (kext==1372) then
+       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve3',kext
+       elseif(kext==2654) then
+       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve4',kext
+       elseif (kext==2341) then
+       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve5',kext
+       elseif (kext==2150) then
+       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve6',kext
+       elseif (kext==3762) then
+       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve7',kext
+       elseif (kext==3985) then
+       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve8',kext
+       end if
+
+
           end do
         end do
 

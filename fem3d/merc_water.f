@@ -147,7 +147,6 @@ c        silt=conz        !mg/L
         DOC=3. !mg/L (INPUT)
 
 
-
         Hg0a=0.0016     ![ug/m3] atmospheric Hg concentration (INPUT)
 
 c	InHg2 = 0.001 !0.000005
@@ -187,7 +186,7 @@ c	------------------------------------------------------
 c	----------------------------------------------------
 c	global constants
 c	----------------
-        tkref=293       !reference temperature, K
+        tkref=293.       !reference temperature, K
 c  	------------------------------------------------------
 c       volatilization
 c	--------------
@@ -337,11 +336,6 @@ c       light attenuation
 c        --------------------------------------
         ladj=qrad*exp(-ke*depth)    !irradiation [w/m2]   
         PAR= ladj*0.432             !visible radiation        
-
-        if (k==2240) then 
-        write(7878,*) ladj, qrad
-        end if
-
 c	---------------------------------------
 c	Hg0d --> Hg2d Dark oxydation
 c
@@ -401,33 +395,13 @@ c       __________________________________________________
 c      write(6,*) C(1),Hg0d,C(2),Hg2,C(3),MeHg,'merc var'
 c	
 c	CD= transformations 1:Hg0 2:Hg2 3:MeHg	
-        CD(1) = -skvo*area+vol*(-skox -skphox +skph +skbred +skphdem/2) !g/day
+        CD(1) = -skvo*area+vol*(-skox -skphox +skph +skbred +skphdem/2.) !g/day
         CD(2) = -Shgsil-Shgpom+(skox +skphox -skph -skbred +skdem 
-     &          +skphdem/2 -skme)*vol        !g/day
+     &          +skphdem/.2 -skme)*vol        !g/day
         CD(3) = -Smhgsil-Smhgpom+ (skme -skdem -skphdem)*vol    !mass, g/day
 
       kext=ipext(k)
-c      if (kext .EQ. 1372) then 
   
-c      write (487,*) vdp, vds, 'merc_water'
-c      write (488,*) skvo/area
-c      write (489,*) Shgsil/area     
-c      write (490,*) Shgpom/area
-c      write (491,*) skme/area
-c      write (492,*) skdem/area
-c      write (493,*) skphdem/area ! ' Transformations'
-c      write (494,*) skox/area ! ' Transformations'
-c      write (495,*) (C(m), m=1,nstate),kext    !' HgW vars old'
-c      write (496,*) vol    !' HgW vars old'
-c      write (497,*) area    !' HgW vars old'
-c      write (498,*) vds
-c      write (499,*) vdp
-c      end if
-     
-c       write (444,*) (C(m), m=1,nstate),k    !' HgW vars old'
-c       write(88,*) skox,skph,skphdem,skdem,skme
-c       write(88,*)areaivol,'area and vol'
-
 c      integration
 
 
@@ -721,55 +695,49 @@ C compute the water density according to EOS80, Fofonoff 198599,
 C J. Geoph. Res. 90/C2, 3332-3342, without pressure component.
 c	[kg * m-2]
 
-      RHOW=999.842594d0 +6.793952d-2*TEMP -9.095290d-3*TEMP**2
-     &   +1.00168d-4*TEMP**3 -1.120083d-6*TEMP**4 +6.536332d-9*TEMP**5
-     & +(8.24493d-1 -4.0899d-3*TEMP +7.6438d-5*TEMP**2
-     &   -8.2467d-7*TEMP**3 +5.3875d-9*TEMP**4) * SALIN
-     & +(-5.72466d-3 +1.0227d-4*TEMP -1.6546d-6*TEMP**2) * SALIN**1.5d0
-     & +4.8314d-4*SALIN**2
+      RHOW=999.842594d0+6.793952d-2*TEMP -9.095290d-3*TEMP**2.
+     &   +1.00168d-4*TEMP**3.-1.120083d-6*TEMP**4.+6.536332d-9*TEMP**5.
+     & +(8.24493d-1 -4.0899d-3*TEMP +7.6438d-5*TEMP**2.
+     &   -8.2467d-7*TEMP**3. +5.3875d-9*TEMP**4.) * SALIN
+     & +(-5.72466d-3 +1.0227d-4*TEMP -1.6546d-6*TEMP**2.) * SALIN**1.5d0
+     & +4.8314d-4*SALIN**2.
 
-	bvis1=.true.
-	if(bvis1)then
+      bvis1=.true.
+      if(bvis1)then
 
-	kvis=(VISC/RHOW)*10000	![cm2 s-1]
-	else
-
-	kvis=0.017*exp(-0.025*tempk)
-	
-	end if
+      kvis=(VISC/RHOW)*10000. ![cm2 s-1]
+      else
+      kvis=0.017*exp(-0.025*tempk)
+      end if
 
 
 C ======================================================================
 C ======================================================================
 
         diff=((7.4*0.00000001)*((phiw*mw)**0.5)*tempk) 
-        diff=diff/(visc*1000*(molHg**0.6))      !diffusivity
+        diff=diff/(visc*1000.*(molHg**0.6))      !diffusivity
 
-	Hlw=exp((-2403.3/tempk)+6.92)
+        Hlw=exp((-2403.3/tempk)+6.92)
 
-	ScCO2=0.11*temp**2-6.16*temp+644.7	!Soerensen da Poissant et al 2000
+        ScCO2=0.11*temp**2.-6.16*temp+644.7     !Soerensen da Poissant et al 2000
 c       ScCO2=2073.1+125.62*temp+3.6276*temp*temp-0.043219*temp**3 !Wanninkhof salt
 c       ScCO2=1911.1+118.11*temp+3.4527*temp*temp-0.04132*temp**3 !Wanninkhof fresh
         SchHg=kvis/diff
 c        write(*,*) Aw,uwind10, SchHg, ScCO2
-        kw=Aw/100*24*uwind10**2*(SchHg/ScCO2)**(-0.5)  ![m day-1]
+        kw=Aw/100.*24*uwind10**2.*(SchHg/ScCO2)**(-0.5)  ![m day-1]
         flux=(kw)*(Hg0-Hg0atm/Hlw)       !g m-2 day-1] FIXMME
         !mex=area*flux/1000    ![kg s-1]
 
 c	alternative equation of 
 
-        kwb=(0.1+2.26*uwind10*(SchHg/ScCO2)**(-0.5))/100*24  ! [m day-1] Borges et al., 2004
+        kwb=(0.1+2.26*uwind10*(SchHg/ScCO2)**(-0.5))/100.*24.  ! [m day-1] Borges et al., 2004
         flux2=(kwb)*(Hg0-Hg0atm/Hlw)        ![g m-2 day-1]
         !mex2=area*flux2/1000            ![kg day-1]
 
 
-c        write(97,*)visc,RHOW,diff,temp
-c        write(98,*)ScCO2,SchHg, Hlw
-c	write(82,*)kw,kwb
-c	write(71,*)uwind10,Hg0,Hg0atm,flux,flux2 
 
 
-	end			!end of routine
+       end          !end of routine
 
 
 

@@ -203,7 +203,7 @@ c        write(*,*) k,'nodo', taub, 'taub'
 c        write(*,*) '---------------------'
 
         if (taub > tCE) then   
-         MagR = (taub/tCE - 1.)       
+         MagR = (taub/tCE - 1.)**2.       
         else                             
          MagR = 0.
         end if
