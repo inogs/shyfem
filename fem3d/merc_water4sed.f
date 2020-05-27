@@ -151,7 +151,7 @@ c _____ Deposition Occurrence
 c ______________________________________________________________   
        
        if (taub>1.) then
-         taub=1.
+         taub=22.
        end if
  
        if (taub < tCDs) then            ! DEPOSITION
