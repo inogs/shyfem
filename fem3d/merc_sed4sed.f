@@ -194,8 +194,8 @@ c       write(6666,*) BulkD,por,DryD,Pdens,p_POM,silt,POM,ipext(k)
 
 c___________ Resuspension Occurrence _________________________________ 
 
-        if (taub>1) then 
-         taub=2.
+        if (taub>1.) then 
+         taub=1.
         end if  
  
 c        write(*,*) '---------------------'
