@@ -1007,15 +1007,15 @@ c*************************************************************
 
         do ie=1,nel
           ia = iarv(ie)
-          if( ia == 0 ) tce = 0.01     !FIXME
-          if( ia== 1 )  tce = 0.01
-          if( ia== 2 )  tce = 0.05
+          if( ia == 0 ) tce = 0.05     !FIXME
+          if( ia== 1 )  tce = 0.05
+          if( ia== 2 )  tce = 0.08
           if( ia== 3 )  tce = 0.2
           if( ia== 4 )  tce = 0.2
           if( ia== 5 )  tce = 0.2
-          if( ia== 6 )  tce = 0.05
-          if( ia== 7 )  tce = 0.05
-          if( ia== 8 )  tce = 0.05
+          if( ia== 6 )  tce = 0.08
+          if( ia== 7 )  tce = 0.08
+          if( ia== 8 )  tce = 0.08
           if( ia== 9 )  tce = 0.2
 
 c types 3-4-5-9 bocche di porto
