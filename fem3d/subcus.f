@@ -295,21 +295,21 @@ c	data icall,k1,k2,ie1,ie2,ie3 /0,556,555,777,788,788/
 	data icall,k1,k2,ie1,ie2,ie3 /0,337,368,513,514,511/
 
 	if( icall .eq. 0 ) then
-	  write(97,*) k1,k2,ie1,ie2,ie3
+	  write(977,*) k1,k2,ie1,ie2,ie3
 	  k1 = ipint(k1)
 	  k2 = ipint(k2)
 	  ie1 = ieint(ie1)
 	  ie2 = ieint(ie2)
 	  ie3 = ieint(ie3)
-	  write(97,*) k1,k2,ie1,ie2,ie3
+	  write(977,*) k1,k2,ie1,ie2,ie3
 	  icall = 1
 	end if
 
-	write(97,*) it,iwegv(ie1),iwegv(ie2),iwegv(ie3)
-	write(97,*) znv(k1),znv(k2)
-	write(97,*) (zenv(ii,ie1),ii=1,3)
-	write(97,*) (zenv(ii,ie2),ii=1,3)
-	write(97,*) (zenv(ii,ie3),ii=1,3)
+	write(977,*) it,iwegv(ie1),iwegv(ie2),iwegv(ie3)
+	write(977,*) znv(k1),znv(k2)
+	write(977,*) (zenv(ii,ie1),ii=1,3)
+	write(977,*) (zenv(ii,ie2),ii=1,3)
+	write(977,*) (zenv(ii,ie3),ii=1,3)
 
 	end
 
@@ -339,7 +339,7 @@ c q-flux test
 	data nodes /5,59,113,167,221/
 
 	rit = it/3600.
-	write(97,'(6f12.5)') rit,(tempv(1,nodes(i)),i=1,ndim)
+	write(977,'(6f12.5)') rit,(tempv(1,nodes(i)),i=1,ndim)
 
 	end
 
@@ -2987,7 +2987,7 @@ c----------------------------------------------------------
 	  caux(i) = cmed
 	end do
 
-	write(88,*) it,caux
+	write(888,*) it,caux
 
 c----------------------------------------------------------
 c end of routine
@@ -3013,14 +3013,14 @@ c viscosity algorithm
 
 	integer k,i,l
 
-	write(88,*) it
+	write(888,*) it
 	do k=109,117
-	  write(88,'(12i5)') k,nlv,(nint(1000*vprv(l,k)),l=1,nlv)
+	  write(888,'(12i5)') k,nlv,(nint(1000*vprv(l,k)),l=1,nlv)
 	end do
 
-	write(89,*) it
+	write(899,*) it
 	do l=1,nlv
-	  write(89,'(12i5)') l,(nint(1000*vprv(l,k)),k=109,117)
+	  write(899,'(12i5)') l,(nint(1000*vprv(l,k)),k=109,117)
 	end do
 
 	end

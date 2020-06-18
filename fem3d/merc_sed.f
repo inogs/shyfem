@@ -124,13 +124,13 @@ c	---------REACTIONS--rate constants-------------------------------------------
 
 c	------------------------------------------------------	
 c -- partition coefficients [L/kg] for mercury into silt,sand,DOC,POC
-        K1silt= 100000.        !Hg2 in silt   
+        K1silt= 200000.        !Hg2 in silt   
         K1doc=  10000.         !Hg2 in doc
-        K1POM=  100000.        ! Hg2 to POM particles 
+        K1POM=  200000.        ! Hg2 to POM particles 
   
-        K2silt= 8000.          !MeHg in silt  
+        K2silt= 80000.          !MeHg in silt  
         K2doc=  10000.         !MeHg  in doc
-        K2POM=  8000.          !MeHg in POC particles 
+        K2POM=  80000.          !MeHg in POC particles 
 
 c ---------------Assign old variables-----------------------
 

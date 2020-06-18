@@ -137,7 +137,7 @@ c _______________________________________________________________
 c       Input critical shear for deposition and erosion
 c _______________________________________________________________
 
-        tCDs = 0.55 !0.7 (ORIG) !.08  !!da 0.06 a 1         !0.06*g*(spd-swd)*dsilt
+        tCDs = 1. !0.7 (ORIG) !.08  !!da 0.06 a 1         !0.06*g*(spd-swd)*dsilt
 
 c _______________________________________________________________
 c Compute Stoke's settling velocities for silt and POM
@@ -150,8 +150,8 @@ c ______________________________________________________________
 c _____ Deposition Occurrence 
 c ______________________________________________________________   
        
-       if (taub>2.) then
-         taub=2.
+       if (taub>1.7) then
+         taub=1.7
        end if
  
        if (taub < tCDs) then            ! DEPOSITION

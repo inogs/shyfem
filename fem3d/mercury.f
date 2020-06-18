@@ -1007,16 +1007,18 @@ c*************************************************************
 
         do ie=1,nel
           ia = iarv(ie)
-          if( ia == 0 ) tce = 0.05     !FIXME
-          if( ia== 1 )  tce = 0.05
-          if( ia== 2 )  tce = 0.08
-          if( ia== 3 )  tce = 0.2
-          if( ia== 4 )  tce = 0.2
-          if( ia== 5 )  tce = 0.2
-          if( ia== 6 )  tce = 0.08
-          if( ia== 7 )  tce = 0.08
-          if( ia== 8 )  tce = 0.08
-          if( ia== 9 )  tce = 0.2
+          if( ia == 0 ) tce = 1.65    !FIXME
+          if( ia== 1 )  tce = 1.65
+          
+          if( ia== 2 )  tce = 1.65
+          if( ia== 6 )  tce = 1.65
+          if( ia== 7 )  tce = 1.65
+          if( ia== 8 )  tce = 1.65
+
+          if( ia== 3 )  tce = 1.65
+          if( ia== 4 )  tce = 1.65
+          if( ia== 5 )  tce = 1.65
+          if( ia== 9 )  tce = 1.65
 
 c types 3-4-5-9 bocche di porto
 c types 2-6-7-8 canali
@@ -1035,24 +1037,6 @@ c                val minimo              tcek(k)=minimo tra tce e tcek(k)
 c                 write(*,*) tce,k,tceaux,ia,ie
 
        kext=ipext(k)
-
-       if (kext==2284) then
-       write(3333,*) 'eletype',ia,'tce', tceaux,'st Ve1',kext
-       elseif (kext==3216) then
-       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve2',kext
-       elseif (kext==1372) then
-       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve3',kext
-       elseif(kext==2654) then
-       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve4',kext
-       elseif (kext==2341) then
-       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve5',kext
-       elseif (kext==2150) then
-       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve6',kext
-       elseif (kext==3762) then
-       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve7',kext
-       elseif (kext==3985) then
-       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve8',kext
-       end if
 
 
           end do

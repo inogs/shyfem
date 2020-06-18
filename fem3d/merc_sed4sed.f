@@ -194,8 +194,8 @@ c       write(6666,*) BulkD,por,DryD,Pdens,p_POM,silt,POM,ipext(k)
 
 c___________ Resuspension Occurrence _________________________________ 
 
-        if (taub>2.) then 
-         taub=2.
+        if (taub>1.7) then 
+         taub=1.7
         end if  
  
 c        write(*,*) '---------------------'
@@ -203,7 +203,7 @@ c        write(*,*) k,'nodo', taub, 'taub'
 c        write(*,*) '---------------------'
 
         if (taub > tCE) then   
-         MagR = (taub/tCE - 1.)**2.       
+         MagR = (taub/tCE - 1.)   !**2.       
         else                             
          MagR = 0.
         end if

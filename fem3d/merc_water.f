@@ -171,14 +171,14 @@ c	---------------------
 c	partition coefficients for mercury into  silt,sand,DOC,ORG-sediment sorbed
 c	part coefficients are [L/kg]
 c	---------------------
-        k1silt=100000.   !Hg2 in silt     [L/kg]
+        k1silt=200000.   !Hg2 in silt     [L/kg]
         k1sand=0.       !Hg2 in sand     [L/kg]
         k1doc=10000.    !Hg2 in doc      [L/kg]
-        k1org=100000.    !Hg2 in organic particles [L/kg]
-        k2silt=8000.   !MeHg in silt  [L/kg]
+        k1org=200000.    !Hg2 in organic particles [L/kg]
+        k2silt=80000.   !MeHg in silt  [L/kg]
         k2sand=0.       !MeHg in sand  [L/kg]   
         k2doc=10000.    !MeHg  in doc  [L/kg]
-        k2org=8000.    !MeHg in organic particles [L/kg]
+        k2org=80000.    !MeHg in organic particles [L/kg]
 c       -----------------------------------------------------
 c	------------------------------------------------------
 c	initial conditions: mercury species concentration in [mg/L] or  [mg/kg]  (sed)
