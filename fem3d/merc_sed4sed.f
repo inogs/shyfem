@@ -92,14 +92,14 @@
       real prct_0,prct_c     !fraction of solids from layer0 and active layer        [-]   
       real dZbed
       real wdep
-	real, save :: esmax = 0.
-	real, save :: esmax0 = 4.
+      real, save :: esmax = 0.
+      real, save :: esmax0 = 4.
 
       integer m              !time indicator for write outputs, debug
       integer k              !node     
-      integer ipext          !node external number
       logical constant_parameters
-	integer nits,nita
+      integer nits,nita
+      integer ipext,ipint,kext     !nodes external and internal
 
 	call get_time_iterations(nits,nita)
 
@@ -197,6 +197,31 @@ c___________ Resuspension Occurrence _________________________________
         if (taub>1.) then 
          taub=1.
         end if  
+
+      kext=ipext(k)
+
+       if (kext==2284) then
+       write(3333,*) 'taub',taub,'tce', tCE,'st Ve1',kext
+       elseif (kext==3216) then
+       write(3333,*) 'tb',taub,'tce',tCE,'st Ve2',kext
+       elseif (kext==1372) then
+       write(3333,*) 'tb',taub,'tce',tCE,'st Ve3',kext
+       elseif(kext==2654) then
+       write(3333,*) 'taub',taub,'tce',tCE,'st Ve4',kext
+       elseif (kext==2341) then
+       write(3333,*) 'tb',taub,'tce',tCE,'st Ve5',kext
+       elseif (kext==2150) then
+       write(3333,*) 'tb',taub,'tce',tCE,'st Ve6',kext
+       elseif (kext==3762) then
+       write(3333,*) 'tb',taub,'tce',tCE,'st Ve7',kext
+       elseif (kext==3985) then
+       write(3333,*) 'tb',taub,'tce',tCE,'st Ve8',kext
+       end if
+
+
+
+
+
  
 c        write(*,*) '---------------------'
 c        write(*,*) k,'nodo', taub, 'taub'
