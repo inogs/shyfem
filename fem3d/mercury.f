@@ -1007,18 +1007,18 @@ c*************************************************************
 
         do ie=1,nel
           ia = iarv(ie)
-          if( ia == 0 ) tce = 1.65    !FIXME
-          if( ia== 1 )  tce = 1.65
+          if( ia == 0 ) tce = .4    !FIXME
+          if( ia== 1 )  tce = .4
           
-          if( ia== 2 )  tce = 1.65
-          if( ia== 6 )  tce = 1.65
-          if( ia== 7 )  tce = 1.65
-          if( ia== 8 )  tce = 1.65
+          if( ia== 2 )  tce = .6
+          if( ia== 6 )  tce = .6
+          if( ia== 7 )  tce = .6
+          if( ia== 8 )  tce = .6
 
-          if( ia== 3 )  tce = 1.65
-          if( ia== 4 )  tce = 1.65
-          if( ia== 5 )  tce = 1.65
-          if( ia== 9 )  tce = 1.65
+          if( ia== 3 )  tce = .91
+          if( ia== 4 )  tce = .91
+          if( ia== 5 )  tce = .91
+          if( ia== 9 )  tce = .91
 
 c types 3-4-5-9 bocche di porto
 c types 2-6-7-8 canali

@@ -150,8 +150,8 @@ c ______________________________________________________________
 c _____ Deposition Occurrence 
 c ______________________________________________________________   
        
-       if (taub>1.7) then
-         taub=1.7
+       if (taub>1.2) then
+         taub=1.2
        end if
  
        if (taub < tCDs) then            ! DEPOSITION
