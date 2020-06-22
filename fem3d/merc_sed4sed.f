@@ -218,10 +218,6 @@ c___________ Resuspension Occurrence _________________________________
        write(3333,*) 'tb',taub,'tce',tCE,'st Ve8',kext
        end if
 
-
-
-
-
  
 c        write(*,*) '---------------------'
 c        write(*,*) k,'nodo', taub, 'taub'

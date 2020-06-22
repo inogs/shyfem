@@ -1002,7 +1002,7 @@ c*************************************************************
         tce=1
 
         do k=1,nkn
-             tcek(k)=1
+             tcek(k)=.51
         end do 
 
         do ie=1,nel
@@ -1038,24 +1038,23 @@ c                 write(*,*) tce,k,tceaux,ia,ie
 
        kext=ipext(k)
 
-       if (kext==2284) then
-       write(3333,*) 'eletype',ia,'tce', tceaux,'st Ve1',kext
-       elseif (kext==3216) then
-       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve2',kext
-       elseif (kext==1372) then
-       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve3',kext
-       elseif(kext==2654) then
-       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve4',kext
-       elseif (kext==2341) then
-       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve5',kext
-       elseif (kext==2150) then
-       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve6',kext
-       elseif (kext==3762) then
-       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve7',kext
-       elseif (kext==3985) then
-       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve8',kext
-       end if
-
+c       if (kext==2284) then
+c       write(3333,*) 'eletype',ia,'tce', tceaux,'st Ve1',kext
+c       elseif (kext==3216) then
+c       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve2',kext
+c       elseif (kext==1372) then
+c       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve3',kext
+c       elseif(kext==2654) then
+c       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve4',kext
+c       elseif (kext==2341) then
+c       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve5',kext
+c       elseif (kext==2150) then
+c       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve6',kext
+c       elseif (kext==3762) then
+c       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve7',kext
+c       elseif (kext==3985) then
+c       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve8',kext
+c       end if
 
           end do
         end do
