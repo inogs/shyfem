@@ -136,7 +136,7 @@ c eco-model cosimo
       real, save :: epbound(npstate) = (/0.0,0.0,0.0/)  !default bound cond. Hg in water
       real, save :: epinit(npstate) = (/0.08,5.9,0.02/) !default in. cond. Hg0,HgII,MeHg in water
       real, save :: esinit(nsstate) = (/3.0,0.06/)       !default in. cond. HgII, MeHg in sediment [mg/kg]
-      real, save :: eploadin(npstate) = (/0.0,0.01,0.0/) !atm load kg/day
+      real, save :: eploadin(npstate) = (/0.0,0.0,0.0/) !atm load kg/day
 
       real, save :: esolbound(nsolwst) = (/5.0,0.1/)   !default bound cond.solids in water  !grosati-OGS:calibration 
       real, save :: esolwinit(nsolwst) = (/3.0,1./)       !default in. cond. solids in water
@@ -401,7 +401,7 @@ c-------------------------------------------------------------------
 c normal call
 c-------------------------------------------------------------------
 
-	wsink = 0.
+        wsink = 0.
         Shgsil=0.
         Shgpom=0.
         Smhgsil=0. 
@@ -461,7 +461,7 @@ c	-------------------------------------------------------------------
 
        ! mode = +1               !new time level for volume and depth
 
-	if( breact ) then	!use reactor ?
+ 	if( breact ) then	!use reactor ?
 
         !call simple_sedi_bottom_stress(taubot)  !claurent-OGS: get friction coefficient array only once for all nodes
         call bottom_stress(taubot)  !claurent-OGS: get friction coefficient array only once for all nodes
@@ -472,6 +472,7 @@ c       mettere fuori? FIXME
 
 	do k=1,nkn		!loop on nodes
 c       loops on levels to be done FIXME dmc 27/3/2020
+c         write(3333,*) tcek,nkn
 
           lmax = ilhkv(k)
 	  call get_light(k,qrad)
@@ -1002,23 +1003,23 @@ c*************************************************************
         tce=1
 
         do k=1,nkn
-             tcek(k)=.51
+             tcek(k)=1.1
         end do 
 
         do ie=1,nel
           ia = iarv(ie)
-          if( ia == 0) tce = 0.02    !FIXME
-          if( ia== 1 )  tce = 0.02
+          if( ia == 0) tce = 0.8    !FIXME
+          if( ia== 1 )  tce = 0.8
 
-          if( ia== 2 )  tce = 0.04
-          if( ia== 6 )  tce = 0.04
-          if( ia== 7 )  tce = 0.04
-          if( ia== 8 )  tce = 0.04          
+          if( ia== 2 )  tce = 0.85
+          if( ia== 6 )  tce = 0.85
+          if( ia== 7 )  tce = 0.85
+          if( ia== 8 )  tce = 0.85         
 
-          if( ia== 3 )  tce = 0.1
-          if( ia== 4 )  tce = 0.1
-          if( ia== 5 )  tce = 0.1
-          if( ia== 9 )  tce = 0.1
+          if( ia== 3 )  tce = .99
+          if( ia== 4 )  tce = .99
+          if( ia== 5 )  tce = .99
+          if( ia== 9 )  tce = .99
 
 c types 3-4-5-9 bocche di porto
 c types 2-6-7-8 canali
@@ -1032,29 +1033,11 @@ c       mettere tutti gli if
             tceaux=tcek(k)
 c            tau = taubot(k)
 c                val minimo              tcek(k)=minimo tra tce e tcek(k)
-                tceaux=max(tceaux,tce)
+                tceaux=min(tceaux,tce)
                  tcek(k)=tceaux
 c                 write(*,*) tce,k,tceaux,ia,ie
 
        kext=ipext(k)
-
-c       if (kext==2284) then
-c       write(3333,*) 'eletype',ia,'tce', tceaux,'st Ve1',kext
-c       elseif (kext==3216) then
-c       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve2',kext
-c       elseif (kext==1372) then
-c       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve3',kext
-c       elseif(kext==2654) then
-c       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve4',kext
-c       elseif (kext==2341) then
-c       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve5',kext
-c       elseif (kext==2150) then
-c       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve6',kext
-c       elseif (kext==3762) then
-c       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve7',kext
-c       elseif (kext==3985) then
-c       write(3333,*) 'eletype',ia,'tce',tceaux,'st Ve8',kext
-c       end if
 
           end do
         end do

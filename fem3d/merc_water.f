@@ -163,7 +163,7 @@ c	----------------------
         xHg2sorb=0.     !FIXME WASP:
         xMeHgd=1.
         xMeHgDOC=1.
-        xMeHgsorb=0
+        xMeHgsorb=0.
        
         HgR=0.26   !Kotnik et al., 2015 OR proportional to TDOM
         MeHgR=0.50 !about double HgR (Soerensen et al., 2016) 
@@ -171,14 +171,14 @@ c	---------------------
 c	partition coefficients for mercury into  silt,sand,DOC,ORG-sediment sorbed
 c	part coefficients are [L/kg]
 c	---------------------
-        k1silt=100000.   !Hg2 in silt     [L/kg]
+        k1silt=120000.   !Hg2 in silt     [L/kg]
         k1sand=0.       !Hg2 in sand     [L/kg]
-        k1doc=10000.    !Hg2 in doc      [L/kg]
-        k1org=100000.    !Hg2 in organic particles [L/kg]
-        k2silt=8000.   !MeHg in silt  [L/kg]
+        k1doc=1000.    !Hg2 in doc      [L/kg]
+        k1org =120000.    !Hg2 in organic particles [L/kg]
+        k2silt=32300.   !MeHg in silt  [L/kg]
         k2sand=0.       !MeHg in sand  [L/kg]   
-        k2doc=10000.    !MeHg  in doc  [L/kg]
-        k2org=8000.    !MeHg in organic particles [L/kg]
+        k2doc=1000.    !MeHg  in doc  [L/kg]
+        k2org=32300.    !MeHg in organic particles [L/kg]
 c       -----------------------------------------------------
 c	------------------------------------------------------
 c	initial conditions: mercury species concentration in [mg/L] or  [mg/kg]  (sed)
@@ -258,7 +258,7 @@ c       assigne old value to mercury variables
 
         else
 
-        Hg0d=0
+        Hg0d=0.
         Hg2=C(2)        !+ InHg2
         MeHg=C(3)       !+ InMeHg
 
@@ -681,7 +681,7 @@ c       &1.35576d-08*TEMP**3 + 2.15123d-06*SALIN + 3.59406d-11*SALIN**2
         v5=(n*p-o*d)*temp
         v6=((temp*g)-temp*(h-temp*m))*salin
  
-        visc=(1.791- v1-v2+v3+v4+ v5+v6)/1000     ![kg m-1* s-1]
+        visc=(1.791- v1-v2+v3+v4+ v5+v6)/1000.     ![kg m-1* s-1]
 
 c mpute the water density according to Brydon et al. 1999, J. Geoph. Res.
 C 104/C1, 1537-1540, equation 2 with Coefficient of Table 4, without pressure
@@ -724,7 +724,7 @@ c       ScCO2=2073.1+125.62*temp+3.6276*temp*temp-0.043219*temp**3 !Wanninkhof s
 c       ScCO2=1911.1+118.11*temp+3.4527*temp*temp-0.04132*temp**3 !Wanninkhof fresh
         SchHg=kvis/diff
 c        write(*,*) Aw,uwind10, SchHg, ScCO2
-        kw=Aw/100.*24*uwind10**2.*(SchHg/ScCO2)**(-0.5)  ![m day-1]
+        kw=Aw/100.*24.*uwind10**2.*(SchHg/ScCO2)**(-0.5)  ![m day-1]
         flux=(kw)*(Hg0-Hg0atm/Hlw)       !g m-2 day-1] FIXMME
         !mex=area*flux/1000    ![kg s-1]
 

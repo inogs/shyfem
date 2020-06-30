@@ -124,13 +124,13 @@ c	---------REACTIONS--rate constants-------------------------------------------
 
 c	------------------------------------------------------	
 c -- partition coefficients [L/kg] for mercury into silt,sand,DOC,POC
-        K1silt= 100000.        !Hg2 in silt   
-        K1doc=  10000.         !Hg2 in doc
-        K1POM=  100000.        ! Hg2 to POM particles 
+        K1silt= 120000.        !Hg2 in silt   
+        K1doc=  1000.         !Hg2 in doc
+        K1POM=  120000.        ! Hg2 to POM particles 
   
-        K2silt= 8000.          !MeHg in silt  
-        K2doc=  10000.         !MeHg  in doc
-        K2POM=  8000.          !MeHg in POC particles 
+        K2silt= 32300.          !MeHg in silt  
+        K2doc=  1000.         !MeHg  in doc
+        K2POM=  32300.          !MeHg in POC particles 
 
 c ---------------Assign old variables-----------------------
 
@@ -249,10 +249,8 @@ c      write(777,*) hgitw,Vr,hgit, fsilt1,ipext(k)
 c      write(778,*) Rhgsil, Rhgpom, Rmhgsil, Rmhgpom,ipext(k)  
 c      end if
 
-
 c      write(771,*) Vr, Rhgsil/area, Rmhgsil/area,ipext(k) 
 c      write(772,*) Vr, Rhgpom/area, Rmhgpom/area,ipext(k)
-
 
 c      write(*,*) '    ' 
 c      write(*,*) ':::::::::::::: RESUSPENSION :::::::::::::::::::::::::'                       
@@ -431,10 +429,9 @@ c          write (666,*) (CD(m), m=1,nvmerc),k
 c          write (667,*) (C(m), m=1,nvmerc),k
 c      end if 
       
-        CDw=0
-        CDw(2)=(Rhgsil+Rhgpom-JHgD)*86400.   !Resuspension and pw diffusion to the water                                                           
-        CDw(3)=(Rmhgsil+Rmhgpom-JMHgD)*86400.    !Resuspension and diffusion from ug s-1 to ug d-1                
- 
+       CDw=0
+       CDw(2)=(Rhgsil+Rhgpom-JHgD)*86400.   !Resuspension and pw diffusion to the water                                                           
+       CDw(3)=(Rmhgsil+Rmhgpom-JMHgD)*86400.    !Resuspension and diffusion from ug s-1 to ug d-1                
 
        if(C(1).LT.0) then
        write(*,*) 'Hg2Sed<=0',C(1),'at node',ipext(k),'merc_sed bef'

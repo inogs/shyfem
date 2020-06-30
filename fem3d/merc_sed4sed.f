@@ -86,6 +86,7 @@
       real Bsflux, Bpflux    !burial of silt and POM                                 [g/s]  
       real dZactivk          !thickness of the active layer                          [m]     
       real dZact0            !critical thickness of the active layer                 [m]  
+      real dZcrit            !critical thickness for depo -- gr prova 30/06  
       real dZdig             !thickness of sediment layer eroded                     [m]
       real dZit              !active layer variation during current iteration        [m] 
       real dZbedk            !total variation of the sea bed depth since the beginning of the simulation 
@@ -139,7 +140,7 @@ c       __________________________________________________
  
          OM_mg_g = 10.0 * p_POM
          OC_mg_g = OM_mg_g/1.7
-         p_silt=100-p_POM
+         p_silt=100.-p_POM
 c        DryD=1.776-0.363*log(OC_mg_g)
 c___________ Compute weigthed particle density [g cm-3], porosity [-], Bulk density [g(s+w) cm-3]    
 
@@ -302,10 +303,20 @@ c___________ Compute sediment thickness variations ____________________________
           prct_0=0.
           prct_c=1.0
         endif    
+
         cs(1)=cs(1)*prct_c+silt_s0*prct_0
         cs(2)=cs(2)*prct_c+POM_s0*prct_0
-        sed_vol_new=area*(dZactivk+dZit+dZdig)
+        
+       dZcrit=0.0
+
+       if(dZactivk+dZit>dZcrit)then     ! gr prova 30/06 correzione spessore sed quando depos. elevata.
+          dZactivk=0.08                 !concentrazioni invariate
+       else 
         dZactivk=dZactivk+dZit+dZdig
+       endif
+
+          sed_vol_new=area*dZactivk
+
 
 c        write(7777,*), dZactivk, ipext(k), silt, POM
 
