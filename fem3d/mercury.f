@@ -214,6 +214,7 @@ c       we compute the % of POM and weighted particle density
         real silt,pom,vr,bvels,bvelp    !FIXME VARIABILI TEMPORANEE 
         real p_poc,p_pom,p_silt,OC_mg_g,pdens,DryD
         real ds_gm2s, dp_gm2s   !claurent-OGS: transfer of values between sed4merc routines to avoid double calculation 
+        real rs_gm2s, rp_gm2s
         real Rhgsil,Rhgpom,Rmhgsil,Rmhgpom 
 
         integer nbnds
@@ -579,6 +580,7 @@ c         write(6,*) esols, 'esols'
      +                         tau,esols,Dssink_sum,Dpsink_sum,  !claurent-OGS: send sum instead of single sinks
      +                           Sres,Pres,Vr,Bvels,Bvelp,
      +                        ds_gm2s, dp_gm2s,tcek(k),       !claurent-OGS: values required by sed4merc_sed
+!     +                        rs_gm2s, rp_gm2s,tcek(k),      ! gr prova
      +                        dZbed(k),dZactiv(k))    !claurent-OGS: get thicknesses for extraction of the fields in output                
 
       if (esolw(1) .LE. 0.0) then  !if
@@ -616,7 +618,7 @@ c               write(*,*) 'silt_dopo_sed4merc', silt
      +                         k,t,area,esedi,epela,
      +                  Shgsil, Shgpom, Smhgsil, Smhgpom,
      +             faq1,faq2,fdoc1,fdoc2,
-     +             silt,pom,Vr,Bvels,Bvelp)
+     +             silt,pom,Vr,rs_gm2s,rp_gm2s,Bvels,Bvelp)
          
 
       if (esedi(1) .LE. 0.0) then  !if
@@ -1008,19 +1010,18 @@ c*************************************************************
 
         do ie=1,nel
           ia = iarv(ie)
-          if( ia == 0) tce = 0.8    !FIXME
-          if( ia== 1 )  tce = 0.8
+          if( ia == 0) tce = .7    !FIXME
+          if( ia== 1 )  tce =.7
 
-          if( ia== 2 )  tce = 0.85
-          if( ia== 6 )  tce = 0.85
-          if( ia== 7 )  tce = 0.85
-          if( ia== 8 )  tce = 0.85         
+          if( ia== 2 )  tce = .8
+          if( ia== 6 )  tce = .8
+          if( ia== 7 )  tce = .8
+          if( ia== 8 )  tce = .8         
 
-          if( ia== 3 )  tce = .99
-          if( ia== 4 )  tce = .99
-          if( ia== 5 )  tce = .99
-          if( ia== 9 )  tce = .99
-
+          if( ia== 3 )  tce =.99
+          if( ia== 4 )  tce =.99
+          if( ia== 5 )  tce =.99
+          if( ia== 9 )  tce =.99
 c types 3-4-5-9 bocche di porto
 c types 2-6-7-8 canali
 

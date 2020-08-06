@@ -4,7 +4,7 @@
      +             Shgsil, Shgpom, Smhgsil, Smhgpom,
      +             fdiss1w,fdiss2w,fdoc1w,fdoc2w,
      +             silt,pom,Vr,bvels,bvelp)
-
+!    +             silt,pom,Vr,rs_gm2s,rp_gm2s,bvels,bvelp)
 c	
 ************************************************************************
 * 
@@ -36,7 +36,7 @@ c	include 'mercury.h'
       real, intent(IN)    :: fdiss2w, fdoc2w !MeHg fraction diss and in DOC [-]
       real, intent(IN)    :: Shgsil,Shgpom,Smhgpom,Smhgsil    ![ug/d]
       real, intent(IN)    :: silt, pom       ![mg/l]
-      real, intent(IN)    :: Vr,bvels,bvelp ![m/s]
+      real, intent(IN)    :: Vr,bvels,bvelp !,rs_gm2s,rp_gm2s ![m/s]
 
       real                :: CD(nvmerc)     !derivatives CD(1), CD(2)
       real                :: CDw(3)          !mercury in water derivative: Hg0, Hg2, MeHg [ug/s]
@@ -236,13 +236,16 @@ c ----------Hg MeHg RESUSPENSION  ---------------------------------------
 c   
 
       kext=ipext(k)
- 
-      Rhgsil = Vr * hgit * fsilt1 *area  !m s-1 * ug m-3 * m2-> ug s-1  
-      Rhgpom = Vr * hgit * fPOM1 *area   !m s-1 * ug m-3 * m2-> ug s-1  
-c        
-      Rmhgsil = Vr * mehgt * fsilt2 *area  ! m s-1 * ug m-3 -> ug s-1  
-      Rmhgpom = Vr * mehgt * fPOM2 *area   ! m s-1 * ug m-3 -> ug s-1   
 
+      Rhgsil = Vr * hgit * fsilt1 *area  !m s-1 * ug m-3 * m2-> ug s-1   
+      Rhgpom = Vr * hgit * fPOM1 *area   !m s-1 * ug m-3 * m2-> ug s-1   
+c      Rhgsil = rs_gm2s * hgit * fsilt1 *area/silt   !m s-1 * ug m-3 * m2-> ug s-1  
+c      Rhgpom = rp_gm2s* hgit * fPOM1 *area/POM   !m s-1 * ug m-3 * m2-> ug s-1  
+c        
+       Rmhgsil = Vr * mehgt * fsilt2 *area  !m s-1 * ug m-3 * m2-> ug s-1  
+       Rmhgpom = Vr * mehgt * fPOM2 *area   !m s-1 * ug m-3 * m2-> ug s-1  
+c      Rmhgsil = rs_gm2s * mehgt * fsilt2 *area/silt  ! m s-1 * ug m-3 -> ug s-1  
+c      Rmhgpom = rp_gm2s * mehgt * fPOM2 *area/POM   ! m s-1 * ug m-3 -> ug s-1   
 c      
 c      if (hgitw .GT. 50) then
 c      write(777,*) hgitw,Vr,hgit, fsilt1,ipext(k)
@@ -263,11 +266,11 @@ c      write(*,*) ' '
 c------------------------------------------------------------------------    
 c --------- Hg MeHg BURIAL  ---------------------------------------------
 c------------------------------------------------------------------------
-      bursHg  = (hgit*fsilt1 *Bvels*area) ![ug s-1]=[ug m-3]*[m s-1]*[m2]
-      burpHg  = (hgit*fpom1  *Bvelp*area)  
+      bursHg  = 0.!(hgit*fsilt1 *Bvels*area) ![ug s-1]=[ug m-3]*[m s-1]*[m2]
+      burpHg  = 0.!(hgit*fpom1  *Bvelp*area)  
        
-      bursMHg = (mehgt*fsilt2*Bvels*area) ![ug s-1]=[ug m-3]*[m s-1]*[m2]
-      burpMHg = (mehgt*fpom2*Bvelp*area)          
+      bursMHg =0.! (mehgt*fsilt2*Bvels*area) ![ug s-1]=[ug m-3]*[m s-1]*[m2]
+      burpMHg =0 ! (mehgt*fpom2*Bvelp*area)          
      
 c      if (kext .EQ. 2284) then
 c      write(665,*) Bvels, Bvelp, 'merc_SED'

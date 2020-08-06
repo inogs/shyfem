@@ -41,6 +41,7 @@
      +                 taub,Cs,Dssink_sum,Dpsink_sum,
      +                 Sres, Pres,Vr,Bvels,Bvelp,
      +                 ds_gm2s, dp_gm2s,tCE,        
+c     +                 rs_gm2s, rp_gm2s,
      +                 dZbedk,dZactivk)         
 
 
@@ -111,8 +112,8 @@
         endif
 
         dZact0=0.02
-        silt_s0 = 13701800. 
-        POM_s0 =  7032.
+        silt_s0 = 1370180. ! set equal to silt_init e POM_init FIXME gr
+        POM_s0 =  7023.
 c       _______________________________________________________
 c       assigne old value to water (sw,POMw) and sediment (silt, POM) variables
 
@@ -296,8 +297,8 @@ c___________ Compute sediment thickness variations ____________________________
      +         *dt*86400./area ! [m] = [g s-1]*[g-1 m3] *[day]*[s day-1]*[m-2]
         if(dZactivk+dZit<dZact0)then
           dZdig=dZact0-(dZactivk+dZit)
-          prct_0=(dZdig/dZact0)
-          prct_c=(dZact0-dZdig)/dZact0
+          prct_0=min(1.,(dZdig/dZact0))           ! correction to avoid prct>1 or <0 when net erosion is high - gr 06Ago2020        
+          prct_c=max(0.,(dZact0-dZdig)/dZact0)
         else
           dZdig=0.
           prct_0=0.
@@ -307,10 +308,10 @@ c___________ Compute sediment thickness variations ____________________________
         cs(1)=cs(1)*prct_c+silt_s0*prct_0
         cs(2)=cs(2)*prct_c+POM_s0*prct_0
         
-       dZcrit=0.0
+        dZcrit=0.07
 
        if(dZactivk+dZit>dZcrit)then     ! gr prova 30/06 correzione spessore sed quando depos. elevata.
-          dZactivk=0.08                 !concentrazioni invariate
+          dZactivk=0.05                 !concentrazioni invariate
        else 
         dZactivk=dZactivk+dZit+dZdig
        endif
@@ -383,17 +384,6 @@ c        write (987,*) (C(m), m=1,nstate),'k',k, 'SEdwater var beforer'
        write(*,*) 'POMSed<0',cs(2),'s4m_sedaft kext=',ipext(k) 
        stop
        end if
-
-c      if (ipext(k) .EQ. 1372) then
-c        write(999,*) ipext(k), Sres,Dssink_sum,Bvels
-c      elseif(ipext(k) .EQ. 3057) then
-c        write(998,*) ipext(k),Sres,Dssink_sum,Bvels
-c     elseif(ipext(k) .EQ. 2654) then
-c        write(997,*) ipext(k),Sres,Dssink_sum,Bvels
-c      end if
-
-
-c        call merc_euler (2,dt,sed_vol_old,cs,cold,cds)
 
 c         call merc_euler_sed(2,dt,wat_vol+dZbedk*area,
 c     +                        wat_vol+(dZbedk+dZit)*area, c,cold,cd)  
