@@ -619,7 +619,6 @@ c               write(*,*) 'silt_dopo_sed4merc', silt
      +                  Shgsil, Shgpom, Smhgsil, Smhgpom,
      +             faq1,faq2,fdoc1,fdoc2,
      +             silt,pom,Vr,Bvels,Bvelp)
-c     +             silt,pom,Vr,rs_gm2s,rp_gm2s,Bvels,Bvelp) !prova gr
          
 
       if (esedi(1) .LE. 0.0) then  !if

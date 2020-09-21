@@ -4,7 +4,6 @@
      +             Shgsil, Shgpom, Smhgsil, Smhgpom,
      +             fdiss1w,fdiss2w,fdoc1w,fdoc2w,
      +             silt,pom,Vr,bvels,bvelp)
-!    +             silt,pom,Vr,rs_gm2s,rp_gm2s,bvels,bvelp)
 c	
 ************************************************************************
 * 
@@ -151,7 +150,6 @@ c -----kd hg = 2.97 + 0.15*LOI ---(= 10**3 -10**4)-----------
 c -----kd mehg = 1.98 + 0.18*LOI ---(= 10**2.2 -10**3.1)-----
 
 ***** call from solids water module********************************
-c	
 c	Sw, POMw, Vds, Vdp   ! solids water and sink velocities
 c--------------------------------------------------------------
 ****** call from Hg water module***********************************
@@ -270,7 +268,7 @@ c------------------------------------------------------------------------
       burpHg  = 0.!(hgit*fpom1  *Bvelp*area)  
        
       bursMHg =0.! (mehgt*fsilt2*Bvels*area) ![ug s-1]=[ug m-3]*[m s-1]*[m2]
-      burpMHg =0 ! (mehgt*fpom2*Bvelp*area)          
+      burpMHg =0. ! (mehgt*fpom2*Bvelp*area)          
      
 c      if (kext .EQ. 2284) then
 c      write(665,*) Bvels, Bvelp, 'merc_SED'
@@ -300,11 +298,11 @@ c ---------- Dchg_25 = 1.2/10.**9. -- MeHg sulfides (CH3HgSH0)-----------
 c -----------------------------------------------------------------------
       HgDw  = hgitw*(fdiss1w+fdoc1w)  ! Hg diss acque [ng l-1(w+s)] - da model water
       MeHgDw  = mehgtw*(fdiss2w+fdoc2w)  ! Hg diss acque [ng l-1(w+s)] - da model water
-      Dchg_25 = 2.0/(10.**10.)                ! [m2 s-1]
+      Dchg_25 = 1.0/(10.**9.)                ! [m2 s-1]
       Dchg_t = Dchg_25/(1.+0.048*(25.-temp))  ! temperature dependent difffusion coefficient
       tor = 1. - log(por**2.)
      
-      Hg2dpw  =  hgit  * (fdoc1+faq1)/por    !Soerensen et al., 2016  
+      Hg2dpw  =  hgit  * (fdoc1+faq1)/por  
       MeHgdpw =  mehgt * (fdoc1+faq1)/por
 
       num3 = (por*Dchg_t)/tor        
@@ -326,7 +324,8 @@ c
 c      JHgD_kgy     = JHgD *365/10**9! kg y-1
 c      write(*,*) '    ' 
 c      write(*,*) '::::::::::::::: DIFFUSION FLUX ::::::::::::::::::::::'         
-c      write(*,*) 'Jngm2d:', Jngm2d,num3,num4,Hg2dpw,MeHgdpw
+c       write(1111,*) Jngm2d, Hg2dpw, hgit*(fdoc1+faq1)
+c       write(111,*) JMngm2d,MeHgdpw
 c      write(*,*) 'hgit,mehgt', hgit,mehgt,fdoc1,faq1
 c      write(*,*) 'hgdw,depth', hgdw,depth,Hg2dpw
 c      write(*,*) '7 - 570       [ng m-2 d-1] Emili et al. 2012'

@@ -378,14 +378,14 @@ c     ckdem=kdem*cordem
 
 c       Compute Compute deposition fluxes and rates 
 
-        Dhgsil = vds*Hg2silt   ! [m s-1]*[g m-3]*[-]=[g m2s-1]
-        Dhgpom = vdp*Hg2org    ! [m s-1]*[g m-3]*[-]=[g m2s-1]
-        Dmhgsil= vds*MeHgsilt  ! [m s-1]*[g m-3]*[-]=[g m2s-1]
-        Dmhgpom= vdp*MeHgorg   ! [m s-1]*[g m-3]*[-]=[g m2s-1]
-        Shgsil = Dhgsil * area *86400.  ! [g m-2 day-1] * [m2] = [g day-1] 
-        Shgpom = Dhgpom * area*86400. ! [g/day]
-        Smhgsil = Dmhgsil* area*86400. ![g/day]
-        Smhgpom = Dmhgpom* area*86400. ![g/day]
+        Dhgsil = vds*Hg2silt   ! [m s-1]*[ug m-3]*[-]=[ug m2s-1]
+        Dhgpom = vdp*Hg2org    ! [m s-1]*[ug m-3]*[-]=[ug m2s-1]
+        Dmhgsil= vds*MeHgsilt  ! [m s-1]*[ug m-3]*[-]=[ug m2s-1]
+        Dmhgpom= vdp*MeHgorg   ! [m s-1]*[ug m-3]*[-]=[ug m2s-1]
+        Shgsil = Dhgsil * area *86400.  ! [ug m-2 day-1] * [m2] = [ug day-1] 
+        Shgpom = Dhgpom * area*86400. ! [ug/day]
+        Smhgsil = Dmhgsil* area*86400. ![ug/day]
+        Smhgpom = Dmhgpom* area*86400. ![ug/day]
 
 c       __________________________________________________
 
@@ -394,11 +394,11 @@ c       __________________________________________________
         C(3)=MeHg
 c      write(6,*) C(1),Hg0d,C(2),Hg2,C(3),MeHg,'merc var'
 c	
-c	CD= transformations 1:Hg0 2:Hg2 3:MeHg	
-        CD(1) = -skvo*area+vol*(-skox -skphox +skph +skbred +skphdem/2.) !g/day
+c	CD= transformations 1:Hg0 2:Hg2 3:MeHg   in ug/day	
+        CD(1) = -skvo*area+vol*(-skox -skphox +skph +skbred +skphdem/2.)
         CD(2) = -Shgsil-Shgpom+(skox +skphox -skph -skbred +skdem 
-     &          +skphdem/.2 -skme)*vol        !g/day
-        CD(3) = -Smhgsil-Smhgpom+ (skme -skdem -skphdem)*vol    !mass, g/day
+     &          +skphdem/.2 -skme)*vol        
+        CD(3) = -Smhgsil-Smhgpom+ (skme -skdem -skphdem)*vol
 
       kext=ipext(k)
   

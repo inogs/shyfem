@@ -60,7 +60,6 @@
       real cold(nstate)      !old state variables
       real dtday,tday        !time step [day], time [day]
       real temp,sal          !temperature [C] and salinity [-]
-      real tkel              !temperature [K]
       real tkref             !reference temperature, 293 [K]
       real loads(nstate)     !atmospheric loadings
 
@@ -80,7 +79,7 @@
       real Pd                      !Pd, probability of deposition [-]
       real Vds, Vdp                !Pd x Stoke's velocity for silt and POM              [m/s]
       real ds_gm2s, dp_gm2s        !deposition Flux for silt and POM [g/m2 s]
-      real dep_gm2s                !total deposition flux (silt+POM) [g/m2 s]
+c      real dep_gm2s                !total deposition flux (silt+POM) [g/m2 s]
       real Dssink,Dpsink,Dsink     !Sink of silt (Dssink), POM (Dpsink)and sum (Dsink) [g/s]
 
       integer ipext,ipint,kext     !nodes external and internal numbers
@@ -88,32 +87,29 @@
       logical constant_parameters
 
 c	variables
-c       _______________________________________________________
-c       assigne old value to variables
+c     _______________________________________________________
+c     assigne old value to variables
 
       Sw=C(1)
       POMw=C(2)        ![mg/l]
-
-c --------------------------------------------------------------
-c
-      tkel=temp+273
-
-c       ________________________________________________________
+c     ________________________________________________________
 
       constant_parameters=.False.
 
-        if(constant_parameters)then  !claurent-OGS: enable the use of constant parameters for debug
-          vis = 0.0012   ! din seawater viscosity (Pa s-1) or [kg/m-sec] 
-          swd = 1030.0     ! Seawater density [kg m-3]! COMCelia: controllare che sed4merc_gas_exchange da stessa dimensione
-          area=2000. 
-          wdepth = 1.8 
-          temp = 15.
+c        if(constant_parameters)then  !claurent-OGS: enable the use of constant parameters for debug
+c          vis = 0.0012   ! din seawater viscosity (Pa s-1) or [kg/m-sec] 
+c          swd = 1030.0     ! Seawater density [kg m-3]! COMCelia: controllare che sed4merc_gas_exchange da stessa dimensione
+c          area=2000. 
+c          wdepth = 1.8 
+c          temp = 15.
 
-          wat_vol = wdepth*area       ! m3 not sure FIXME
+c          wat_vol = wdepth*area       ! m3 not sure FIXME
+c        else
 
-        else
+
           call sed4merc_gas_exchange(sal,temp,area,vis,swd)
-        endif
+
+c        endif
  
 c      write(*,*) 'RhoW', swd, 'Vis', vis, 'main'
 
@@ -171,7 +167,7 @@ c
        Dpsink = dp_gm2s *area      !Sink of POM [g s-1] = Dpflux di Ginevra
        Dsink  = Dssink + Dpsink   ! = Dflux di Ginevra
 c        
-       dep_gm2s = Dsink/area
+c       dep_gm2s = Dsink/area
       
        kext=ipext(k)
  
@@ -222,7 +218,6 @@ c         Dsink=Dpsink     ! [g/sec] =Dflux di Ginevra COMCelia: CANCELLED
 
 c       call merc_euler (2,dtday,wat_vol,wat_vol,c,cold,cd)    ! c(i)=( c(i)*vol+dt*cd(i) )/vol
         call merc_euler (2,dtday,wat_vol,c,cold,cd,vold)   
-
 
         if (C(2) .LE. 0.0) then  !if
         write(*,*) 'POMw<=0',POMw,wdepth,ipext(k),'s4m_wat aft'
@@ -428,7 +423,7 @@ c       	AW=0.25		!Weibull Constant based on wind distribution
 
 c       from the hydrodynamic model
 
-	tempk=temp+273.15	!temperature Kelvin
+       tempk=temp+273.15       !temperature Kelvin
 
 C ======================================================================
 C ======================================================================
@@ -444,7 +439,7 @@ c       &1.35576d-08*TEMP**3 + 2.15123d-06*SALIN + 3.59406d-11*SALIN**2
         b=0.000016826
         p=1.013253
         c=8.3885*(10E-8)
-        d=p**(2)
+        d=p**(2.)
         e=0.0024727
         g=4.8429*(10E-5)
         h=4.7172*(10E-6)
@@ -458,7 +453,7 @@ c       &1.35576d-08*TEMP**3 + 2.15123d-06*SALIN + 3.59406d-11*SALIN**2
         v5=(n*p-o*d)*temp
         v6=((temp*g)-temp*(h-temp*m))*salin
  
-        visc=(1.791- v1-v2+v3+v4+ v5+v6)/1000     ![kg m-1* s-1]
+        visc=(1.791- v1-v2+v3+v4+ v5+v6)/1000.     ![kg m-1* s-1]
 
 c mpute the water density according to Brydon et al. 1999, J. Geoph. Res.
 C 104/C1, 1537-1540, equation 2 with Coefficient of Table 4, without pressure
@@ -472,12 +467,12 @@ C compute the water density according to EOS80, Fofonoff 198599,
 C J. Geoph. Res. 90/C2, 3332-3342, without pressure component.
 c	[kg * m-2]
 
-      RHOW=999.842594d0 +6.793952d-2*TEMP -9.095290d-3*TEMP**2
-     &   +1.00168d-4*TEMP**3 -1.120083d-6*TEMP**4 +6.536332d-9*TEMP**5
-     & +(8.24493d-1 -4.0899d-3*TEMP +7.6438d-5*TEMP**2
-     &   -8.2467d-7*TEMP**3 +5.3875d-9*TEMP**4) * SALIN
-     & +(-5.72466d-3 +1.0227d-4*TEMP -1.6546d-6*TEMP**2) * SALIN**1.5d0
-     & +4.8314d-4*SALIN**2
+      RHOW=999.842594d0 +6.793952d-2*TEMP -9.095290d-3*TEMP**2.
+     &   +1.00168d-4*TEMP**3 -1.120083d-6*TEMP**4 +6.536332d-9*TEMP**5.
+     & +(8.24493d-1 -4.0899d-3*TEMP +7.6438d-5*TEMP**2.
+     &   -8.2467d-7*TEMP**3 +5.3875d-9*TEMP**4.) * SALIN
+     & +(-5.72466d-3 +1.0227d-4*TEMP -1.6546d-6*TEMP**2.) * SALIN**1.5d0
+     & +4.8314d-4*SALIN**2.
 
 c	bvis1=.true.
 c	if(bvis1)then

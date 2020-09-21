@@ -119,8 +119,8 @@ c       assigne old value to water (sw,POMw) and sediment (silt, POM) variables
 
         sed_vol_old=area*dZactivk   !GINEVRA CHECK   ???
 
-	if( c(1) < 0 ) write(6,*) '***** 1 ggu ',c
-	if( c(1) < 0 ) call mdebug('ggu 1',k,2,c)
+c	if( c(1) < 0 ) write(6,*) '***** 1 ggu ',c
+c	if( c(1) < 0 ) call mdebug('ggu 1',k,2,c)
 
         sw=C(1)      ! [mg/l]
         POMw=C(2)
@@ -231,8 +231,8 @@ c        write(*,*) '---------------------'
          MagR = 0.
         end if
 
-	if( c(1) < 0 ) write(6,*) '***** 2 ggu ',c
-	if( c(1) < 0 ) call mdebug('ggu 2',k,2,c)
+c	if( c(1) < 0 ) write(6,*) '***** 2 ggu ',c
+c	if( c(1) < 0 ) call mdebug('ggu 2',k,2,c)
 c___________ Compute Resuspension Fluxes and rates _________________________ 
 
        Er = dme2 * MagR                  ![g m-2 s-1]
@@ -283,8 +283,8 @@ c       end if
 
         C(1) = sw
         C(2) = POMw
-	if( c(1) < 0 ) write(6,*) '***** 3 ggu ',c
-	if( c(1) < 0 ) call mdebug('ggu 3',k,2,c)
+c	if( c(1) < 0 ) write(6,*) '***** 3 ggu ',c
+c	if( c(1) < 0 ) call mdebug('ggu 3',k,2,c)
 
         Bsflux=0.
         Bpflux=0.
@@ -322,26 +322,26 @@ c___________ Compute sediment thickness variations ____________________________
 c        write(7777,*), dZactivk, ipext(k), silt, POM
 
         if (ipext(k)==1372) then
-        write(8888,*) siltm,POMm,dZactivk
+        write(8888,*) siltm,POMm,dZactivk,sed_vol_new,area,dZactivk
         end if  
 c________________________________________________________________________________    
 c       
 c____________Positive burial push sediment below the active layer__________________
 c____________Negative burial is equal to net resuspension thus not included________
         
-	!if( nits >= 6498 .and. nits < 6530 ) then
-	if( abs(Sres) > 1.e+6 ) then
-	  call mdebug('burial',k,3,(/Dssink_sum,Sres,Bsflux/))
-        write(*,*) 'Correction mdebug ggu Sres', Sres, Bsflux
-          Sres = 0.
-          Bsflux = 0.
-	end if
-	if( abs(Pres) > 1.e+6 ) then
-	  call mdebug('burial',k,3,(/Dpsink_sum,Pres,Bpflux/))
-         write(*,*) 'Correctionmdebug ggu Pres', Pres, Bpflux
-         Pres = 0.
-         Bpflux = 0.
-         end if
+c	!if( nits >= 6498 .and. nits < 6530 ) then
+c	if( abs(Sres) > 1.e+6 ) then
+c	  call mdebug('burial',k,3,(/Dssink_sum,Sres,Bsflux/))
+c        write(*,*) 'Correction mdebug ggu Sres', Sres, Bsflux
+c          Sres = 0.
+c          Bsflux = 0.
+c	end if
+c	if( abs(Pres) > 1.e+6 ) then
+c	  call mdebug('burial',k,3,(/Dpsink_sum,Pres,Bpflux/))
+c         write(*,*) 'Correctionmdebug ggu Pres', Pres, Bpflux
+c         Pres = 0.
+c         Bpflux = 0.
+c         end if
 
         if (Bsflux .GE. 0.) then
               CDS(1) =(Dssink_sum-Sres-Bsflux) *86400.  ![g/day] silt sed 
@@ -372,8 +372,9 @@ c        write (987,*) (C(m), m=1,nstate),'k',k, 'SEdwater var beforer'
        stop
        end if
 
-	if( c(1) < 0 ) write(6,*) '***** 4 ggu ',c
-	if( c(1) < 0 ) call mdebug('ggu 4',k,2,c)
+c	if( c(1) < 0 ) write(6,*) '***** 4 ggu ',c
+c	if( c(1) < 0 ) call mdebug('ggu 4',k,2,c)
+ 
         call merc_euler_sed(2,dt,sed_vol_old,sed_vol_new,cs,cold,cds) 
         !claurent-OGS: vol old and new are different for sea bed sediment 
 
@@ -391,15 +392,15 @@ c
 
        !write(222,*) 'Vold', sed_vol_old, 'Vnew', sed_vol_new, k   
 
-	if( c(1) < 0 ) write(6,*) '***** 5 ggu ',c
-	if( c(1) < 0 ) call mdebug('ggu 5',k,2,c)
+c	if( c(1) < 0 ) write(6,*) '***** 5 ggu ',c
+c	if( c(1) < 0 ) call mdebug('ggu 5',k,2,c)
        if (c(1) .LE. 0.0) then
        write(*,*) 'Siltw<0',c(1),wdep,'s4m_sedbef kext=',ipext(k)
 c       write(443,*) 'Siltw<0',c(1), 's4m_sedbef kext=',ipext(k)
        else if (c(2) .LE. 0.0) then
 c       write(447,*) 'POMw<0',c(2), 's4m_sedbef kext=',ipext(k) 
        write(*,*) 'POMw<0',c(2),wdep, 's4m_sedaft kext=',ipext(k)
-	stop 'error stop... conz<0 (ggu)'
+c	stop 'error stop... conz<0 (ggu)'
        end if
 
 c      call merc_euler (2,dt,
@@ -411,9 +412,9 @@ c     +                        wat_vol, c,cold,cd)
 
         dZbed  = dZbedk+dZit  ! Celia: update sea bed depth
 
-	if( c(1) < 0 ) write(6,*) '***** 6 ggu ',c
-	if( c(1) < 0 ) call mdebug('ggu 6a',k,2,c)
-	if( c(2) < 0 ) call mdebug('ggu 6b',k,2,c)
+c	if( c(1) < 0 ) write(6,*) '***** 6 ggu ',c
+c	if( c(1) < 0 ) call mdebug('ggu 6a',k,2,c)
+c	if( c(2) < 0 ) call mdebug('ggu 6b',k,2,c)
 
        if (c(1) .LE. 0.0) then
        write(*,*) 'Siltw<0',c(1),wdep,'s4m_sedaft kext=',ipext(k)
