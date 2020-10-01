@@ -140,7 +140,7 @@ c eco-model cosimo
 
       real, save :: esolbound(nsolwst) = (/5.0,0.1/)   !default bound cond.solids in water  !grosati-OGS:calibration 
       real, save :: esolwinit(nsolwst) = (/3.0,1./)       !default in. cond. solids in water
-      real, save :: esolsinit(nsolsst) = (/.3,0./)       !initial OC%, dummy var.  
+      real, save :: esolsinit(nsolsst) = (/.1,0./)       !initial OC%, dummy var.  
 c       esolsinit: initial value is the OC% in sediment. From this value
 c       we compute the % of POM and weighted particle density
 
@@ -529,7 +529,8 @@ c       stop
         write(*,*) 'POMw<0 before reactions kint=',k
 c       stop
         end if
-        
+      
+      kext=ipext(k)  
 
       call mercury_react(id,bsurf,bbottom,boxtype,dtday,vol
      +                  ,d,k,t,uws,area,s,qrad,epela,epload
@@ -546,7 +547,15 @@ c        stop
         write(*,*) 'conz2<0 after merc_react kint=',k,conz2
 c        stop
         end if
-         
+
+      if (kext .EQ. 1372) then
+      write(191,*) id,bsurf,bbottom,boxtype,dtday,vol,d,volold
+      write(192,*) t,uws,area,s,qrad
+      write(193,*) epela,epload
+      write(194,*) Vds,Vdp,conz1,conz2
+      write(195,*) Shgsil,Shgpom,Smhgsil,Smhgpom
+      write(196,*) faq1,faq2,fdoc1,fdoc2
+      end if    
 
         call sed4merc_water(bbottom,dtday,tday,vol,d,k,t,s,tau
      +                          ,area,esolw,
@@ -559,6 +568,14 @@ c       check Dssink_sum: is now summing all the levels? dmc 27/3/2020
               Dpsink_sum=Dpsink_sum+Dpsink !claurent-OGS: ... water levels above sea bed 
 
 c        write(*,*)Dssink_sum,Dssink,esolw(1),l,k,dtday,'Dssink_sum'
+
+
+      if (kext .EQ. 1372) then
+      write(245,*) bbottom,dtday,tday,vol,d,t,s,tau,area
+      write(246,*) esolw,Dssink,Dpsink,Vds,Vdp
+      write(247,*) ds_gm2s,dp_gm2s,volold      
+      end if
+
           
         if (esolw(1) .LE. 0.0) then  !if
         write(*,*) 'Siltw<=0 after sed4merc_wat kint=',k,esolw(1) 
@@ -601,7 +618,14 @@ c        stop
         write(*,*) 'POMw<0',esolw(2),'dopo merc_sed4sed II kint=',k
 c        stop
         end if
-         
+      
+      if (ipext(k)==1372) then
+      write(261,*) area,vol, tau
+      write(262,*) esolw, esols
+      write(263,*) Dssink_sum,Dpsink_sum,Sres,Pres,Vr,Bvels,Bvelp
+      write(264,*) ds_gm2s, dp_gm2s,tcek(k),dZbed(k),dZactiv(k)
+      end if
+   
           silt=esols(1)
           pom= esols(2)
 
@@ -619,7 +643,16 @@ c               write(*,*) 'silt_dopo_sed4merc', silt
      +                  Shgsil, Shgpom, Smhgsil, Smhgpom,
      +             faq1,faq2,fdoc1,fdoc2,
      +             silt,pom,Vr,Bvels,Bvelp)
-         
+        
+
+      if (kext .EQ. 1372) then
+          write (265,*) dtday,t,area,'mercury.f'
+          write (266,*) esedi, epela
+          write (267,*) Shgsil,Shgpom,Smhgsil,Smhgpom
+          write (268,*) faq1,faq2,fdoc1,fdoc2
+          write (269,*) silt, pom, Vr, Bvels, Bvelp
+      end if
+ 
 
       if (esedi(1) .LE. 0.0) then  !if
         write(*,*),'esedi<=0 dopo merc_sed kint=',k

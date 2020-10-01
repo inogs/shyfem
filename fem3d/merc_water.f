@@ -206,13 +206,12 @@ c       -----------------------------------
 
 c	biological methylation rate constant (Hg to MeHg)
 c	------------------------------------
-        Remin=0.011      !mean of tested values  read from BIOGEOCHEM FIXME             
-        kmeth=Remin/100. ![day-1] wq  methylation rate at 20°C Monperrus et al., 2007
-c       Qbac = 1.5      
+        Remin=0.011/12.  ![g m-3d-1] * [mol/g] = [mol m-3d-1]  C REmin (?) mean of tested values  read from BIOGEOCHEM FIXME   grcom          
+        kmeth=Remin*0.038  ! Zhang et al., 2020    /100. ![day-1] wq  methylation rate at 20°C Monperrus et al., 2007
 c
 c       photoreduction rate constant (Hg2d to Hg0)
 c	-------------------------------------
-        kphr=0.15       ![day-1] photoreduction rate constant of HgII to Hg0 Soerensen et al., 2016  
+        kphr=0.15       ![d-1] Soerensen et al., 2016  
         ke=1.05         !light extintion coefficient FIXME read from BIOGEOCHEM (or read attenuated light)                   
 
 c       biological reduction rate constant (Hg2 to Hg0)
@@ -228,7 +227,7 @@ c	bacterial demethylation
 c	---------------------
 c       Eadem=2 !WASP manual around 10 kcal/mol
 c       ksdem lignano:0.159 s.andrea:0.093 buso:0.139 morgo:0.139 grado:0.064 primero:0.064 Hines et al. 2012
-        kdem=0.15      ! Calibration or site specific rates
+        kdem=0.07      ! Calibration or site specific rates
 
 c	temp=22.	
 
@@ -348,8 +347,8 @@ c       Hg0d --> Hg2d Photo-oxydation
 c	----------------------------------------
 c	Hg2d--> Hg0d Photoreduction 
 c
-        skph=kphr*ladj*HgR*(Hg2d+Hg2DOC) ![ug m-3 d-1]
-
+!        skph=kphr*ladj*HgR*(Hg2d+Hg2DOC) ![ug m-3 d-1]
+        skph=kphr*ladj*Hg2*(faq1+fdoc1) ![ug m-3 d-1]    prova 30Sett grcom        
 c       ----------------------------------------
 c       Hg2 -->Hg0d Biological reduction
 
@@ -387,6 +386,17 @@ c       Compute Compute deposition fluxes and rates
         Smhgsil = Dmhgsil* area*86400. ![ug/day]
         Smhgpom = Dmhgpom* area*86400. ![ug/day]
 
+       kext=ipext(k)
+
+       if (kext .EQ. 1372) then
+        write(991,*) id,bsurf,bbottom,boxtype,dtday,vol, depth,volold
+        write(992,*) temp,uwind10,area,sal,qrad
+        write(993,*) C,loads
+        write(994,*) vds,vdp,conz1,conz2
+        write(995,*) Shgsil,Shgpom,Smhgsil,Smhgpom
+        write(996,*) faq1,faq2,fdoc1,fdoc2
+       end if
+
 c       __________________________________________________
 
         C(1)=Hg0d
@@ -400,10 +410,13 @@ c	CD= transformations 1:Hg0 2:Hg2 3:MeHg   in ug/day
      &          +skphdem/.2 -skme)*vol        
         CD(3) = -Smhgsil-Smhgpom+ (skme -skdem -skphdem)*vol
 
-      kext=ipext(k)
-  
-c      integration
+      if (kext .EQ. 1372) then
+      write(980,*) C(1),vol,area
+      write(981,*) -skvo,-skox,-skphox,+skph,+skbred,+skphdem/2.
+      write(982,*) C(2),-Shgsil,-Shgpom,C(3),-Smhgsil-Smhgpom,skdem,skme
+      end if 
 
+c      integration
 
        if(silt.LT.0) then
        write(445,*) 'SILTW<=0',silt,'node',ipext(k),depth,'m_watbef'

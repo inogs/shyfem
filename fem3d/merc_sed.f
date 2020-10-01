@@ -113,7 +113,7 @@ c	------------------------------------------------------
       vol= depth*area          ! m3
       
       DOC = 15.                  ! [mg/l] di DOC in sediment
-      por = 0.7                  ! FIXME read from sed4merc_sed GR 11-02-2020     
+      por = 0.7                  ! FIXME read from sed4merc_sed grcom 11-02-2020     
 c	-----------------------------------------------------------------------------
 c	---------REACTIONS--rate constants-------------------------------------------
 
@@ -139,25 +139,6 @@ c ---------------Assign old variables-----------------------
         mehgt=C(2)
 
 c -----------------------------------------------------------
-c ----- Lamborg et al., 2016 --------------------------------
-c ------- log(kdPOM) = 6.72+-2%; kdCacO3 = log(6.71)+-4% ----
-c -----------------------------------------------------------
-c --------log(kd-lithogenic part) =5.84+-9% -----------------
-c -----------------------------------------------------------
-c --- Soerensen Baltic sea: one Kd proportional to LOI ------
-c ---- LOI = 4.2854*p_OC+0.859-------------------------------
-c -----kd hg = 2.97 + 0.15*LOI ---(= 10**3 -10**4)----------- 
-c -----kd mehg = 1.98 + 0.18*LOI ---(= 10**2.2 -10**3.1)-----
-
-***** call from solids water module********************************
-c	Sw, POMw, Vds, Vdp   ! solids water and sink velocities
-c--------------------------------------------------------------
-****** call from Hg water module***********************************
-c 
-c     hgitw, MeHgw ! hgit in water [ng l-1] or [μg m-3]    
-c     fsilt1w,fpom1w, fdiss1w  !fraction Hg-silt -pom -diss water
-c      fsilt2w, fpom2w, fdiss2w  ! fraction MeHg-silt -pom -diss water
-c
 ****** call from solids module***********************************
 ****** CONCENTRATIONS of silt, POM, DOC in sed*********part 04**********
 ******* converted from [g m-3] to [g cm-3] or [kg l-1]***********
@@ -170,9 +151,9 @@ c
       num1 = (K1silt *Csilt) + (K1POM*Cpom) !+(K1DOC*Cdoc) ! L/kg* kg/L
       num2 = (K2silt *Csilt) + (K2POM*Cpom) !+(K2DOC*Cdoc)	
       K1tp = num1/Ctot!  KD to all solids
-      K2tp = num2/Ctot
+      K2tp = num2/Ctot    ! FIXME 
 
-c      write(*,*) 'K1tp',K1tp,'K2tp',K2tp 
+      write(*,*) 'K1tp',K1tp,'K2tp',K2tp,'calculated' 
 
       pw_m3 = por*vol    ! [m-3(w)] 
       pw_L  = pw_m3*1000.               ! g m-3 * m3 -> g of pore water
@@ -271,8 +252,8 @@ c------------------------------------------------------------------------
       burpMHg =0. ! (mehgt*fpom2*Bvelp*area)          
      
 c      if (kext .EQ. 2284) then
-c      write(665,*) Bvels, Bvelp, 'merc_SED'
-c      write(664,*) silt,POM, 'merc_SED'
+c      write(*,*) Bvels, Bvelp, 'merc_SED'
+c      write(*,*) silt,POM, 'merc_SED'
 c      end if     
 
 c      write(*,*) '    ' 
@@ -324,8 +305,8 @@ c
 c      JHgD_kgy     = JHgD *365/10**9! kg y-1
 c      write(*,*) '    ' 
 c      write(*,*) '::::::::::::::: DIFFUSION FLUX ::::::::::::::::::::::'         
-c       write(1111,*) Jngm2d, Hg2dpw, hgit*(fdoc1+faq1)
-c       write(111,*) JMngm2d,MeHgdpw
+       write(1111,*) Jngm2d, Hg2dpw, HgDw
+       write(111,*) JMngm2d,MeHgdpw, MeHgDw
 c      write(*,*) 'hgit,mehgt', hgit,mehgt,fdoc1,faq1
 c      write(*,*) 'hgdw,depth', hgdw,depth,Hg2dpw
 c      write(*,*) '7 - 570       [ng m-2 d-1] Emili et al. 2012'
@@ -394,22 +375,18 @@ c      JMHgD=0.0
      & )*86400.
       end if    
 
-       !write (889,*) (C(m), m=1,nvmerc),k    !'HgSED vars old'
+      if (kext .EQ. 1372) then
+          write (665,*) dtday,temp,area, 'merc_sed.f'
+          write (666,*) C, Cw
+          write (667,*) Shgsil,Shgpom,Smhgsil,Smhgpom
+          write (668,*) fdiss1w,fdiss2w,fdoc1w,fdoc2w
+          write (669,*) silt, pom, Vr, bvels, bvelp
 
-c      if (kext .EQ. 1372) then
-c          write (666,*) (CD(m), m=1,nvmerc),k
-c      write (666,*) Shgsil/area
-c      write (667,*) Shgpom/area
-c      write (668,*) Rhgsil/area
-c      write (669,*) Rhgpom/area
-c      write (670,*) JHgD/area
-c      write (671,*) bursHg/area
-c      write (672,*) burpHg/area
-c      write (673,*) vol
-c      write (674,*) area
-c      write (675,*) (C(m), m=1,nvmerc),k
-c      elseif (kext .EQ. 3216) then 
-c          write (666,*) (CD(m), m=1,nvmerc),k
+
+      write (531,*) C(1),Shgsil,Shgpom,-Rhgsil,-Rhgpom,JHgD,sksdem,sksme
+      write (532,*) C(2),Smhgsil,Smhgpom,-Rmhgsil,-Rmhgpom,JMHgD
+      end if
+
 c          write (667,*) (C(m), m=1,nvmerc),k
 c      elseif (kext .EQ. 2407) then
 c          write (666,*) (CD(m), m=1,nvmerc),k

@@ -112,7 +112,7 @@ c     +                 rs_gm2s, rp_gm2s,
         endif
 
         dZact0=0.02
-        silt_s0 = 1370180. ! set equal to silt_init e POM_init FIXME gr
+        silt_s0 = 1370180. ! set equal to silt_init e POM_init FIXME move to initialization  grcom
         POM_s0 =  7023.
 c       _______________________________________________________
 c       assigne old value to water (sw,POMw) and sediment (silt, POM) variables
@@ -142,7 +142,7 @@ c       __________________________________________________
          OM_mg_g = 10.0 * p_POM
          OC_mg_g = OM_mg_g/1.7
          p_silt=100.-p_POM
-c        DryD=1.776-0.363*log(OC_mg_g)
+c         DryD=1.776-0.363*log(OC_mg_g)
 c___________ Compute weigthed particle density [g cm-3], porosity [-], Bulk density [g(s+w) cm-3]    
 
        Pdens = ((1.25*p_POM)+(2.65*(100.0 - p_POM)))/100.0  ![g(s)/cm3(s)]   
@@ -321,9 +321,15 @@ c___________ Compute sediment thickness variations ____________________________
 
 c        write(7777,*), dZactivk, ipext(k), silt, POM
 
-        if (ipext(k)==1372) then
-        write(8888,*) siltm,POMm,dZactivk,sed_vol_new,area,dZactivk
-        end if  
+      if (ipext(k)==1372) then
+      write(8888,*) siltm,POMm,dZactivk,sed_vol_new,area,silt,POM
+
+      write(661,*) area,wat_vol, taub
+      write(662,*) C, Cs
+      write(663,*) Dssink_sum,Dpsink_sum,Sres,Pres,Vr,Bvels,Bvelp
+      write(664,*) ds_gm2s, dp_gm2s,tCE,dZbedk,dZactivk
+ 
+      end if 
 c________________________________________________________________________________    
 c       
 c____________Positive burial push sediment below the active layer__________________
@@ -358,12 +364,16 @@ c
         CD(1) = (+Sres) *86400.    !variation in days
         CD(2) = (+Pres) *86400.     
         
-c        write (988,*) (CS(m), m=1,nstate),'k',k,'SEdSolid var beforer'
-c        write (987,*) (C(m), m=1,nstate),'k',k, 'SEdwater var beforer' 
+       if (ipext(k)==1372) then
+        write (988,*) C(1),(+Sres) *86400. 
+        write (987,*) C(2),(+Pres) *86400. 
+
+        write (986,*) CS(1),Dssink_sum*86400.,-Sres*86400.
+        write (984,*) CS(2),Dpsink_sum*86400.,-Pres*86400.
+       end if
 
        wdep=wat_vol/area
-
-
+ 
        if (cs(1) .LE. 0.0) then
        write(*,*) 'SiltSed<0',cs(1),'s4m_sedaft kext=',ipext(k)
        stop
