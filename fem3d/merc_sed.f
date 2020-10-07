@@ -153,7 +153,7 @@ c -----------------------------------------------------------
       K1tp = num1/Ctot!  KD to all solids
       K2tp = num2/Ctot    ! FIXME 
 
-      write(*,*) 'K1tp',K1tp,'K2tp',K2tp,'calculated' 
+c      write(*,*) 'K1tp',K1tp,'K2tp',K2tp,'calculated' 
 
       pw_m3 = por*vol    ! [m-3(w)] 
       pw_L  = pw_m3*1000.               ! g m-3 * m3 -> g of pore water
@@ -305,8 +305,10 @@ c
 c      JHgD_kgy     = JHgD *365/10**9! kg y-1
 c      write(*,*) '    ' 
 c      write(*,*) '::::::::::::::: DIFFUSION FLUX ::::::::::::::::::::::'         
+       if (kext .EQ. 70) then
        write(1111,*) Jngm2d, Hg2dpw, HgDw
        write(111,*) JMngm2d,MeHgdpw, MeHgDw
+       end if
 c      write(*,*) 'hgit,mehgt', hgit,mehgt,fdoc1,faq1
 c      write(*,*) 'hgdw,depth', hgdw,depth,Hg2dpw
 c      write(*,*) '7 - 570       [ng m-2 d-1] Emili et al. 2012'
@@ -375,12 +377,12 @@ c      JMHgD=0.0
      & )*86400.
       end if    
 
-      if (kext .EQ. 1372) then
+      if (kext .EQ. 70) then
           write (665,*) dtday,temp,area, 'merc_sed.f'
-          write (666,*) C, Cw
-          write (667,*) Shgsil,Shgpom,Smhgsil,Smhgpom
+          write (666,*) C, Cw                              ! hgsed, mehgsed, hg0w, hgiiw,mehgw 
+          write (667,*) Shgsil,Shgpom,Smhgsil,Smhgpom      ! Depo
           write (668,*) fdiss1w,fdiss2w,fdoc1w,fdoc2w
-          write (669,*) silt, pom, Vr, bvels, bvelp
+          write (669,*) silt, pom, Vr, bvels, bvelp        ! silt e pom sed, Vr, burial
 
 
       write (531,*) C(1),Shgsil,Shgpom,-Rhgsil,-Rhgpom,JHgD,sksdem,sksme

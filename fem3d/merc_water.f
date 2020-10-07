@@ -388,7 +388,7 @@ c       Compute Compute deposition fluxes and rates
 
        kext=ipext(k)
 
-       if (kext .EQ. 1372) then
+       if (kext .EQ. 70) then
         write(991,*) id,bsurf,bbottom,boxtype,dtday,vol, depth,volold
         write(992,*) temp,uwind10,area,sal,qrad
         write(993,*) C,loads
@@ -410,7 +410,7 @@ c	CD= transformations 1:Hg0 2:Hg2 3:MeHg   in ug/day
      &          +skphdem/.2 -skme)*vol        
         CD(3) = -Smhgsil-Smhgpom+ (skme -skdem -skphdem)*vol
 
-      if (kext .EQ. 1372) then
+      if (kext .EQ. 70) then
       write(980,*) C(1),vol,area
       write(981,*) -skvo,-skox,-skphox,+skph,+skbred,+skphdem/2.
       write(982,*) C(2),-Shgsil,-Shgpom,C(3),-Smhgsil-Smhgpom,skdem,skme

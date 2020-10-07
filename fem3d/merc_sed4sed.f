@@ -202,23 +202,23 @@ c___________ Resuspension Occurrence _________________________________
 
       kext=ipext(k)
 
-       if (kext==2284) then
-       write(3333,*) 'taub',taub,'tce', tCE,'st Ve1',kext
-       elseif (kext==3216) then
-       write(3333,*) 'tb',taub,'tce',tCE,'st Ve2',kext
-       elseif (kext==1372) then
-       write(3333,*) 'tb',taub,'tce',tCE,'st Ve3',kext
-       elseif(kext==2654) then
-       write(3333,*) 'taub',taub,'tce',tCE,'st Ve4',kext
-       elseif (kext==2341) then
-       write(3333,*) 'tb',taub,'tce',tCE,'st Ve5',kext
-       elseif (kext==2150) then
-       write(3333,*) 'tb',taub,'tce',tCE,'st Ve6',kext
-       elseif (kext==3762) then
-       write(3333,*) 'tb',taub,'tce',tCE,'st Ve7',kext
-       elseif (kext==3985) then
-       write(3333,*) 'tb',taub,'tce',tCE,'st Ve8',kext
-       end if
+c       if (kext==2284) then
+c       write(3333,*) 'taub',taub,'tce', tCE,'st Ve1',kext
+c       elseif (kext==3216) then
+c       write(3333,*) 'tb',taub,'tce',tCE,'st Ve2',kext
+c       elseif (kext==1372) then
+c       write(3333,*) 'tb',taub,'tce',tCE,'st Ve3',kext
+c       elseif(kext==2654) then
+c       write(3333,*) 'taub',taub,'tce',tCE,'st Ve4',kext
+c       elseif (kext==2341) then
+c       write(3333,*) 'tb',taub,'tce',tCE,'st Ve5',kext
+c       elseif (kext==2150) then
+c       write(3333,*) 'tb',taub,'tce',tCE,'st Ve6',kext
+cc       elseif (kext==3762) then
+c       write(3333,*) 'tb',taub,'tce',tCE,'st Ve7',kext
+c       elseif (kext==3985) then
+c       write(3333,*) 'tb',taub,'tce',tCE,'st Ve8',kext
+c       end if
 
  
 c        write(*,*) '---------------------'
@@ -321,7 +321,7 @@ c___________ Compute sediment thickness variations ____________________________
 
 c        write(7777,*), dZactivk, ipext(k), silt, POM
 
-      if (ipext(k)==1372) then
+      if (ipext(k)==70) then
       write(8888,*) siltm,POMm,dZactivk,sed_vol_new,area,silt,POM
 
       write(661,*) area,wat_vol, taub
@@ -364,7 +364,7 @@ c
         CD(1) = (+Sres) *86400.    !variation in days
         CD(2) = (+Pres) *86400.     
         
-       if (ipext(k)==1372) then
+       if (ipext(k)==70) then
         write (988,*) C(1),(+Sres) *86400. 
         write (987,*) C(2),(+Pres) *86400. 
 

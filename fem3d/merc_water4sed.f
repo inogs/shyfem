@@ -133,15 +133,15 @@ c _______________________________________________________________
 c       Input critical shear for deposition and erosion
 c _______________________________________________________________
 
-        tCDs = 1.  !ORIG) !.08  !!da 0.06 a 1         !0.06*g*(spd-swd)*dsilt
+        tCDs = 1.2  !ORIG) !.08  !!da 0.06 a 1         !0.06*g*(spd-swd)*dsilt
 
 c _______________________________________________________________
 c Compute Stoke's settling velocities for silt and POM
 c _______________________________________________________________
 
        ter1 = g/(18.*vis)                 ![m s-2]/[kg m-2 s-1]= [m s-1]
-       Vss= ter1*(spd-swd)*(dsilt**2.)    ![m s-1]
-       Vsp= ter1*(ppd-swd)*(dPOM**2.)     
+       Vss= ter1*(spd-swd)*(dsilt*dsilt)    ![m s-1]
+       Vsp= ter1*(ppd-swd)*(dPOM*dPOM)     
 c ______________________________________________________________
 c _____ Deposition Occurrence 
 c ______________________________________________________________   
@@ -202,7 +202,7 @@ c       end if
         stop
         end if
  
-      if (kext .EQ. 1372) then
+      if (kext .EQ. 70) then
       write(440,*) bbottom,dtday,tday,wat_vol,wdepth,temp,sal,taub,area
       write(441,*) C,Dssink,Dpsink,Vds,Vdp
       write(442,*) ds_gm2s,dp_gm2s,vold
@@ -223,7 +223,7 @@ c         Dsink=Dpsink     ! [g/sec] =Dflux di Ginevra COMCelia: CANCELLED
         CD(1) = -Dssink *86400.   !g/day
         CD(2) = -Dpsink *86400.   !g/day
     
-      if (kext .EQ. 1372) then
+      if (kext .EQ. 70) then
       write(413,*) CD(1),-Dssink*86400.
       write(414,*) CD(2),-Dpsink*86400.
       end if

@@ -175,6 +175,8 @@
           taubot(k) = tm
         end do
 
+        write)*,*) tm, 'taubot'
+
         end
 
 !***********************************************************
@@ -223,6 +225,8 @@
         end do
 
         where( aux > 0. ) taucur = taucur / aux
+  
+        write)*,*) taucur, 'taucur'
 
         end
 
@@ -296,7 +300,9 @@
         end if
 
         tauw = 0.5 * rowass * fw * uw * uw
+        
 
+       write(*,*) tauw, 'TAUw'
 	end subroutine compute_wave_bottom_stress
 
 c******************************************************************

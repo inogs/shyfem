@@ -279,9 +279,9 @@ c       write(*,*) 'esols', esolsinit
 
 c       mercury in sediment initialization
 
-        k1tp=10.**5. !FIXME parametro che deriva dalla kd, mettere 
+        k1tp=120000. !**5. !FIXME parametro che deriva dalla kd, mettere 
 c                   una routine unica per settare tutti i parametri        
-        k2tp=14590.  !FIXME
+        k2tp=32300.  !14590.  !FIXME
 
         Hg2sed=esinit(1)   !ug(hg)/g(sed)
         MeHgsed=esinit(2)
@@ -548,7 +548,7 @@ c        stop
 c        stop
         end if
 
-      if (kext .EQ. 1372) then
+      if (kext .EQ. 70) then
       write(191,*) id,bsurf,bbottom,boxtype,dtday,vol,d,volold
       write(192,*) t,uws,area,s,qrad
       write(193,*) epela,epload
@@ -570,7 +570,7 @@ c       check Dssink_sum: is now summing all the levels? dmc 27/3/2020
 c        write(*,*)Dssink_sum,Dssink,esolw(1),l,k,dtday,'Dssink_sum'
 
 
-      if (kext .EQ. 1372) then
+      if (kext .EQ. 70) then
       write(245,*) bbottom,dtday,tday,vol,d,t,s,tau,area
       write(246,*) esolw,Dssink,Dpsink,Vds,Vdp
       write(247,*) ds_gm2s,dp_gm2s,volold      
@@ -619,11 +619,11 @@ c        stop
 c        stop
         end if
       
-      if (ipext(k)==1372) then
-      write(261,*) area,vol, tau
-      write(262,*) esolw, esols
-      write(263,*) Dssink_sum,Dpsink_sum,Sres,Pres,Vr,Bvels,Bvelp
-      write(264,*) ds_gm2s, dp_gm2s,tcek(k),dZbed(k),dZactiv(k)
+      if (ipext(k)==70) then
+      write(165,*) area,vol, tau
+      write(162,*) esolw, esols
+      write(163,*) Dssink_sum,Dpsink_sum,Sres,Pres,Vr,Bvels,Bvelp
+      write(164,*) ds_gm2s, dp_gm2s,tcek(k),dZbed(k),dZactiv(k)
       end if
    
           silt=esols(1)
@@ -645,12 +645,12 @@ c               write(*,*) 'silt_dopo_sed4merc', silt
      +             silt,pom,Vr,Bvels,Bvelp)
         
 
-      if (kext .EQ. 1372) then
-          write (265,*) dtday,t,area,'mercury.f'
-          write (266,*) esedi, epela
-          write (267,*) Shgsil,Shgpom,Smhgsil,Smhgpom
-          write (268,*) faq1,faq2,fdoc1,fdoc2
-          write (269,*) silt, pom, Vr, Bvels, Bvelp
+      if (kext .EQ. 70) then
+          write (565,*) dtday,t,area,'mercury.f'
+          write (566,*) esedi, epela
+          write (568,*) Shgsil,Shgpom,Smhgsil,Smhgpom
+          write (571,*) faq1,faq2,fdoc1,fdoc2
+          write (572,*) silt, pom, Vr, Bvels, Bvelp
       end if
  
 
@@ -1043,13 +1043,13 @@ c*************************************************************
 
         do ie=1,nel
           ia = iarv(ie)
-          if( ia == 0) tce = .7    !FIXME
-          if( ia== 1 )  tce =.7
+          if( ia == 0) tce = .8    !FIXME
+          if( ia== 1 )  tce =.8
 
-          if( ia== 2 )  tce = .8
-          if( ia== 6 )  tce = .8
-          if( ia== 7 )  tce = .8
-          if( ia== 8 )  tce = .8         
+          if( ia== 2 )  tce = .85
+          if( ia== 6 )  tce = .85
+          if( ia== 7 )  tce = .85
+          if( ia== 8 )  tce = .85        
 
           if( ia== 3 )  tce =.99
           if( ia== 4 )  tce =.99
