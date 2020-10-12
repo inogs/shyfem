@@ -30,8 +30,6 @@
 !
 ! 30.05.2018    dmc&gr	integration of the 0d module into SHYFEM
 ! 10.07.2019    cl	3d sinking, debug
-! 31.03.2020    dmc     depth*area gives a value that is sometimes
-! different from vol. FIXME
 !
 ! notes :
 !
@@ -41,7 +39,7 @@
 !*****************************************************************
 
         subroutine sed4merc_water(bbottom,dtday,tday,wat_vol,
-     +                          wdepth,k,temp,sal,taub,area,
+     +                           wdepth,k,temp,sal,taub,area,
      +                          C,Dssink,Dpsink,Vds,Vdp,
      +                          ds_gm2s, dp_gm2s,vold)
 
@@ -64,19 +62,11 @@
       real loads(nstate)     !atmospheric loadings
 
       real Sw, POMw           !State variables, silt and POM [mg/L]
-      real dsilt,sdens, spd   !diameter [m], particle density [g/cm3], particle density [kg/m3] for silt
-      real dPOM, podens,ppd   !diameter [m], particle density [g/cm3], particle density [kg/m3] for POM
-      real vis, swd           !viscosity [Pa s-1] and density [kg/m3] for seawater
-      real g                  !acceleration gravity [m/sec2]
 
       real wdepth, area, wat_vol   !depth [m], area [m2] and volume [m3] of water elements
-        real vold            !here the same volnew has to be used!
-      real Vss,Vsp                 !Stoke's settling vel for silt and POM               [m/s]
+      real vold            !here the same volnew has to be used!
       real taub                    !bottom stress from subssed.f [Pa]
-      real tCDs                    !critical shear stress for deposition                 [Pa]
       real Swm,POMwm               !masses of silt and POM in water [g]
-      real ter1                    !intermediate term for calculation [m/s]
-      real Pd                      !Pd, probability of deposition [-]
       real Vds, Vdp                !Pd x Stoke's velocity for silt and POM              [m/s]
       real ds_gm2s, dp_gm2s        !deposition Flux for silt and POM [g/m2 s]
 c      real dep_gm2s                !total deposition flux (silt+POM) [g/m2 s]
@@ -94,83 +84,17 @@ c     assigne old value to variables
       POMw=C(2)        ![mg/l]
 c     ________________________________________________________
 
-      constant_parameters=.False.
-
-c        if(constant_parameters)then  !claurent-OGS: enable the use of constant parameters for debug
-c          vis = 0.0012   ! din seawater viscosity (Pa s-1) or [kg/m-sec] 
-c          swd = 1030.0     ! Seawater density [kg m-3]! COMCelia: controllare che sed4merc_gas_exchange da stessa dimensione
-c          area=2000. 
-c          wdepth = 1.8 
-c          temp = 15.
-
-c          wat_vol = wdepth*area       ! m3 not sure FIXME
-c        else
-
-
-          call sed4merc_gas_exchange(sal,temp,area,vis,swd)
-
-c        endif
- 
-c      write(*,*) 'RhoW', swd, 'Vis', vis, 'main'
-
-c        write(88,*) wat_vol,'wat_vol before computing it'
-
-c _______________________________________________________________
-c     silt and POM particle properties
-c _______________________________________________________________
-c   ! move to INIT diameters FIXME
-
-        dsilt   = 2./10.**5. ! silt diameter [m]
-c       5*10^-5 = coarse silt, 6*10^-6 very fine silt, 1*10^-6 fine clay
-        dPOM    = 5./10.**5. ! POM diameter [m] 
-c       diatom cell 2*10-5 - 2*10^-4 um, picoplankton < 2*10^-6
-        sdens   = 2.65       ! silt particle density    [g/cm3] 
-        podens  = 1.25       ! POM particle density     [g/cm3]
-        spd = sdens*10.**3.  ! silt particle density    [kg/m3] 
-        ppd = podens*10.**3. ! POM particle density     [kg/m3] 
-        g  = 9.81            ! acceleration gravity   [m sec-2]    
-c _______________________________________________________________
-c       Input critical shear for deposition and erosion
-c _______________________________________________________________
-
-        tCDs = 1.2  !ORIG) !.08  !!da 0.06 a 1         !0.06*g*(spd-swd)*dsilt
-
-c _______________________________________________________________
-c Compute Stoke's settling velocities for silt and POM
-c _______________________________________________________________
-
-       ter1 = g/(18.*vis)                 ![m s-2]/[kg m-2 s-1]= [m s-1]
-       Vss= ter1*(spd-swd)*(dsilt*dsilt)    ![m s-1]
-       Vsp= ter1*(ppd-swd)*(dPOM*dPOM)     
-c ______________________________________________________________
-c _____ Deposition Occurrence 
-c ______________________________________________________________   
-       
-       if (taub>1.) then
-         taub=1.
-       end if
- 
-       if (taub <= tCDs) then            ! DEPOSITION
-          Pd = (1. - taub/tCDs)          ! INVERTITI I  SEGNI
-       else
-          Pd = 0.
-       end if
-
-****** Compute Deposition Flux and rate *****************block
-c     
-       Vds = Pd*Vss               ![m s-1]
-       Vdp = Pd*Vsp
        ds_gm2s = Vds*Sw           !Flux: [m s-1]*[g m-3]-> [g m-2 s-1]
        dp_gm2s = Vdp*POMw         !Flux
-c       
-       Dssink = ds_gm2s *area     !Sink of silt [g s-1] = [g m-2 s-1] * [m2] =Dsflux di Ginevra 
+c
+       Dssink = ds_gm2s *area     !Sink of silt [g s-1] = [g m-2 s-1] * [m2] =Dsflux di Ginevra
        Dpsink = dp_gm2s *area      !Sink of POM [g s-1] = Dpflux di Ginevra
        Dsink  = Dssink + Dpsink   ! = Dflux di Ginevra
-c        
+c
 c       dep_gm2s = Dsink/area
-      
+
        kext=ipext(k)
- 
+
 c       if (kext .EQ. 2284) then
 c       write(487,*) Vdp, Vds, 'sed4MERCw'
 c       write(486,*) Dssink, Dpsink, 'sed4MERCw'
@@ -185,13 +109,13 @@ c       end if
         write(*,*)'instability - negative POMw in sed4merc_wat kext=',
      +  ipext(k),POMw
         stop
-        else if (Sw .LE. 0.0) then 
+        else if (Sw .LE. 0.0) then
         write(*,*)'instability - negative siltw in sed4merc_wat kext=',
      +  ipext(k)
         stop
         end if
 
-      
+
         if (C(2) .LE. 0.0) then  !if
         write(*,*)'instability - negative POMw in sed4merc_wat kext=',
      +  ipext(k),POMw
@@ -201,12 +125,12 @@ c       end if
      +  ipext(k)
         stop
         end if
- 
+
       if (kext .EQ. 70) then
       write(440,*) bbottom,dtday,tday,wat_vol,wdepth,temp,sal,taub,area
       write(441,*) C,Dssink,Dpsink,Vds,Vdp
       write(442,*) ds_gm2s,dp_gm2s,vold
-      end if 
+      end if
 
 C       _________________________________________________________
 
@@ -222,14 +146,14 @@ c         Dsink=Dpsink     ! [g/sec] =Dflux di Ginevra COMCelia: CANCELLED
 
         CD(1) = -Dssink *86400.   !g/day
         CD(2) = -Dpsink *86400.   !g/day
-    
+
       if (kext .EQ. 70) then
       write(413,*) CD(1),-Dssink*86400.
       write(414,*) CD(2),-Dpsink*86400.
       end if
 
 c       call merc_euler (2,dtday,wat_vol,wat_vol,c,cold,cd)    ! c(i)=( c(i)*vol+dt*cd(i) )/vol
-        call merc_euler (2,dtday,wat_vol,c,cold,cd,vold)   
+        call merc_euler (2,dtday,wat_vol,c,cold,cd,vold)
 
         if (C(2) .LE. 0.0) then  !if
         write(*,*) 'POMw<=0',POMw,wdepth,ipext(k),'s4m_wat aft'
@@ -241,20 +165,26 @@ c        write(444,*) 'siltw<=0',Sw,wdepth,ipext(k),'s4m_wat aft'
 c        stop
         end if
 
+c       if (ipint(k) .Eq. 70) then
+c         write(*,*) 'ipext(3987) =', ipext(3987),'k=',k
+c       end if
+  
+c      write(*,*) 'ipint-3985' , ipint(3985), ipext(330)
+
       iter=nint(tday*86400.)
 
       if (MOD (iter,1800) .EQ. 0) then
            kext=ipext(k)
            fortfilenum=-1
            if(kext==3985)then       !ve8 closer
-               fortfilenum=250 
-           elseif(kext==3986) then  !ve8  
+               fortfilenum=250
+           elseif(kext==3986) then  !ve8
                fortfilenum=251
            elseif(kext==3988) then  !ve8
                fortfilenum=252
            elseif(kext==4007) then  !ve8
                fortfilenum=253
-           elseif(kext==3763) then  !ve7 
+           elseif(kext==3763) then  !ve7
                fortfilenum=254
            elseif(kext==3765) then  !ve7
                fortfilenum=255
@@ -295,13 +225,13 @@ c        stop
            elseif(kext==1378) then  !ve3
                fortfilenum=273
            elseif(kext==4347) then  !ve3
-               fortfilenum=247
+               fortfilenum=274
              elseif(kext==3216) then  !ve2 closer
                fortfilenum=275
            elseif(kext==3057)then   !ve2
                fortfilenum=276
            elseif(kext==2953) then  !ve2
-               fortfilenum=277 
+               fortfilenum=277
            elseif(kext==3217) then  !ve2
                fortfilenum=278
            elseif(kext==2405) then  !ve1
@@ -317,10 +247,15 @@ c        stop
 c               if(fortfilenum==250)
 c     +             write(*,*) 'stamp to file 250... at iter=',iter,
 c     +             ', tday=', tday
-               write(fortfilenum,"(2(i10,','),4(f15.7,','))") 
+               write(fortfilenum,"(2(i10,','),4(f15.7,','))")
      +         iter,kext,wdepth, Sw, POMw, taub
            endif
          endif
+
+      if (kext .EQ. 70) then
+      write(561,*) C
+      end if
+
 
 
 c      write(*,*) 'iteration', iter
@@ -368,7 +303,7 @@ c********************************************************************
 
 	subroutine  sed4merc_gas_exchange(salin,temp,area,visc,rhow)
 c
-c 4.05.2017	dmc	
+c 4.05.2017	dmc
 
 c	computing mercury exchange between air and the water column
 c	Sorensen et al., 2010 An Improved Global Mercury Model
@@ -382,17 +317,17 @@ c	Atlantic
 
 c	general constant s
 
-c	 parameters 
-c        real AW		!Constant based on the Weibull distribution of 
+c	 parameters
+c        real AW		!Constant based on the Weibull distribution of
 c			!wind speeds over oceans
 c        real mw		!molecular weight of water [g mol-1]\
 c        real molHg	!molal volume of mercury at its normal boiling
                         !temperature [cm3 mol-1]
-c        real phiw	!solvent association factor introduced to define 
+c        real phiw	!solvent association factor introduced to define
 			!the effective molecular weight of the solvent
-			! with respect to the diffusion process 
-	
-c	auxiliar variables	
+			! with respect to the diffusion process
+
+c	auxiliar variables
          real a,b, p,c,d
          real e,g,h,m,n,o
          real v1,v2,v3,v4,v5,v6
@@ -409,7 +344,7 @@ c      	real Hg0	!Hg0 concentration in water [g/ m3] or mg/L
 c       	real Hg0atm	!Hg0 concentration in air   [g/ m3] or mg/L
 
 c	variables and parameters calculated in this routine
-	
+
 c     	real mex	!Air_sea Exchange of mercury Hg0 at each time step
 c			![kg*s-1]
 c     	real mex2	!alternative formulation for test
@@ -426,11 +361,11 @@ c     	real diff	!diffusivity (Wilke-Cang method) [cm s-1]
      	real visc	 ! water viscosity [cP]
         real rhow 	! density of the (sea)water  (KG/M**3)
       	real tempk	!temperature [K]
-    	
+
 c        mw=18.0		!molecular weight of water [g mol-1]
 c        molHg= 12.74	!molal volume of mercury at its normal boiling
 c     			!temperature [cm3 mol-1]
-c        phiw=2.26	!solvent association factor 
+c        phiw=2.26	!solvent association factor
 c       	AW=0.25		!Weibull Constant based on wind distribution
 
 c       from the hydrodynamic model
@@ -464,7 +399,7 @@ c       &1.35576d-08*TEMP**3 + 2.15123d-06*SALIN + 3.59406d-11*SALIN**2
         v4=e*salin
         v5=(n*p-o*d)*temp
         v6=((temp*g)-temp*(h-temp*m))*salin
- 
+
         visc=(1.791- v1-v2+v3+v4+ v5+v6)/1000.     ![kg m-1* s-1]
 
 c mpute the water density according to Brydon et al. 1999, J. Geoph. Res.
@@ -493,7 +428,7 @@ c	kvis=(VISC/RHOW)*10000	![cm2 s-1]
 c	else
 c
 c	kvis=0.017*exp(-0.025*tempk)
-c	
+c
 c	end if
 c       write(*,*) 'RhoW', RHOW, 'Vis', visc, 'subroutine'
 
@@ -512,7 +447,7 @@ c        kw=Aw/100*24*uwind10**2*(SchHg/ScCO2)**(-0.5)  ![m day-1]
 c        flux=(kw)*(Hg0-Hg0atm/Hlw)       !g m-2 day-1] FIXMME
 cc        !mex=area*flux/1000    ![kg s-1]
 
-c	alternative equation of 
+c	alternative equation of
 
 c        kwb=(0.1+2.26*uwind10*(SchHg/ScCO2)**(-0.5))/100*24  ! [m day-1] Borges et al., 2004
 c       flux2=(kwb)*(Hg0-Hg0atm/Hlw)        ![g m-2 day-1]
@@ -522,14 +457,8 @@ c       !mex2=area*flux2/1000            ![kg day-1]
 cc        write(97,*)visc,RHOW,diff,temp
 cc        write(98,*)ScCO2,SchHg, Hlw
 cc	write(82,*)kw,kwb
-cc	write(77,*)uwind10,Hg0,Hg0atm,flux,flux2 
+cc	write(77,*)uwind10,Hg0,Hg0atm,flux,flux2
 
 
         !write(6,*) RHOW,visc,temp,salin, 'rhow,visc in gas_exchange'
 	end			!end of routine
-
-
-
-
-
-

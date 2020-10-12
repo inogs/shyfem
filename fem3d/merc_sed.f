@@ -615,5 +615,8 @@ c Hg2sed, MeHgsed,Hg2pw,MeHgpw
            endif
          endif
 
+        if (kext .EQ. 70) then
+          write (599,*) C, Cw                              ! hgsed,
+        end if 
       end 
 c	

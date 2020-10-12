@@ -29,14 +29,14 @@ c********************************************************************
 c
 c notes :
 c
-c State variables used: (mercury) 
+c State variables used: (mercury)
 c
 c State variables used: (mercury)
 c Hg0           81      1
 c Hg2           82      2
 c Hg3           83      3
 c msed1         84      4
-c msed2         85      5 
+c msed2         85      5
 c
 c
 c
@@ -54,6 +54,11 @@ c********************************************************************
       integer, parameter :: nsolwst = 2  !solids in w state variables
       integer, parameter :: nsolsst = 2  !solids at bottom state variables
 
+      real, parameter :: g=  9.81          ! acceleration gravity     [m sec-2]
+      real, parameter :: sdens=  2.65      ! silt particle density     [g/cm3]
+      real, parameter :: podens=  1.25     !POM particle density     [g/cm3]
+
+
       real, save, allocatable :: emp(:,:,:) !Hg pelagic state vector
       real, save, allocatable :: ems(:,:)   !Hg sediment state vector
 
@@ -62,7 +67,7 @@ c********************************************************************
 
       real, save, allocatable :: etau(:)    ! bottom friction vector           !claurent-OGS: created to produce outputs fields
       real, save, allocatable :: dZbed(:)   ! variations of the sea bed depth  !claurent-OGS: created to produce outputs fields
-                                            ! due to erosion or deposition     !claurent-OGS: created to produce outputs fields 
+                                            ! due to erosion or deposition     !claurent-OGS: created to produce outputs fields
       real, save, allocatable :: dZactiv(:) ! thickness of the active layer    !claurent-OGS: created to produce outputs fields
 
 !       real, save, allocatable :: eload(:,:,:)   !atmospheric loading
@@ -102,7 +107,7 @@ c eco-model cosimo
 	use levels
 	use basin
 	use mercury
- 
+
 	implicit none
 
 !	integer it	!time in seconds
@@ -128,7 +133,7 @@ c eco-model cosimo
 	real esols(nsolsst)
 
         real epload(npstate) !loading for each node
-        real loadsup(npstate) 
+        real loadsup(npstate)
 
 ! next array specifies boundary conditions if non are given
 ! mercury concentration are in mg/L equivalent to  g/m3
@@ -138,9 +143,9 @@ c eco-model cosimo
       real, save :: esinit(nsstate) = (/3.0,0.06/)       !default in. cond. HgII, MeHg in sediment [mg/kg]
       real, save :: eploadin(npstate) = (/0.0,0.0,0.0/) !atm load kg/day
 
-      real, save :: esolbound(nsolwst) = (/5.0,0.1/)   !default bound cond.solids in water  !grosati-OGS:calibration 
+      real, save :: esolbound(nsolwst) = (/5.0,0.1/)   !default bound cond.solids in water  !grosati-OGS:calibration
       real, save :: esolwinit(nsolwst) = (/3.0,1./)       !default in. cond. solids in water
-      real, save :: esolsinit(nsolsst) = (/.1,0./)       !initial OC%, dummy var.  
+      real, save :: esolsinit(nsolsst) = (/.1,0./)       !initial OC%, dummy var.
 c       esolsinit: initial value is the OC% in sediment. From this value
 c       we compute the % of POM and weighted particle density
 
@@ -174,7 +179,7 @@ c       we compute the % of POM and weighted particle density
         integer kspec
         integer nvar
         double precision dtime0,dtime
-        real d          !element tickness 
+        real d          !element tickness
         real depth      !element depth
         !real cbod,nh3,krear,sod
         real vel
@@ -188,7 +193,7 @@ c       we compute the % of POM and weighted particle density
         real flux,conz(nlvdi)
         real conz1,conz2
         real Dpsink, Dssink
-        real Dpsink_sum, Dssink_sum   !claurent-OGS: stores sum of sinks for multiple water levels above sea bed 
+        real Dpsink_sum, Dssink_sum   !claurent-OGS: stores sum of sinks for multiple water levels above sea bed
 
         logical t1
         real t2,t3,t4
@@ -196,7 +201,6 @@ c       we compute the % of POM and weighted particle density
         real t6, t7,t8,t9
         real t10(2)
         real t11,t12
-        real vds,vdp
 
         real taubot(nkn)        !ottom stress from subssed.f simple_sed
         real tcek(nkn)          !node crit. threshold for erosion [N/m**2]
@@ -204,26 +208,27 @@ c       we compute the % of POM and weighted particle density
         real tau
         real Sres, Pres
 
-        real Shgsil, Shgpom, Smhgsil, Smhgpom ! Deposition rates 
+        real Shgsil, Shgpom, Smhgsil, Smhgpom ! Deposition rates
         real faq1,faq2,fdoc1,fdoc2      ! frazioni di merc in water
 
         real Hg2sed,MeHgsed,siltin,POMin
         real hgp1,hgp2,hgp,mehgp,por,k1tp,k2tp
         real mehgp1,mehgp2,hgd,mehgd,hgit,mehgt
 
-        real silt,pom,vr,bvels,bvelp    !FIXME VARIABILI TEMPORANEE 
+        real silt,pom,vr,bvels,bvelp    !FIXME VARIABILI TEMPORANEE
         real p_poc,p_pom,p_silt,OC_mg_g,pdens,DryD
-        real ds_gm2s, dp_gm2s   !claurent-OGS: transfer of values between sed4merc routines to avoid double calculation 
+        real ds_gm2s, dp_gm2s   !claurent-OGS: transfer of values between sed4merc routines to avoid double calculation
         real rs_gm2s, rp_gm2s
-        real Rhgsil,Rhgpom,Rmhgsil,Rmhgpom 
-
+        real Rhgsil,Rhgpom,Rmhgsil,Rmhgpom
+        real tCDs, dsilt,dPOM, spd, ppd,ter1, taub
+        real Vss, Vsp, Vds, Vdp, Pd
+        real vis, swd              ! viscosity and density of seawater #FIXME add routine gas_exchange_mercW4s
         integer nbnds
-
         real, save :: rkpar,difmol
         integer, save :: icall = 0
         integer fortfilenum
         integer itype, kext
-        
+
         integer,external :: ipext, ipint     !nodes external and internal numbers
 
         include 'femtime.h'
@@ -257,6 +262,7 @@ c       ___________________________________________________
 c        initialization data transformed to variables units
 c       ----------------------------------------------------
 c       solids in sediment initialization
+c       --------------------------------------------------------
 
         p_poc=esolsinit(1)
         p_pom=p_poc*1.7
@@ -277,21 +283,22 @@ c       solids in sediment initialization
 
 c       write(*,*) 'esols', esolsinit
 
+c     c       --------------------------------------------------------
 c       mercury in sediment initialization
-
-        k1tp=120000. !**5. !FIXME parametro che deriva dalla kd, mettere 
-c                   una routine unica per settare tutti i parametri        
+c       --------------------------------------------------------
+        k1tp=120000. !**5. !FIXME parametro che deriva dalla kd, mettere
+c                   una routine unica per settare tutti i parametri
         k2tp=32300.  !14590.  !FIXME
 
         Hg2sed=esinit(1)   !ug(hg)/g(sed)
         MeHgsed=esinit(2)
-        
+
         hgp1   = Hg2sed  * siltin  ! mg(hg)/kg(s)]
-        hgp2   = Hg2sed  * POMin  
+        hgp2   = Hg2sed  * POMin
         mehgp1 = MeHgsed * siltin
         mehgp2 = MeHgsed * POMin
-        
-        hgp   = hgp1 + hgp2 
+
+        hgp   = hgp1 + hgp2
         mehgp = mehgp1 + mehgp2
 
         hgd   = (Hg2sed *(por/k1tp))*10.**6. ![ug(hg) m-3(w+s)]
@@ -302,11 +309,11 @@ c ------------- total hg and mehg -----------------------
 
       hgit =  hgp + hgd      ! [ug m-3]or [ng(hg) l(w+s)-1]  Hg in particulate AND dissolved
       mehgt = mehgd + mehgp  ! [ug m-3]or [ng(hg) l(w+s)-1] MeHg in particulate AND dissolved
-        
-c      write(*,*) 'hgit',hgit, k, 'mercury.f'  
-c      write(*,*) 'mehgt',mehgt,  'mercury.f'         
-     
- 
+
+c      write(*,*) 'hgit',hgit, k, 'mercury.f'
+c      write(*,*) 'mehgt',mehgt,  'mercury.f'
+
+
         esinit(1)=hgit
         esinit(2)=mehgt
 
@@ -320,7 +327,7 @@ c         --------------------------------------------------
 	  allocate(emsols(nkndi,nsolsst))
 	  allocate(etau(nkndi))      !claurent-OGS: created to produce outputs fields
 	  allocate(dZbed(nkndi))     !claurent-OGS: created to produce outputs fields
-	  allocate(dZactiv(nkndi))   !claurent-OGS: created to produce outputs fields 
+	  allocate(dZactiv(nkndi))   !claurent-OGS: created to produce outputs fields
 
 
            do i=1,npstate
@@ -338,10 +345,10 @@ c         --------------------------------------------------
            do i=1,nsolsst
             emsols(:,i) = esolsinit(i)
           end do
-          
+
           etau(:)=0.0                  !claurent-OGS: created to produce outputs fields
           dZbed(:)=0.0    ! [meters]   !claurent-OGS: created to produce outputs fields
-          dZactiv(:)=0.05 ! [meters]   !claurent-OGS: created to produce outputs fields 
+          dZactiv(:)=0.05 ! [meters]   !claurent-OGS: created to produce outputs fields
 c         --------------------------------------------------
 c	  initial conditions from file (only for pelagic part)
 c         --------------------------------------------------
@@ -388,7 +395,7 @@ c         --------------------------------------------------
           difmol=getpar('difmol')
 
 c         --------------------------------------------------
-c	  initialize output 
+c	  initialize output
 c         --------------------------------------------------
 
 	  call mercury_init_file_output
@@ -405,7 +412,7 @@ c-------------------------------------------------------------------
         wsink = 0.
         Shgsil=0.
         Shgpom=0.
-        Smhgsil=0. 
+        Smhgsil=0.
         Smhgpom=0.
         Vdp=0.
         Vds=0.
@@ -421,7 +428,7 @@ c       FIX ME
         Rhgsil=0.
         Rhgpom=0.
         Rmhgsil=0.
-        Rmhgpom=0.       
+        Rmhgpom=0.
 c------------------------------------------------------------------
 c       compute loading/unit surface	!FIXME -> this could be done only once
 c------------------------------------------------------------------
@@ -437,7 +444,7 @@ c-------------------------------------------------------------------
 
         tsec = it
         tday = it / 86400. + t0         !time in days, FEM 0 is day t0
-       
+
 
        if( it .le.dtime0+dt ) then
          do fortfilenum=250,282
@@ -468,7 +475,7 @@ c	-------------------------------------------------------------------
         call bottom_stress(taubot)  !claurent-OGS: get friction coefficient array only once for all nodes
 c       questa call è nel loop, il taub viene letto ad ogni passo.
 c       mettere fuori? FIXME
-        
+
         call init_crit_thre_erosion(tcek)
 
 	do k=1,nkn		!loop on nodes
@@ -480,18 +487,19 @@ c         write(3333,*) tcek,nkn
           tau=taubot(k)    !claurent-OGS: get friction coeff at current k node
           etau(k)=tau      !claurent-OGS: store value to write 2Dfield in output
 c       FIXME conz è letta fuori dal ciclo sui livelli, è la conz(lmax)
- 
+
           call get_wind(k,wx,wy)
           uws=(wx*wx+wy*wy)**(1./2.)
-                
+
 
           depth=0.          !reinitialize the depth at each node
           Dssink_sum=0.0   !claurent-OGS
           Dpsink_sum=0.0   !claurent-OGS
           do l=1,lmax
-        
+
+
 c            call dvanode(l,k,mode,d,vol,area)   !gets depth, volume and area
-        
+
                  d = depnode(l,k,+1)
                  vol = volnode(l,k,+1)
                  volold = volnode(l,k,-1)
@@ -505,7 +513,7 @@ c            call dvanode(l,k,mode,d,vol,area)   !gets depth, volume and area
             id = 1000*k+l
             bsurf = (l==1)
             bbottom = (l==lmax)
-                
+
             depth=depth+d   !compute the depth at the centre of the element
 
             !write(6,*) bsurf,bbottom, l,d,k,depth,area,vol, 'mercury'
@@ -516,11 +524,54 @@ c            call dvanode(l,k,mode,d,vol,area)   !gets depth, volume and area
             epela(:) = emp(l,k,:)
             esolw(:) = emsolw(l,k,:)
 
-            boxtype=.true.                
+            boxtype=.true.
 c      FIXME conz(l) da leggere nel ciclo sui livelli
 
             conz1=esolw(1)
             conz2=esolw(2)
+
+
+c ------------------------------------------------------
+c       solids in water dynamics
+c       --------------------------------------------------------
+       tCDs = 1.            ! Input critical shear stress for deposition
+
+       dsilt   = 2./1000000. ! silt diameter [m] -  5*10^-5 = coarse silt, 6*10^-6 very fine silt, 1*10^-6 fine clay
+       dPOM    = 5./100000.  ! POM diameter [m]  - diatom cell 2*10-5 - 2*10^-4 um, picoplankton < 2*10^-6
+       spd = sdens *1000.    ! silt particle density    [kg/m3]
+       ppd = podens*1000.    ! POM particle density     [kg/m3]
+       swd = 1029.           !seawater density
+       vis = 0.0015006446    ! seawater viscosity       [kg m-1 s-1]
+
+c      Compute Stoke's settling velocities for silt and POM
+       ter1 = g/(18.*vis)                 ![m s-2]/[kg m-2 s-1]= [m s-1]
+       Vss= ter1*(spd-swd)*(dsilt*dsilt)    ![m s-1]
+       Vsp= ter1*(ppd-swd)*(dPOM*dPOM)
+cwrite (*,*) Vss,Vsp, 'Vss, Vsp','k',k
+      call bottom_stress(taubot)  !claurent-OGS: get friction coefficient array only once for all nodes
+c       taub=0.1     ! FIXME call alla routine bottom_stress
+      
+       kext=ipext(k)
+
+       if (kext .EQ. 70) then
+         write(653,*) tau
+         write(651,*) Pd
+         write(652,*) tau/tCDs
+        end if
+
+       if (tau>1.) then
+         tau=1.
+       end if
+
+       if (tau <= tCDs) then            ! DEPOSITION
+       Pd = (1. - tau/tCDs)          ! INVERTITI I  SEGNI
+          else
+       Pd = 0.
+       end if
+
+        Vds = Pd*Vss               ![m s-1]
+        Vdp = Pd*Vsp
+c          write (*,*) 'Vds:', Vds,'Vdp:',Vdp,'Pd',Pd
 
       if (conz1 .LE. 0.0) then  !if
         write(*,*) 'Siltw<=0 before reactions kint=',k
@@ -529,8 +580,7 @@ c       stop
         write(*,*) 'POMw<0 before reactions kint=',k
 c       stop
         end if
-      
-      kext=ipext(k)  
+
 
       call mercury_react(id,bsurf,bbottom,boxtype,dtday,vol
      +                  ,d,k,t,uws,area,s,qrad,epela,epload
@@ -555,17 +605,17 @@ c        stop
       write(194,*) Vds,Vdp,conz1,conz2
       write(195,*) Shgsil,Shgpom,Smhgsil,Smhgpom
       write(196,*) faq1,faq2,fdoc1,fdoc2
-      end if    
+      end if
 
         call sed4merc_water(bbottom,dtday,tday,vol,d,k,t,s,tau
      +                          ,area,esolw,
-     +                          Dssink,Dpsink,Vds,Vdp,   
-     +                          ds_gm2s, dp_gm2s,volold) !claurent-OGS:get values then send them to sed4merc_sed 
-           
+     +                          Dssink,Dpsink,Vds,Vdp,
+     +                          ds_gm2s, dp_gm2s,volold) !claurent-OGS:get values then send them to sed4merc_sed
+
 c       check Dssink_sum: is now summing all the levels? dmc 27/3/2020
 
-              Dssink_sum=Dssink_sum+Dssink !claurent-OGS: stores sum of sinks for multiple ... 
-              Dpsink_sum=Dpsink_sum+Dpsink !claurent-OGS: ... water levels above sea bed 
+              Dssink_sum=Dssink_sum+Dssink !claurent-OGS: stores sum of sinks for multiple ...
+              Dpsink_sum=Dpsink_sum+Dpsink !claurent-OGS: ... water levels above sea bed
 
 c        write(*,*)Dssink_sum,Dssink,esolw(1),l,k,dtday,'Dssink_sum'
 
@@ -573,32 +623,32 @@ c        write(*,*)Dssink_sum,Dssink,esolw(1),l,k,dtday,'Dssink_sum'
       if (kext .EQ. 70) then
       write(245,*) bbottom,dtday,tday,vol,d,t,s,tau,area
       write(246,*) esolw,Dssink,Dpsink,Vds,Vdp
-      write(247,*) ds_gm2s,dp_gm2s,volold      
+      write(247,*) ds_gm2s,dp_gm2s,volold
       end if
 
-          
+
         if (esolw(1) .LE. 0.0) then  !if
-        write(*,*) 'Siltw<=0 after sed4merc_wat kint=',k,esolw(1) 
+        write(*,*) 'Siltw<=0 after sed4merc_wat kint=',k,esolw(1)
 c       stop
         else if (esolw(2) .LE. 0.0) then
         write(*,*) 'POMw<0 after sed4merc_wat kint=',k,esolw(2)
 c       stop
         end if
- 
+
 c        write(86,*) Dssink, Dpsink, 'dssink and dpsink in mercury.f'
                 emsolw(l,k,:) = esolw(:)
         if (bbottom) then
-        
+
           esedi(:)=ems(k,:)
           esols(:)=emsols(k,:)
-        
-c         write(6,*) esols, 'esols' 
+
+c         write(6,*) esols, 'esols'
           call sed4merc_sed(k,dtday,area,esolw,vol,
      +                         tau,esols,Dssink_sum,Dpsink_sum,  !claurent-OGS: send sum instead of single sinks
      +                           Sres,Pres,Vr,Bvels,Bvelp,
      +                        ds_gm2s, dp_gm2s,tcek(k),       !claurent-OGS: values required by sed4merc_sed
 !     +                        rs_gm2s, rp_gm2s,tcek(k),      ! gr prova
-     +                        dZbed(k),dZactiv(k))    !claurent-OGS: get thicknesses for extraction of the fields in output                
+     +                        dZbed(k),dZactiv(k))    !claurent-OGS: get thicknesses for extraction of the fields in output
 
       if (esolw(1) .LE. 0.0) then  !if
         write(*,*) 'Siltw<=0',esolw(1),'dopo merc_sed4sed kint=',k
@@ -607,10 +657,10 @@ c        stop
         write(*,*) 'POMw<0',esolw(2),'dopo merc_sed4sed kint=',k
 c        stop
         end if
-     
+
           emsolw(l,k,:)=esolw(:)
           emsols(k,:)=esols(:)
- 
+
       if (esolw(1) .LE. 0.0) then  !if
         write(*,*) 'Siltw<=0',esolw(1),'dopo merc_sed4sed II kint=',k
 c        stop
@@ -618,32 +668,33 @@ c        stop
         write(*,*) 'POMw<0',esolw(2),'dopo merc_sed4sed II kint=',k
 c        stop
         end if
-      
+
       if (ipext(k)==70) then
       write(165,*) area,vol, tau
       write(162,*) esolw, esols
       write(163,*) Dssink_sum,Dpsink_sum,Sres,Pres,Vr,Bvels,Bvelp
       write(164,*) ds_gm2s, dp_gm2s,tcek(k),dZbed(k),dZactiv(k)
       end if
-   
+
           silt=esols(1)
           pom= esols(2)
 
 c               write(*,*) 'silt_dopo_sed4merc', silt
-         
+
           epload(:)=0
           esedi(:)=ems(k,:)          !Hg in sed
           epela(:)=emp(l,k,:)        !Hg in water
-        
+
 !         write(*,*) 'ems_before',ems(k,:)
 !         write(*,*) 'esedi_before',esedi(:)
- 
+          write (573,*) esedi, epela
+
           call mercury_sed_react(dtday,
      +                         k,t,area,esedi,epela,
      +                  Shgsil, Shgpom, Smhgsil, Smhgpom,
      +             faq1,faq2,fdoc1,fdoc2,
      +             silt,pom,Vr,Bvels,Bvelp)
-        
+
 
       if (kext .EQ. 70) then
           write (565,*) dtday,t,area,'mercury.f'
@@ -652,7 +703,7 @@ c               write(*,*) 'silt_dopo_sed4merc', silt
           write (571,*) faq1,faq2,fdoc1,fdoc2
           write (572,*) silt, pom, Vr, Bvels, Bvelp
       end if
- 
+
 
       if (esedi(1) .LE. 0.0) then  !if
         write(*,*),'esedi<=0 dopo merc_sed kint=',k
@@ -673,7 +724,7 @@ c        stop
 
           ems(k,:) = esedi(:)
           emp(l,k,:) = epela(:)
- 
+
 c         write(*,*) 'silt_dopo_mercury_sed', silt
 c         write(*,*) 'ems_after',ems(k,:)
 c         write(*,*) 'esedi_after',esedi(:)
@@ -692,7 +743,7 @@ c	-------------------------------------------------------------------
 	call bnds_read_new(what,idmerc,dtime)
 
 !$OMP PARALLEL PRIVATE(i)
-!$OMP DO SCHEDULE(DYNAMIC)	
+!$OMP DO SCHEDULE(DYNAMIC)
 
 	do i=1,npstate
 
@@ -705,15 +756,15 @@ c	-------------------------------------------------------------------
 
 	end do
 !$OMP END DO NOWAIT   ! claurent-OGS: added end of parallel region as the PARALLEL...
-!$OMP END PARALLEL    ! claurent-OGS: ...  region must be associated to only one loop		
+!$OMP END PARALLEL    ! claurent-OGS: ...  region must be associated to only one loop
 
-	call bnds_read_new(what2,ids4merc,dtime)   ! claurent-OGS: read boundary conditions for solids 
+	call bnds_read_new(what2,ids4merc,dtime)   ! claurent-OGS: read boundary conditions for solids
 
 !$OMP PARALLEL PRIVATE(i)  ! claurent-OGS: added new parallel region as the PARALLEL...
-!$OMP DO SCHEDULE(DYNAMIC) ! claurent-OGS: ...  region must be associated to only one loop		     
+!$OMP DO SCHEDULE(DYNAMIC) ! claurent-OGS: ...  region must be associated to only one loop
 	do i=1,nsolwst
 
-          call scal_adv(what2,i                          ! claurent-OGS: sends solid boundary conditions 
+          call scal_adv(what2,i                          ! claurent-OGS: sends solid boundary conditions
      +                          ,emsolw(1,1,i),ids4merc  ! claurent-OGS: sends solid boundary conditions
      +                          ,rkpar,wsink
      +                          ,difhv,difv,difmol)
@@ -722,8 +773,8 @@ c	-------------------------------------------------------------------
 
 	end do
 
-!$OMP END DO NOWAIT	
-!$OMP END PARALLEL	
+!$OMP END DO NOWAIT
+!$OMP END PARALLEL
 
         do i=1,nsstate
           call scalmass(ems(1,i),0.1,tsstot(i))   !mass ctrl sed
@@ -819,7 +870,7 @@ c*************************************************************
 
         write(6,*) 'merc init file output done'
 
-        end 
+        end
 
 c*************************************************************
 
@@ -863,16 +914,16 @@ c*************************************************************
 
 	  ia_out(4) = 0                                    !claurent-OGS: created to produce outputs fields
           idc = 297                                        !claurent-OGS: created to produce outputs fields
-          call write_scalar_file(ia_out,idc,1,dZbed(1))    !claurent-OGS: created to produce outputs fields 
-	  ia_out(4) = 0                                    !claurent-OGS: created to produce outputs fields    
+          call write_scalar_file(ia_out,idc,1,dZbed(1))    !claurent-OGS: created to produce outputs fields
+	  ia_out(4) = 0                                    !claurent-OGS: created to produce outputs fields
           idc = 298                                        !claurent-OGS: created to produce outputs fields
-          call write_scalar_file(ia_out,idc,1,dZactiv(1))  !claurent-OGS: created to produce outputs fields 
-	  ia_out(4) = 0                                    !claurent-OGS: created to produce outputs fields   
+          call write_scalar_file(ia_out,idc,1,dZactiv(1))  !claurent-OGS: created to produce outputs fields
+	  ia_out(4) = 0                                    !claurent-OGS: created to produce outputs fields
           idc = 299                                        !claurent-OGS: created to produce outputs fields
-          call write_scalar_file(ia_out,idc,1,etau(1))     !claurent-OGS: created to produce outputs fields 
-        end if                                             
-                                                           
-        if( next_output_d(da_out) ) then                   
+          call write_scalar_file(ia_out,idc,1,etau(1))     !claurent-OGS: created to produce outputs fields
+        end if
+
+        if( next_output_d(da_out) ) then
           id = nint(da_out(4))
           do i=1,npstate
             idc = 250 + i
@@ -897,10 +948,10 @@ c*************************************************************
 
           idc = 297                                                !claurent-OGS: created to produce outputs fields
           call shy_write_scalar_record(id,dtime,idc,1,dZbed(1))    !claurent-OGS: created to produce outputs fields
-          idc = 298                                                !claurent-OGS: created to produce outputs fields 
+          idc = 298                                                !claurent-OGS: created to produce outputs fields
           call shy_write_scalar_record(id,dtime,idc,1,dZactiv(1))  !claurent-OGS: created to produce outputs fields
           idc = 299                                                !claurent-OGS: created to produce outputs fields
-          call shy_write_scalar_record(id,dtime,idc,1,etau(1))     !claurent-OGS: created to produce outputs fields 
+          call shy_write_scalar_record(id,dtime,idc,1,etau(1))     !claurent-OGS: created to produce outputs fields
 
         end if
 
@@ -943,10 +994,10 @@ c*************************************************************
         !if(c(i).lt.0.00001) c(i)=0.00001
       end do
       end
-     
+
 c*************************************************************
 
-      subroutine merc_euler_sed(nstate,dt,vsold,volnew,c,cold,cds) 
+      subroutine merc_euler_sed(nstate,dt,vsold,volnew,c,cold,cds)
 
 claurent-OGS: differenciates vsold and volnew
 c      subroutine merc_euler(nstate,dt,vol,c,cold,cds) !
@@ -976,7 +1027,7 @@ c      volnew = vol
         mass = c(i) * vsold
         mder = cds(i)
         c(i) = ( mass + dt * mder ) / volnew
-        !write(88,*)dt,'dt-day' 
+        !write(88,*)dt,'dt-day'
         !write(88,*) 'old', volold, 'new', volnew, nstate
         !write(88,*) mder,'mder'
         !write(88,*) cds(i),'cds'
@@ -984,7 +1035,7 @@ c      volnew = vol
         !if(c(i).lt.0.00001) c(i)=0.00001
       end do
       end
- 
+
 c*************************************************************
 c*************************************************************
 c*************************************************************
@@ -1033,13 +1084,13 @@ c*************************************************************
 
         integer ie, ii,k,ia
         real tce,tcek(nkn),tceaux
-        integer ipint, ipext, kext 
+        integer ipint, ipext, kext
         tceaux=1
         tce=1
 
         do k=1,nkn
              tcek(k)=1.1
-        end do 
+        end do
 
         do ie=1,nel
           ia = iarv(ie)
@@ -1049,7 +1100,7 @@ c*************************************************************
           if( ia== 2 )  tce = .85
           if( ia== 6 )  tce = .85
           if( ia== 7 )  tce = .85
-          if( ia== 8 )  tce = .85        
+          if( ia== 8 )  tce = .85
 
           if( ia== 3 )  tce =.99
           if( ia== 4 )  tce =.99
@@ -1060,10 +1111,10 @@ c types 2-6-7-8 canali
 
        kext=ipext(k)
 
- 
+
 c       mettere tutti gli if
           do ii=1,3
-            k = nen3v(ii,ie) !3 nodi --> 1 elemento 
+            k = nen3v(ii,ie) !3 nodi --> 1 elemento
             tceaux=tcek(k)
 c            tau = taubot(k)
 c                val minimo              tcek(k)=minimo tra tce e tcek(k)
@@ -1096,4 +1147,3 @@ c                 write(*,*) tce,k,tceaux,ia,ie
         end
 
 !*************************************************************
-

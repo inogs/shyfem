@@ -325,7 +325,7 @@ c        write(7777,*), dZactivk, ipext(k), silt, POM
       write(8888,*) siltm,POMm,dZactivk,sed_vol_new,area,silt,POM
 
       write(661,*) area,wat_vol, taub
-      write(662,*) C, Cs
+      write(662,*) C, Cs                                             ! Hgsed, MeHgsed, Hg0w, HgIIw, Mehgw
       write(663,*) Dssink_sum,Dpsink_sum,Sres,Pres,Vr,Bvels,Bvelp
       write(664,*) ds_gm2s, dp_gm2s,tCE,dZbedk,dZactivk
  
@@ -462,6 +462,11 @@ c        write (888,*) wat_vol,cds,k, 'wat_vol and sed derivative cds'
      +   ipext(k)
        stop 
        end if 
+
+      if (ipext(k)==70) then
+      write(578,*) C, Cs           
+      end if
+
        end
 
 !*****************************************************************
