@@ -170,12 +170,18 @@
             tm = 0.
           else
             tm = tc * ( 1. + 1.2 * ( tw/(tc+tw) )**3.2 )
-            tm = max(tm,tw)
+c        #    tm = max(tm,tw)
+        
           end if
           taubot(k) = tm
+        
+c        if (k .EQ. 3676) then
+c        write(653,*) tm
+c        write(652,*) tw
+c        write(651,*) tc
+c        end if
         end do
 
-        write)*,*) tm, 'taubot'
 
         end
 
@@ -221,13 +227,19 @@
               taucur(k) = taucur(k) + rho * bnstress * area
               aux(k) = aux(k) + area
 	    end if
+         
+c        if(k==3987)
+c         write(651,*) taucur
+c         end if
+ 
           end do
         end do
 
         where( aux > 0. ) taucur = taucur / aux
-  
-        write)*,*) taucur, 'taucur'
-
+      
+c        if(k==3987)   
+c         write(651,*) taucur
+c        end if
         end
 
 !*********************************************************************
@@ -258,6 +270,10 @@
 	  depth = hkv(k) + znv(k)
 	  call compute_wave_bottom_stress(h,p,depth,z0,tauwav(k))
 	end do
+
+c         if(k==3987)
+c         write(652,*) tauwav
+c          end if
 
 	end subroutine wave_bottom_stress
 
@@ -301,8 +317,6 @@
 
         tauw = 0.5 * rowass * fw * uw * uw
         
-
-       write(*,*) tauw, 'TAUw'
 	end subroutine compute_wave_bottom_stress
 
 c******************************************************************
