@@ -165,8 +165,8 @@ c	----------------------
         xMeHgDOC=1.
         xMeHgsorb=0.
        
-        HgR=0.26   !Kotnik et al., 2015 OR proportional to TDOM
-        MeHgR=0.50 !about double HgR (Soerensen et al., 2016) 
+        HgR=1.    ! 0.26   !Kotnik et al., 2015 OR proportional to TDOM
+        MeHgR=1.  ! 0.50 !about double HgR (Soerensen et al., 2016) 
 c	---------------------
 c	partition coefficients for mercury into  silt,sand,DOC,ORG-sediment sorbed
 c	part coefficients are [L/kg]
