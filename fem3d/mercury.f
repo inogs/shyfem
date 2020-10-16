@@ -140,7 +140,8 @@ c eco-model cosimo
 
       real, save :: epbound(npstate) = (/0.0,0.0,0.0/)  !default bound cond. Hg in water
       real, save :: epinit(npstate) = (/0.08,5.9,0.02/) !default in. cond. Hg0,HgII,MeHg in water
-      real, save :: esinit(nsstate) = (/3.0,0.06/)       !default in. cond. HgII, MeHg in sediment [mg/kg]
+      real, save :: esinit(nsstate) = (/0.0,0.0/)       !default in. cond. HgII, MeHg in sediment [mg/kg]
+!      real, save :: esinit(nsstate) = (/3.0,0.06/)       !default in. cond. HgII, MeHg in sediment [mg/kg]
       real, save :: eploadin(npstate) = (/0.0,0.0,0.0/) !atm load kg/day
 
       real, save :: esolbound(nsolwst) = (/5.0,0.1/)   !default bound cond.solids in water  !grosati-OGS:calibration
