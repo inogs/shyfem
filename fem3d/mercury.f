@@ -294,7 +294,7 @@ c                   una routine unica per settare tutti i parametri
         Hg2sed=esinit(1)   !ug(hg)/g(sed)
         MeHgsed=esinit(2)
 
-        hgp1   = Hg2sed  * siltin  ! mg(hg)/kg(s)]
+        hgp1   = Hg2sed  * siltin  ! ug(hg)/m3(s+w)]
         hgp2   = Hg2sed  * POMin
         mehgp1 = MeHgsed * siltin
         mehgp2 = MeHgsed * POMin
