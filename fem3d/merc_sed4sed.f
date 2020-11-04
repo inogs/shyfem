@@ -42,7 +42,8 @@
      +                 Sres, Pres,Vr,Bvels,Bvelp,
      +                 ds_gm2s, dp_gm2s,tCE,        
 c     +                 rs_gm2s, rp_gm2s,
-     +                 dZbedk,dZactivk)         
+     +                 dZbedk,dZactivk,
+     +                 por, sed_vol_old,sed_vol_new)  
 
 
         implicit none

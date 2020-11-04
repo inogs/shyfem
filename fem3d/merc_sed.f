@@ -1,9 +1,10 @@
 
-         subroutine mercury_sed_react(dtday,
+         subroutine mercury_sed_react(dtday,vol,
      +                          k,temp,area,C,Cw,
      +             Shgsil, Shgpom, Smhgsil, Smhgpom,
      +             fdiss1w,fdiss2w,fdoc1w,fdoc2w,
-     +             silt,pom,Vr,bvels,bvelp)
+     +             silt,pom,Vr,bvels,bvelp,
+     +             por, svol_old,svol_new,dZactivk)
 c	
 ************************************************************************
 * 
@@ -40,11 +41,11 @@ c	include 'mercury.h'
       real                :: CD(nvmerc)     !derivatives CD(1), CD(2)
       real                :: CDw(3)          !mercury in water derivative: Hg0, Hg2, MeHg [ug/s]
  
-      real depth, vol,vold      !volold =vol here
+      real dZactivk, vol,vold      !volold =vol here
       real dt    !time step, day
       real cold(nvmerc)
       real coldw(3)
-
+      real svol_old,svol_new
 c------------------------------------------------------------------
 c----- variables - initial COND. - ug(hg)/g(sed)  
 c	------------------------------------------------------------------
@@ -109,11 +110,11 @@ c
 c	------------------------------------------------------
 c------  BOX features --------------------------------------------------
 c	------------------------------------------------------
-      depth = 0.02             ! m
-      vol= depth*area          ! m3
+c    dZactivk = 0.02             ! m
+c     vol= dZactivk*area          ! m3
       
       DOC = 15.                  ! [mg/l] di DOC in sediment
-      por = 0.7                  ! FIXME read from sed4merc_sed grcom 11-02-2020     
+c     por = 0.7                  ! FIXME read from sed4merc_sed grcom 11-02-2020     
 c	-----------------------------------------------------------------------------
 c	---------REACTIONS--rate constants-------------------------------------------
 
@@ -155,7 +156,7 @@ c -----------------------------------------------------------
 
 c      write(*,*) 'K1tp',K1tp,'K2tp',K2tp,'calculated' 
 
-      pw_m3 = por*vol    ! [m-3(w)] 
+      pw_m3 = por*svol_old    ! [m-3(w)] 
       pw_L  = pw_m3*1000.               ! g m-3 * m3 -> g of pore water
  
 c------------------------------------------------------------------------
@@ -287,8 +288,8 @@ c -----------------------------------------------------------------------
       MeHgdpw =  mehgt * (fdoc1+faq1)/por
 
       num3 = (por*Dchg_t)/tor        
-      num4 = (Hg2dpw - HgDw)/(depth/2.)  ![ug m-3] * [m-1] -> [ug m-4]  Hg2dpw = Hg2D/por?     
-      num5 = (MeHgdpw - MeHgDw)/(depth/2.)  ![ug m-3] * [m-1] -> [ug m-4]  Hg2dpw = Hg2D/por? 
+      num4 = (Hg2dpw - HgDw)/(dZactivk/2.)  ![ug m-3] * [m-1] -> [ug m-4]  Hg2dpw = Hg2D/por?     
+      num5 = (MeHgdpw - MeHgDw)/(dZactivk/2.)  ![ug m-3] * [m-1] -> [ug m-4]  Hg2dpw = Hg2D/por? 
 
       ft1 =  - num3*num4    ![ug m-4] * [m2 s-1] -> [ug m-2 s-1]
       ft2 =  - num3*num5     
@@ -310,7 +311,7 @@ c      write(*,*) '::::::::::::::: DIFFUSION FLUX ::::::::::::::::::::::'
        write(111,*) JMngm2d,MeHgdpw, MeHgDw
        end if
 c      write(*,*) 'hgit,mehgt', hgit,mehgt,fdoc1,faq1
-c      write(*,*) 'hgdw,depth', hgdw,depth,Hg2dpw
+c      write(*,*) 'hgdw,dZactivk', hgdw,depth,Hg2dpw
 c      write(*,*) '7 - 570       [ng m-2 d-1] Emili et al. 2012'
 c      if (JHgD .LT. 0.0) then 
 c      write(*,*) 'diff flux from sediment to water'
@@ -328,7 +329,9 @@ c-----------------------------------------------------------------------
 c --------- Hg methylation and MeHg demethylation ---------------------- 
 c -----------------------------------------------------------------------
       cksmet=(ksmet*Qbac**((temp-20.)/10.))/86400.       ! [d-1] to [s-1]
-      sksme=cksmet*(hgit*(faq1+fdoc1))*vol    ! [s-1] * [ug m-3] = ug s-1
+c      sksme=cksmet*(hgit*(faq1+fdoc1))*vol    ! [s-1] * [ug m-3] = ug s-1
+      sksme=cksmet*(hgit*(faq1+fdoc1))*svol_old    ! [s-1] * [ug m-3] = ug s-1
+
 
 c -----------------------------------------------------------------------
 c --------- Soerensen et al. 2016 FOR WATER COLUMN ----------------------
@@ -346,7 +349,8 @@ c -----------------------------------------------------------------------
       deltat = tkel-tkref
 
       cksdem=(ksdem*exp(Eadem*1000.*(deltat/(Rcal*tkel*tkref))))/86400.
-      sksdem=(cksdem*mehgt*(faq2+fdoc2))*vol ! [s-1] * [ug m-3] = ug s-1
+c      sksdem=(cksdem*mehgt*(faq2+fdoc2))*vol ! [s-1] * [ug m-3] = ug s-1
+      sksdem=(cksdem*mehgt*(faq2+fdoc2))*svol_old ! [s-1] * [ug m-3] = ug s-1
 
 c -------------------------------------------------------------------------------- 
 c --------- part 09--------------------------------------------------------------- 
@@ -410,7 +414,7 @@ c          write (666,*) (CD(m), m=1,nvmerc),k
 c          write (667,*) (C(m), m=1,nvmerc),k
 c      end if 
       
-       CDw=0
+       CDw=0.0
        CDw(2)=(Rhgsil+Rhgpom-JHgD)*86400.   !Resuspension and pw diffusion to the water                                                           
        CDw(3)=(Rmhgsil+Rmhgpom-JMHgD)*86400.    !Resuspension and diffusion from ug s-1 to ug d-1                
 
@@ -436,14 +440,26 @@ c       write(778,*) 'MHgW<=0',Cw(3),C(2),'node',ipext(k),'merc_sed bef'
 c       stop
        end if
 
-
-       call merc_euler_sed(nvmerc,dtday,vol,vol,c,cold,cd) !claurent-OGS:add second volume
+      call merc_euler_sed(nvmerc,dtday,svol_old,svol_new,c,cold,cd) ! Sediment euler     !claurent-OGS:add second volume
 c       call merc_euler_sed (3,dtday,vol,vol,cw,coldw,cdw) !claurent-OGS:add second volume
 
-        vold=vol
+      write(433,*) nvmerc,dtday,cold
+      write(434,*) svol_old,svol_new,c,cd
+      call flush(433)
+      call flush(434)
+      vold=vol
 c       call merc_euler (nvmerc,dtday,vol,c,cold,cd) 
-       call merc_euler(3,dtday,vol,cw,coldw,cdw,vold) 
+      call merc_euler(3,dtday,vol,cw,coldw,cdw,vold)  !#mmented gr 31_Ott 2020
 
+c     write(435,*) dtday,vol,coldw,vold
+c     write(436,*) cw,cdw
+
+c      call merc_euler_sed(3,dt,vol,vold,cw,coldw,cdw)
+
+      write(435,*) dtday,vol,coldw,vold, 'aft'
+      write(436,*) cw,cdw,'aft'
+      call flush(435)
+      call flush(436)
        if(C(1) .LT.0) then
        write(*,*) 'Hg2Sed<=0',C(1),'at node',ipext(k),'merc_sed aft'
        stop

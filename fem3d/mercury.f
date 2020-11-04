@@ -19,6 +19,7 @@ c 31.03.2020    dmc     get areanode,volnode,depnode
 c 01.04.2020    dmc     Use of old and new volumes in merc_euler
 c 01.04.2020    dmc     only in the first integration (merc_water)
 c 01.04.2020    dmc     the one in merc_water4sed  needs only the actual vol
+c 31.10.2020    gir     changed sub and call merc_sed4sed,merc_sed for missing water and sed volumes
 c notes :
 c
 c********************************************************************
@@ -140,8 +141,8 @@ c eco-model cosimo
 
       real, save :: epbound(npstate) = (/0.0,0.0,0.0/)  !default bound cond. Hg in water
       real, save :: epinit(npstate) = (/0.08,5.9,0.02/) !default in. cond. Hg0,HgII,MeHg in water
-      real, save :: esinit(nsstate) = (/0.0,0.0/)       !default in. cond. HgII, MeHg in sediment [mg/kg]
-c      real, save :: esinit(nsstate) = (/3.0,0.06/)       !default in. cond. HgII, MeHg in sediment [mg/kg]
+c      real, save :: esinit(nsstate) = (/0.0,0.0/)       !default in. cond. HgII, MeHg in sediment [mg/kg]
+      real, save :: esinit(nsstate) = (/3.0,0.06/)       !default in. cond. HgII, MeHg in sediment [mg/kg]
       real, save :: eploadin(npstate) = (/0.0,0.0,0.0/) !atm load kg/day
 
       real, save :: esolbound(nsolwst) = (/5.0,0.1/)   !default bound cond.solids in water  !grosati-OGS:calibration
@@ -166,6 +167,7 @@ c       we compute the % of POM and weighted particle density
         real area,vol,volold      !vol and vol previous step
         real vsold
         real volnode,areanode,depnode
+        real sed_vol_old, sed_vol_new !sediment bed volumes
         real getpar
         logical has_output,next_output
         logical has_output_d,next_output_d
@@ -649,8 +651,9 @@ c         write(6,*) esols, 'esols'
      +                           Sres,Pres,Vr,Bvels,Bvelp,
      +                        ds_gm2s, dp_gm2s,tcek(k),       !claurent-OGS: values required by sed4merc_sed
 !     +                        rs_gm2s, rp_gm2s,tcek(k),      ! gr prova
-     +                        dZbed(k),dZactiv(k))    !claurent-OGS: get thicknesses for extraction of the fields in output
-
+     +                        dZbed(k),dZactiv(k),  !claurent-OGS: get thicknesses for extraction of the fields in output
+     +                        por,sed_vol_old,sed_vol_new)
+  
       if (esolw(1) .LE. 0.0) then  !if
         write(*,*) 'Siltw<=0',esolw(1),'dopo merc_sed4sed kint=',k
 c        stop
@@ -682,7 +685,7 @@ c        stop
 
 c               write(*,*) 'silt_dopo_sed4merc', silt
 
-          epload(:)=0
+          epload(:)=0.0
           esedi(:)=ems(k,:)          !Hg in sed
           epela(:)=emp(l,k,:)        !Hg in water
 
@@ -690,18 +693,19 @@ c               write(*,*) 'silt_dopo_sed4merc', silt
 !         write(*,*) 'esedi_before',esedi(:)
           write (573,*) esedi, epela
 
-          call mercury_sed_react(dtday,
+          call mercury_sed_react(dtday,vol,
      +                         k,t,area,esedi,epela,
      +                  Shgsil, Shgpom, Smhgsil, Smhgpom,
      +             faq1,faq2,fdoc1,fdoc2,
-     +             silt,pom,Vr,Bvels,Bvelp)
+     +             silt,pom,Vr,Bvels,Bvelp,
+     +             por, sed_vol_old,sed_vol_new,dZactiv(k))
 
 
       if (kext .EQ. 70) then
           write (565,*) dtday,t,area,'mercury.f'
           write (566,*) esedi, epela
           write (568,*) Shgsil,Shgpom,Smhgsil,Smhgpom
-          write (571,*) faq1,faq2,fdoc1,fdoc2
+          write (571,*) faq1,faq2,fdoc1,fdoc2, por
           write (572,*) silt, pom, Vr, Bvels, Bvelp
       end if
 
@@ -1095,18 +1099,18 @@ c*************************************************************
 
         do ie=1,nel
           ia = iarv(ie)
-          if( ia == 0)  tce =1. !8    !FIXME
-          if( ia== 1 )  tce =1. !.8
+          if( ia == 0)  tce =0.8    !FIXME
+          if( ia== 1 )  tce =0.8
 
-          if( ia== 2 )  tce =1 ! .85
-          if( ia== 6 )  tce =1 ! .85
-          if( ia== 7 )  tce =1 ! .85
-          if( ia== 8 )  tce =1 ! .85
+          if( ia== 2 )  tce =.85
+          if( ia== 6 )  tce =.85
+          if( ia== 7 )  tce =.85
+          if( ia== 8 )  tce =.85
 
-          if( ia== 3 )  tce =1 !.99
-          if( ia== 4 )  tce =1 !.99
-          if( ia== 5 )  tce =1 !.99
-          if( ia== 9 )  tce =1 !.99
+          if( ia== 3 )  tce =.99
+          if( ia== 4 )  tce =.99
+          if( ia== 5 )  tce =.99
+          if( ia== 9 )  tce =.99
 c types 3-4-5-9 bocche di porto
 c types 2-6-7-8 canali
 
