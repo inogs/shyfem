@@ -386,16 +386,16 @@ c       Compute Compute deposition fluxes and rates
         Smhgsil = Dmhgsil* area*86400. ![ug/day]
         Smhgpom = Dmhgpom* area*86400. ![ug/day]
 
-       kext=ipext(k)
+        kext=ipext(k)
 
-       if (kext .EQ. 70) then
-        write(991,*) id,bsurf,bbottom,boxtype,dtday,vol, depth,volold
-        write(992,*) temp,uwind10,area,sal,qrad
-        write(993,*) C,loads
-        write(994,*) vds,vdp,conz1,conz2
-        write(995,*) Shgsil,Shgpom,Smhgsil,Smhgpom
-        write(996,*) faq1,faq2,fdoc1,fdoc2
-       end if
+c       if (kext .EQ. 70) then
+c        write(991,*) id,bsurf,bbottom,boxtype,dtday,vol, depth,volold
+c        write(992,*) temp,uwind10,area,sal,qrad
+c        write(993,*) C,loads
+c        write(994,*) vds,vdp,conz1,conz2
+c        write(995,*) Shgsil,Shgpom,Smhgsil,Smhgpom
+c        write(996,*) faq1,faq2,fdoc1,fdoc2
+c       end if
 
 c       __________________________________________________
 
@@ -410,11 +410,11 @@ c	CD= transformations 1:Hg0 2:Hg2 3:MeHg   in ug/day
      &          +skphdem/.2 -skme)*vol        
         CD(3) = -Smhgsil-Smhgpom+ (skme -skdem -skphdem)*vol
 
-      if (kext .EQ. 70) then
-      write(980,*) C(1),vol,area
-      write(981,*) -skvo,-skox,-skphox,+skph,+skbred,+skphdem/2.
-      write(982,*) C(2),-Shgsil,-Shgpom,C(3),-Smhgsil-Smhgpom,skdem,skme
-      end if 
+c      if (kext .EQ. 70) then
+c      write(980,*) C(1),vol,area
+c      write(981,*) -skvo,-skox,-skphox,+skph,+skbred,+skphdem/2.
+c      write(982,*) C(2),-Shgsil,-Shgpom,C(3),-Smhgsil-Smhgpom,skdem,skme
+c      end if 
 
 c      integration
 
@@ -462,7 +462,7 @@ c      call merc_euler (3,dt,vol,vol,c,cold,cd)  ! claurent-OGS here volold=voln
 
         if (C(1).le.0.) then
         C(1)=0.00000001  !FIXME controllo mostruoso
-        write(*,*) "Hg0 adjusted in merc_water.f"
+        write(*,*) "Hg0 <0 adjusted in merc_water.f"
         end if 
 c le trasf. di C1 la portano negativa! skvo e skox prevalgono	
 c       write(*,*) 'Hgod',Hg0d,'Hg2',Hg2,'MeHg',MeHg, 'nodo',k
@@ -472,89 +472,89 @@ c        write (444,*) (C(m), m=1,nstate),'k',k,' HgW vars new' !
 c     iter=nint(tday*86400.)
 
 c       if (MOD (iter,1800) .EQ. 0) then
-       if (k .GE. 1) then
-           kext=ipext(k)
-           fortfilenum=-1
-           if(kext==3985)then
-               fortfilenum=350
-           elseif(kext==3986) then
-               fortfilenum=351
-           elseif(kext==3982) then
-               fortfilenum=352
-           elseif(kext==4007) then
-               fortfilenum=353
-           elseif(kext==3763) then
-               fortfilenum=354
-           elseif(kext==3765) then
-               fortfilenum=355
-           elseif(kext==3764)then
-               fortfilenum=356
-           elseif(kext==3762) then
-               fortfilenum=357
-           else if(kext==2150)then
-               fortfilenum=358
-           elseif(kext==2009) then
-               fortfilenum=359
-           elseif(kext==2359) then
-               fortfilenum=360
-           elseif(kext==2358) then
-               fortfilenum=361
-           elseif(kext==2341) then
-               fortfilenum=362
-           elseif(kext==2408) then
-               fortfilenum=363
-           elseif(kext==2191)then
-               fortfilenum=364
-           elseif(kext==2192) then
-               fortfilenum=365
-           elseif(kext==2654)then
-               fortfilenum=366
-           elseif(kext==2505) then
-                fortfilenum=367
-           elseif(kext==2655) then
-               fortfilenum=368
-          elseif(kext==2653) then
-               fortfilenum=369
-           else if(kext==1372)then
-               fortfilenum=370
-           elseif(kext==1375) then
-               fortfilenum=371
-           elseif(kext==1331) then
-               fortfilenum=372
-           elseif(kext==1378) then
-               fortfilenum=373
-           elseif(kext==4347) then
-               fortfilenum=374
-           elseif(kext==3216) then
-               fortfilenum=375
-           elseif(kext==3057)then
-               fortfilenum=376
-           elseif(kext==2953) then
-               fortfilenum=377
-           elseif(kext==3217) then
-               fortfilenum=378
-           elseif(kext==2405) then
-               fortfilenum=379
-           elseif(kext==2407)then
-               fortfilenum=380
-           elseif(kext==2284) then
-               fortfilenum=381
-           elseif(kext==2404) then
-               fortfilenum=382
-           endif
-           if(fortfilenum.ge.0)then
+c       if (k .GE. 1) then
+c           kext=ipext(k)
+c           fortfilenum=-1
+c           if(kext==3985)then
+c               fortfilenum=350
+c           elseif(kext==3986) then
+c               fortfilenum=351
+c           elseif(kext==3982) then
+c               fortfilenum=352
+c           elseif(kext==4007) then
+c               fortfilenum=353
+c           elseif(kext==3763) then
+c               fortfilenum=354
+c           elseif(kext==3765) then
+c               fortfilenum=355
+c           elseif(kext==3764)then
+c               fortfilenum=356
+c           elseif(kext==3762) then
+c               fortfilenum=357
+c           else if(kext==2150)then
+c               fortfilenum=358
+c           elseif(kext==2009) then
+c               fortfilenum=359
+c           elseif(kext==2359) then
+c               fortfilenum=360
+c           elseif(kext==2358) then
+c               fortfilenum=361
+c           elseif(kext==2341) then
+c               fortfilenum=362
+c           elseif(kext==2408) then
+c               fortfilenum=363
+c           elseif(kext==2191)then
+c               fortfilenum=364
+c           elseif(kext==2192) then
+c               fortfilenum=365
+c           elseif(kext==2654)then
+c               fortfilenum=366
+c           elseif(kext==2505) then
+c                fortfilenum=367
+c           elseif(kext==2655) then
+c               fortfilenum=368
+c          elseif(kext==2653) then
+c               fortfilenum=369
+c           else if(kext==1372)then
+c               fortfilenum=370
+c           elseif(kext==1375) then
+c               fortfilenum=371
+c           elseif(kext==1331) then
+c               fortfilenum=372
+c           elseif(kext==1378) then
+c               fortfilenum=373
+c           elseif(kext==4347) then
+c               fortfilenum=374
+c           elseif(kext==3216) then
+c               fortfilenum=375
+c           elseif(kext==3057)then
+c               fortfilenum=376
+c           elseif(kext==2953) then
+c               fortfilenum=377
+c           elseif(kext==3217) then
+c               fortfilenum=378
+c           elseif(kext==2405) then
+c               fortfilenum=379
+c           elseif(kext==2407)then
+c               fortfilenum=380
+c           elseif(kext==2284) then
+c               fortfilenum=381
+c           elseif(kext==2404) then
+c               fortfilenum=382
+c           endif
+c           if(fortfilenum.ge.0)then
 c               if(fortfilenum==350)
 c     +             write(*,*) 'stamp to file 350... at iter=',iter,
 c     +             ', tday=', tday
-               write(fortfilenum,"(2(i10,','),4(f15.7,','))")
-     +         iter,kext,depth, Hg0d, Hg2, MeHg
-           endif
-         endif
+c               write(fortfilenum,"(2(i10,','),4(f15.7,','))")
+c     +         iter,kext,depth, Hg0d, Hg2, MeHg
+c           endif
+c         endif
 
 
-        if (kext .EQ. 70) then
-        write(598,*) C
-       end if
+c        if (kext .EQ. 70) then
+c        write(598,*) C
+c       end if
 
 
        end

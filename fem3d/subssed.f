@@ -551,8 +551,8 @@
 	  smax = maxval(abs(auxs-conzs))
 	  hmax = maxval(abs(auxh-conzh))
 	  vmax = maxval(abs(auxv))
-	  write(778,*) smax,hmax,vmax
-	  call flush(778)
+c	  write(778,*) smax,hmax,vmax
+c	  call flush(778)
 	else
 	  conzs = auxs
 	  conzh = auxh

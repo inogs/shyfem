@@ -171,20 +171,20 @@ c
         es = 0.198/(BulkD-1.0023)
         logdme = 0.23*exp(es)
 
-	call massert('es',k,es,0.,5.)
+c	call massert('es',k,es,0.,5.)
 
         !if( es > 1.1*esmax ) then
         !  call mdebug('es>esmax',k,2,(/es,logdme/))
         !  esmax = es
         !end if
-        if( es > esmax0 ) then
-          esmax = max(es,esmax)
-          !logdme = 0.23*exp(es)
+c        if( es > esmax0 ) then
+c          esmax = max(es,esmax)
+c          !logdme = 0.23*exp(es)
           !call mdebug('es>esmax0',k,2,(/es,logdme/))
-          call mdebug('es adjusted',k,3,(/es,esmax/))
-          es = esmax0
-          logdme = 0.23*exp(es)
-        end if
+c          call mdebug('es adjusted',k,3,(/es,esmax/))
+c          es = esmax0
+c          logdme = 0.23*exp(es)
+c        end if
 
         dme = 10.**logdme                      ![mg cm-2 hr-1]
         dme2 = ((dme/1000.)/3600.)*10.**4.     ![g m-2 s-1]       
@@ -320,16 +320,14 @@ c___________ Compute sediment thickness variations ____________________________
           sed_vol_new=area*dZactivk
 
 
-c        write(7777,*), dZactivk, ipext(k), silt, POM
-
       if (ipext(k)==70) then
-      write(8888,*) siltm,POMm,dZactivk,sed_vol_new,area,silt,POM
+        write(7777,*), dZactivk, ipext(k), silt, POM
 
-      write(661,*) area,wat_vol, taub
-      write(662,*) C, Cs                                             ! Hgsed, MeHgsed, Hg0w, HgIIw, Mehgw
-      write(663,*) Dssink_sum,Dpsink_sum,Sres,Pres,Vr,Bvels,Bvelp
-      write(664,*) ds_gm2s, dp_gm2s,tCE,dZbedk,dZactivk
- 
+c      write(8888,*) siltm,POMm,dZactivk,sed_vol_new,area,silt,POM
+c      write(661,*) area,wat_vol, taub
+c      write(662,*) C, Cs                                             ! Hgsed, MeHgsed, Hg0w, HgIIw, Mehgw
+c      write(663,*) Dssink_sum,Dpsink_sum,Sres,Pres,Vr,Bvels,Bvelp
+c      write(664,*) ds_gm2s, dp_gm2s,tCE,dZbedk,dZactivk
       end if 
 c________________________________________________________________________________    
 c       
@@ -365,13 +363,13 @@ c
         CD(1) = (+Sres) *86400.    !variation in days
         CD(2) = (+Pres) *86400.     
         
-       if (ipext(k)==70) then
-        write (988,*) C(1),(+Sres) *86400. 
-        write (987,*) C(2),(+Pres) *86400. 
+c       if (ipext(k)==70) then
+c        write (988,*) C(1),(+Sres) *86400. 
+c        write (987,*) C(2),(+Pres) *86400. 
 
-        write (986,*) CS(1),Dssink_sum*86400.,-Sres*86400.
-        write (984,*) CS(2),Dpsink_sum*86400.,-Pres*86400.
-       end if
+c        write (986,*) CS(1),Dssink_sum*86400.,-Sres*86400.
+c        write (984,*) CS(2),Dpsink_sum*86400.,-Pres*86400.
+c       end if
 
        wdep=wat_vol/area
  
@@ -464,9 +462,9 @@ c        write (888,*) wat_vol,cds,k, 'wat_vol and sed derivative cds'
        stop 
        end if 
 
-      if (ipext(k)==70) then
-      write(578,*) C, Cs           
-      end if
+c      if (ipext(k)==70) then
+c      write(578,*) C, Cs           
+c      end if
 
        end
 

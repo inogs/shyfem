@@ -93,7 +93,6 @@ c
 c
 c       dep_gm2s = Dsink/area
 
-       kext=ipext(k)
 
 c       if (kext .EQ. 2284) then
 c       write(487,*) Vdp, Vds, 'sed4MERCw'
@@ -126,11 +125,11 @@ c       end if
         stop
         end if
 
-      if (kext .EQ. 70) then
-      write(440,*) bbottom,dtday,tday,wat_vol,wdepth,temp,sal,taub,area
-      write(441,*) C,Dssink,Dpsink,Vds,Vdp
-      write(442,*) ds_gm2s,dp_gm2s,vold
-      end if
+c      if (kext .EQ. 70) then
+c      write(440,*) bbottom,dtday,tday,wat_vol,wdepth,temp,sal,taub,area
+c      write(441,*) C,Dssink,Dpsink,Vds,Vdp
+c      write(442,*) ds_gm2s,dp_gm2s,vold
+c      end if
 
 C       _________________________________________________________
 
@@ -147,10 +146,10 @@ c         Dsink=Dpsink     ! [g/sec] =Dflux di Ginevra COMCelia: CANCELLED
         CD(1) = -Dssink *86400.   !g/day
         CD(2) = -Dpsink *86400.   !g/day
 
-      if (kext .EQ. 70) then
-      write(413,*) CD(1),-Dssink*86400.
-      write(414,*) CD(2),-Dpsink*86400.
-      end if
+c      if (kext .EQ. 70) then
+c      write(413,*) CD(1),-Dssink*86400.
+c      write(414,*) CD(2),-Dpsink*86400.
+c      end if
 
 c       call merc_euler (2,dtday,wat_vol,wat_vol,c,cold,cd)    ! c(i)=( c(i)*vol+dt*cd(i) )/vol
         call merc_euler (2,dtday,wat_vol,c,cold,cd,vold)
@@ -252,9 +251,9 @@ c     +             ', tday=', tday
            endif
          endif
 
-      if (kext .EQ. 70) then
-      write(561,*) C
-      end if
+c      if (kext .EQ. 70) then
+c      write(561,*) C
+c      end if
 
 
 

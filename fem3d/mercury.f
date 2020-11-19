@@ -19,7 +19,7 @@ c 31.03.2020    dmc     get areanode,volnode,depnode
 c 01.04.2020    dmc     Use of old and new volumes in merc_euler
 c 01.04.2020    dmc     only in the first integration (merc_water)
 c 01.04.2020    dmc     the one in merc_water4sed  needs only the actual vol
-c 31.10.2020    gir     changed sub and call merc_sed4sed,merc_sed for missing water and sed volumes
+c 31.10.2020    gir     changed sub and call merc_sed4sed,merc_sed for missing volumes
 c notes :
 c
 c********************************************************************
@@ -458,13 +458,13 @@ c-------------------------------------------------------------------
        endif
 
 
-       if( it .le.dtime0+dt ) then
-         do fortfilenum=350,382
-            write(fortfilenum,
-     +       "(2(a10,','),4(a15,','))")
-     +       'it','kext','wdepth','Hgod','Hg2','MeHg'
-         end do
-       endif
+c       if( it .le.dtime0+dt ) then
+c         do fortfilenum=350,382
+c            write(fortfilenum,
+c     +       "(2(a10,','),4(a15,','))")
+c     +       'it','kext','wdepth','Hgod','Hg2','MeHg'
+c         end do
+c       endif
 
 c	-------------------------------------------------------------------
 c	loop on elements for reactor
@@ -556,11 +556,11 @@ c       taub=0.1     ! FIXME call alla routine bottom_stress
       
        kext=ipext(k)
 
-       if (kext .EQ. 70) then
-         write(653,*) tau
-         write(651,*) Pd
-         write(652,*) tau/tCDs
-        end if
+c       if (kext .EQ. 70) then
+c         write(653,*) tau
+c         write(651,*) Pd
+c         write(652,*) tau/tCDs
+c        end if
 
        if (tau>1.) then
          tau=1.
@@ -576,13 +576,13 @@ c       taub=0.1     ! FIXME call alla routine bottom_stress
         Vdp = Pd*Vsp
 c          write (*,*) 'Vds:', Vds,'Vdp:',Vdp,'Pd',Pd
 
-      if (conz1 .LE. 0.0) then  !if
-        write(*,*) 'Siltw<=0 before reactions kint=',k
+c      if (conz1 .LE. 0.0) then  !if
+c        write(*,*) 'Siltw<=0 before reactions kint=',k
 c       stop
-        else if (conz2 .LE. 0.0) then
-        write(*,*) 'POMw<0 before reactions kint=',k
+c        else if (conz2 .LE. 0.0) then
+c        write(*,*) 'POMw<0 before reactions kint=',k
 c       stop
-        end if
+c        end if
 
 
       call mercury_react(id,bsurf,bbottom,boxtype,dtday,vol
@@ -593,22 +593,22 @@ c       stop
 
               emp(l,k,:) = epela(:)
 
-       if (conz1 .LE. 0.0) then  !if
-        write(*,*) 'conz1<=0 after merc_react kint=',k,conz1
+c       if (conz1 .LE. 0.0) then  !if
+c        write(*,*) 'conz1<=0 after merc_react kint=',k,conz1
 c        stop
-        else if (conz2 .LE. 0.0) then
-        write(*,*) 'conz2<0 after merc_react kint=',k,conz2
+c        else if (conz2 .LE. 0.0) then
+c        write(*,*) 'conz2<0 after merc_react kint=',k,conz2
 c        stop
-        end if
+c        end if
 
-      if (kext .EQ. 70) then
-      write(191,*) id,bsurf,bbottom,boxtype,dtday,vol,d,volold
-      write(192,*) t,uws,area,s,qrad
-      write(193,*) epela,epload
-      write(194,*) Vds,Vdp,conz1,conz2
-      write(195,*) Shgsil,Shgpom,Smhgsil,Smhgpom
-      write(196,*) faq1,faq2,fdoc1,fdoc2
-      end if
+c      if (kext .EQ. 70) then
+c      write(191,*) id,bsurf,bbottom,boxtype,dtday,vol,d,volold
+c      write(192,*) t,uws,area,s,qrad
+c      write(193,*) epela,epload
+c      write(194,*) Vds,Vdp,conz1,conz2
+c      write(195,*) Shgsil,Shgpom,Smhgsil,Smhgpom
+c      write(196,*) faq1,faq2,fdoc1,fdoc2
+c      end if
 
         call sed4merc_water(bbottom,dtday,tday,vol,d,k,t,s,tau
      +                          ,area,esolw,
@@ -623,23 +623,24 @@ c       check Dssink_sum: is now summing all the levels? dmc 27/3/2020
 c        write(*,*)Dssink_sum,Dssink,esolw(1),l,k,dtday,'Dssink_sum'
 
 
-      if (kext .EQ. 70) then
-      write(245,*) bbottom,dtday,tday,vol,d,t,s,tau,area
-      write(246,*) esolw,Dssink,Dpsink,Vds,Vdp
-      write(247,*) ds_gm2s,dp_gm2s,volold
-      end if
+c      if (kext .EQ. 70) then
+c      write(245,*) bbottom,dtday,tday,vol,d,t,s,tau,area
+c      write(246,*) esolw,Dssink,Dpsink,Vds,Vdp
+c      write(247,*) ds_gm2s,dp_gm2s,volold
+c      end if
 
 
-        if (esolw(1) .LE. 0.0) then  !if
-        write(*,*) 'Siltw<=0 after sed4merc_wat kint=',k,esolw(1)
+c        if (esolw(1) .LE. 0.0) then  !if
+c        write(*,*) 'Siltw<=0 after sed4merc_wat kint=',k,esolw(1)
 c       stop
-        else if (esolw(2) .LE. 0.0) then
-        write(*,*) 'POMw<0 after sed4merc_wat kint=',k,esolw(2)
+c        else if (esolw(2) .LE. 0.0) then
+c        write(*,*) 'POMw<0 after sed4merc_wat kint=',k,esolw(2)
 c       stop
-        end if
+c        end if
 
 c        write(86,*) Dssink, Dpsink, 'dssink and dpsink in mercury.f'
-                emsolw(l,k,:) = esolw(:)
+ 
+               emsolw(l,k,:) = esolw(:)
         if (bbottom) then
 
           esedi(:)=ems(k,:)
@@ -654,31 +655,31 @@ c         write(6,*) esols, 'esols'
      +                        dZbed(k),dZactiv(k),  !claurent-OGS: get thicknesses for extraction of the fields in output
      +                        por,sed_vol_old,sed_vol_new)
   
-      if (esolw(1) .LE. 0.0) then  !if
-        write(*,*) 'Siltw<=0',esolw(1),'dopo merc_sed4sed kint=',k
+c      if (esolw(1) .LE. 0.0) then  !if
+c        write(*,*) 'Siltw<=0',esolw(1),'dopo merc_sed4sed kint=',k
 c        stop
-        else if (esolw(2) .LE. 0.0) then
-        write(*,*) 'POMw<0',esolw(2),'dopo merc_sed4sed kint=',k
+c        else if (esolw(2) .LE. 0.0) then
+c        write(*,*) 'POMw<0',esolw(2),'dopo merc_sed4sed kint=',k
 c        stop
-        end if
+c        end if
 
           emsolw(l,k,:)=esolw(:)
           emsols(k,:)=esols(:)
 
-      if (esolw(1) .LE. 0.0) then  !if
-        write(*,*) 'Siltw<=0',esolw(1),'dopo merc_sed4sed II kint=',k
+c      if (esolw(1) .LE. 0.0) then  !if
+c        write(*,*) 'Siltw<=0',esolw(1),'dopo merc_sed4sed II kint=',k
 c        stop
-        else if (esolw(2) .LE. 0.0) then
-        write(*,*) 'POMw<0',esolw(2),'dopo merc_sed4sed II kint=',k
+c        else if (esolw(2) .LE. 0.0) then
+c        write(*,*) 'POMw<0',esolw(2),'dopo merc_sed4sed II kint=',k
 c        stop
-        end if
+c        end if
 
-      if (ipext(k)==70) then
-      write(165,*) area,vol, tau
-      write(162,*) esolw, esols
-      write(163,*) Dssink_sum,Dpsink_sum,Sres,Pres,Vr,Bvels,Bvelp
-      write(164,*) ds_gm2s, dp_gm2s,tcek(k),dZbed(k),dZactiv(k)
-      end if
+c      if (ipext(k)==70) then
+c      write(165,*) area,vol, tau
+c      write(162,*) esolw, esols
+c      write(163,*) Dssink_sum,Dpsink_sum,Sres,Pres,Vr,Bvels,Bvelp
+c      write(164,*) ds_gm2s, dp_gm2s,tcek(k),dZbed(k),dZactiv(k)
+c      end if
 
           silt=esols(1)
           pom= esols(2)
@@ -689,9 +690,9 @@ c               write(*,*) 'silt_dopo_sed4merc', silt
           esedi(:)=ems(k,:)          !Hg in sed
           epela(:)=emp(l,k,:)        !Hg in water
 
-!         write(*,*) 'ems_before',ems(k,:)
-!         write(*,*) 'esedi_before',esedi(:)
-          write (573,*) esedi, epela
+c         write(*,*) 'ems_before',ems(k,:)
+c         write(*,*) 'esedi_before',esedi(:)
+c          write (573,*) esedi, epela
 
           call mercury_sed_react(dtday,vol,
      +                         k,t,area,esedi,epela,
@@ -701,30 +702,29 @@ c               write(*,*) 'silt_dopo_sed4merc', silt
      +             por, sed_vol_old,sed_vol_new,dZactiv(k))
 
 
-      if (kext .EQ. 70) then
-          write (565,*) dtday,t,area,'mercury.f'
-          write (566,*) esedi, epela
-          write (568,*) Shgsil,Shgpom,Smhgsil,Smhgpom
-          write (571,*) faq1,faq2,fdoc1,fdoc2, por
-          write (572,*) silt, pom, Vr, Bvels, Bvelp
-      end if
+c      if (kext .EQ. 70) then
+c          write (565,*) dtday,t,area,'mercury.f'
+c          write (566,*) esedi, epela
+c          write (568,*) Shgsil,Shgpom,Smhgsil,Smhgpom
+c          write (571,*) faq1,faq2,fdoc1,fdoc2, por
+c          write (572,*) silt, pom, Vr, Bvels, Bvelp
+c      end if
 
 
-      if (esedi(1) .LE. 0.0) then  !if
-        write(*,*),'esedi<=0 dopo merc_sed kint=',k
-        end if
+c      if (esedi(1) .LE. 0.0) then  !if
+c        write(*,*),'esedi<=0 dopo merc_sed kint=',k
+c        end if
 
-      if (epela(1) .LE. 0.0) then  !if
-        write(*,*),'Hg0<=0 dopo merc_sed kint=',k
+c      if (epela(1) .LE. 0.0) then  !if
+c        write(*,*),'Hg0<=0 dopo merc_sed kint=',k
 c        stop
-        else if (epela(2) .LE. 0.0) then
-        write(*,*),'HgII<0 dopo merc_sed kint=',k
+c        else if (epela(2) .LE. 0.0) then
+c        write(*,*),'HgII<0 dopo merc_sed kint=',k
 c        stop
-       else if (epela(3).LE. 0.0) then
-        write(*,*),'MeHg<0 dopo merc_sed kint=',k
+c       else if (epela(3).LE. 0.0) then
+c        write(*,*),'MeHg<0 dopo merc_sed kint=',k
 c        stop
-
-        end if
+c        end if
 
 
           ems(k,:) = esedi(:)
@@ -1126,8 +1126,6 @@ c                val minimo              tcek(k)=minimo tra tce e tcek(k)
                 tceaux=min(tceaux,tce)
                  tcek(k)=tceaux
 c                 write(*,*) tce,k,tceaux,ia,ie
-
-       kext=ipext(k)
 
           end do
         end do
