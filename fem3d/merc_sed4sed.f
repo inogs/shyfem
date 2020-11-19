@@ -134,7 +134,7 @@ C       processes sed4merc_sed
 c       __________________________________________________
             
         p_POM = POM/(POM+silt)*100.
-        DryD = (POM+silt)/10.**6.
+        DryD = (POM+silt)/1000000.
         if (p_POM >17.) then
         write(*,*) 'POM% >17', p_POM
         p_POM=17.
