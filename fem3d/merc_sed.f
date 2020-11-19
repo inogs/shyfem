@@ -4,7 +4,7 @@
      +             Shgsil, Shgpom, Smhgsil, Smhgpom,
      +             fdiss1w,fdiss2w,fdoc1w,fdoc2w,
      +             silt,pom,Vr,bvels,bvelp,
-     +             por, svol_old,svol_new,dZactivk)
+     +             por, svol_old,svol_new)       !Zactivk)
 c	
 ************************************************************************
 * 
@@ -111,7 +111,7 @@ c	------------------------------------------------------
 c------  BOX features --------------------------------------------------
 c	------------------------------------------------------
 c    dZactivk = 0.02             ! m
-c     vol= dZactivk*area          ! m3
+      dZactivk= svol_old/area    ! m
       
       DOC = 15.                  ! [mg/l] di DOC in sediment
 c     por = 0.7                  ! FIXME read from sed4merc_sed grcom 11-02-2020     
@@ -144,9 +144,9 @@ c -----------------------------------------------------------
 ****** CONCENTRATIONS of silt, POM, DOC in sed*********part 04**********
 ******* converted from [g m-3] to [g cm-3] or [kg l-1]***********
  
-      Cdoc  = por*DOC/10.**6. ! g(DOC)/m3(w) * 0.8 m3(w)/m3(s+w) -> mg(DOC)/L(s+w)/10**6 -> kgl-1
-      Csilt = silt/10.**6.  ! from [g m-3] to [g cm-3] or [kg l-1]      
-      Cpom  = POM /10.**6.  ! [kg l-1]   
+      Cdoc  = por*DOC/1000000. ! g(DOC)/m3(w) * 0.8 m3(w)/m3(s+w) -> mg(DOC)/L(s+w)/10**6 -> kgl-1
+      Csilt = silt   /1000000.  ! from [g m-3] to [g cm-3] or [kg l-1]      
+      Cpom  = POM    /1000000.  ! [kg l-1]   
       Ctot  = Csilt+Cpom      
  
       num1 = (K1silt *Csilt) + (K1POM*Cpom) !+(K1DOC*Cdoc) ! L/kg* kg/L
@@ -280,7 +280,7 @@ c ---------- Dchg_25 = 1.2/10.**9. -- MeHg sulfides (CH3HgSH0)-----------
 c -----------------------------------------------------------------------
       HgDw  = hgitw*(fdiss1w+fdoc1w)  ! Hg diss acque [ng l-1(w+s)] - da model water
       MeHgDw  = mehgtw*(fdiss2w+fdoc2w)  ! Hg diss acque [ng l-1(w+s)] - da model water
-      Dchg_25 = 1.0/(10.**9.)                ! [m2 s-1]
+      Dchg_25 = 0.000000001                ! [m2 s-1]
       Dchg_t = Dchg_25/(1.+0.048*(25.-temp))  ! temperature dependent difffusion coefficient
       tor = 1. - log(por**2.)
      
