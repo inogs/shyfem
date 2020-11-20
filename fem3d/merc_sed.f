@@ -553,83 +553,83 @@ c     write (91,*) DepHg2,DepMeHg,burHg,burMeHg,dt !, ' variables'
 c --------------------------------------------------------
 c--------------------------------------------------
 
-c          if (k .GE. 1) then
-c           kext=ipext(k)
-c           fortfilenum=-1
-c           if(kext==3985)then
-c               fortfilenum=450
-c           elseif(kext==3986) then
-c               fortfilenum=451
-c           elseif(kext==3982) then
-c               fortfilenum=452
-c           elseif(kext==4007) then
-c               fortfilenum=453
-c           elseif(kext==3763) then
-c               fortfilenum=454
-c           elseif(kext==3765) then
-c               fortfilenum=455
-c           elseif(kext==3764)then
-c               fortfilenum=456
-c           elseif(kext==3762) then
-c               fortfilenum=457
-c           else if(kext==2150)then
-c               fortfilenum=458
-c           elseif(kext==2009) then
-c               fortfilenum=459
-c           elseif(kext==2359) then
-c               fortfilenum=460
-c           elseif(kext==2358) then
-c               fortfilenum=461
-c           elseif(kext==2341) then
-c               fortfilenum=462
-c           elseif(kext==2408) then
-c               fortfilenum=463
-c           elseif(kext==2191)then
-c               fortfilenum=464
-c           elseif(kext==2192) then
-c               fortfilenum=465
-c           elseif(kext==2654)then
-c               fortfilenum=466
-c           elseif(kext==2505) then
-c                fortfilenum=467
-c           elseif(kext==2655) then
-c               fortfilenum=468
-c          elseif(kext==2653) then
-c               fortfilenum=469
-c           else if(kext==1372)then
-cc               fortfilenum=470
-c           elseif(kext==1375) then
-c               fortfilenum=471
-c           elseif(kext==1331) then
-c               fortfilenum=472
-c           elseif(kext==1378) then
-c               fortfilenum=473
-c           elseif(kext==3216) then
-c               fortfilenum=475
-c           elseif(kext==3057)then
-c               fortfilenum=476
-c           elseif(kext==2953) then
-c               fortfilenum=477
-c           elseif(kext==3217) then
-c               fortfilenum=478
-c           elseif(kext==2405) then
-c               fortfilenum=479
-c           elseif(kext==2407)then
-c               fortfilenum=480
-c           elseif(kext==2284) then
-c               fortfilenum=481
-c           elseif(kext==2404) then
-c               fortfilenum=482
-c           endif
-c           if(fortfilenum.ge.0)then
+          if (k .GE. 1) then
+           kext=ipext(k)
+           fortfilenum=-1
+           if(kext==3985)then
+               fortfilenum=450
+           elseif(kext==3986) then
+               fortfilenum=451
+           elseif(kext==3982) then
+               fortfilenum=452
+           elseif(kext==4007) then
+               fortfilenum=453
+           elseif(kext==3763) then
+               fortfilenum=454
+           elseif(kext==3765) then
+              fortfilenum=455
+           elseif(kext==3764)then
+               fortfilenum=456
+           elseif(kext==3762) then
+               fortfilenum=457
+           else if(kext==2150)then
+               fortfilenum=458
+           elseif(kext==2009) then
+               fortfilenum=459
+           elseif(kext==2359) then
+               fortfilenum=460
+           elseif(kext==2358) then
+               fortfilenum=461
+           elseif(kext==2341) then
+               fortfilenum=462
+           elseif(kext==2408) then
+               fortfilenum=463
+           elseif(kext==2191)then
+               fortfilenum=464
+           elseif(kext==2192) then
+               fortfilenum=465
+          elseif(kext==2654)then
+               fortfilenum=466
+           elseif(kext==2505) then
+                fortfilenum=467
+           elseif(kext==2655) then
+               fortfilenum=468
+          elseif(kext==2653) then
+               fortfilenum=469
+          else if(kext==1372)then
+               fortfilenum=470
+           elseif(kext==1375) then
+               fortfilenum=471
+           elseif(kext==1331) then
+               fortfilenum=472
+          elseif(kext==1378) then
+               fortfilenum=473
+           elseif(kext==3216) then
+               fortfilenum=475
+           elseif(kext==3057)then
+               fortfilenum=476
+           elseif(kext==2953) then
+               fortfilenum=477
+           elseif(kext==3217) then
+               fortfilenum=478
+           elseif(kext==2405) then
+               fortfilenum=479
+           elseif(kext==2407)then
+               fortfilenum=480
+           elseif(kext==2284) then
+               fortfilenum=481
+           elseif(kext==2404) then
+               fortfilenum=482
+           endif
+           if(fortfilenum.ge.0)then
 c               if(fortfilenum==450)
 c     +             write(*,*) 'stamp to file 350... at iter=',iter,
 c     +             ', tday=', tday
-c               write(fortfilenum,"(7(f20.7,','))")
-c     +         Hg2sed,hgit,mehgt,silt,POM,add1,add2
+               write(fortfilenum,"(7(f20.7,','))")
+     +         Hg2sed,MeHgsed,hgit,mehgt,silt,POM,add1,add2
 c Hg2sed, MeHgsed,Hg2pw,MeHgpw
-c           endif
-c         endif
+           endif
+         endif
 
 c        if (kext .EQ. 70) then
 c          write (599,*) C, Cw                              ! hgsed,
