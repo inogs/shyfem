@@ -143,7 +143,7 @@ c eco-model cosimo
       real, save :: epinit(npstate) = (/0.08,5.9,0.02/) !default in. cond. Hg0,HgII,MeHg in water
 c      real, save :: esinit(nsstate) = (/0.0,0.0/)       !default in. cond. HgII, MeHg in sediment [mg/kg]
       real, save :: esinit(nsstate) = (/3.0,0.06/)       !default in. cond. HgII, MeHg in sediment [mg/kg]
-      real, save :: eploadin(npstate) = (/0.0,0.0,0.0/) !atm load kg/day
+      real, save :: eploadin(npstate) = (/0.0,29.7,0.15/) !atm load Input in [g/d]
 
       real, save :: esolbound(nsolwst) = (/5.0,0.1/)   !default bound cond.solids in water  !grosati-OGS:calibration
       real, save :: esolwinit(nsolwst) = (/3.0,1./)       !default in. cond. solids in water
@@ -1070,7 +1070,7 @@ c*************************************************************
         end do
 
         do i=1,npstate
-          loadsup(i)=eploadin(i)*1000./areatot          !loading g/m2
+          loadsup(i)=eploadin(i)*1000000./areatot          !loading g/m2
         end do
 
         !write(6,*) loadsup(1),areatot,'loadsup1,areatot'
