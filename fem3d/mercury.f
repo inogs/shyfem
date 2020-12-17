@@ -147,7 +147,7 @@ c      real, save :: esinit(nsstate) = (/0.0,0.0/)       !default in. cond. HgII
 
       real, save :: esolbound(nsolwst) = (/5.0,0.1/)   !default bound cond.solids in water  !grosati-OGS:calibration
       real, save :: esolwinit(nsolwst) = (/3.0,1./)       !default in. cond. solids in water
-      real, save :: esolsinit(nsolsst) = (/.1,0./)       !initial OC%, dummy var.
+      real, save :: esolsinit(nsolsst) = (/5.,0./)       !initial OC%, dummy var.
 c       esolsinit: initial value is the OC% in sediment. From this value
 c       we compute the % of POM and weighted particle density
 

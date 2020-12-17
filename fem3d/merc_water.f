@@ -578,9 +578,6 @@ c integrate loadings
       real dtday
       integer i
 
-      loads(1)=0.
-      loads(2)=0.
-      loads(3)=0.
 
 c      write(*,*) loads(nstate),'loads'
 c        write(6,*) cds(1),cds(2),cds(3),dt,'cds before load'
