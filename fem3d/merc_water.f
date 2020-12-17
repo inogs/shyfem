@@ -106,7 +106,7 @@ c     HgII sink reactions, parameters
 c
        real skme           !bacterial methylation               [ug/m3d]
        real Qbac           !T correction factor for methylation      [-]
-       real kmeth, ckmeth  !bacterial meth rate, T-adjusted rate   [1/d]
+       real kmeth, ckmet  !bacterial meth rate, T-adjusted rate   [1/d]
        real skph           !photoreduction                      [ug/m3d]
        real kphr,ckph      !photored rate, light-adjusted rate     [1/d]
        real ke             !extintion coefficient[w/m2],[1/m]
@@ -117,8 +117,8 @@ c
 c      MeHg sink reactions, parameters
        real skdem        !bacterial demethylation               [ug/m3d]
        real kdem, ckdem  !bacterial demeth rate, T-adjusted rate   [1/d]
-       real cordem       !T correction factor for demethylation      [-]
-       real Eadem        !activation energy for demethylation [kcal/mol]
+       real cordem,deltat  !T correction factor for demethylation      [-]
+       real Eadem          !activation energy for demethylation [kcal/mol]
 
 c      photoreductive demethylation
        real skphdem         !photoreductive demethylation       [ug/m3d]
@@ -192,8 +192,11 @@ c       volatilization
 c	--------------
         He=0.0071       ![atm/mol] Henry 's Law constant
         R=8.314472      ![J K-1 mol-1] universal gas constant
-c        write(6,*) kvol
-c
+
+        tkel=temp+273.
+        Rcal=R/4.184
+        deltat = tkel-tkref
+
 c       oxydation rate constant (Hg0d to Hg2)
 c	-----------------
 c       OxAct=2 !activation energy for oxydation, WASP impl =2 k[kcal mol-1]
@@ -206,9 +209,9 @@ c       -----------------------------------
 
 c	biological methylation rate constant (Hg to MeHg)
 c	------------------------------------
-        Remin=0.011/12.  ![g m-3d-1] * [mol/g] = [mol m-3d-1]  C REmin (?) mean of tested values  read from BIOGEOCHEM FIXME   grcom          
-        kmeth=Remin*0.038  ! Zhang et al., 2020    /100. ![day-1] wq  methylation rate at 20°C Monperrus et al., 2007
-c
+c        Remin=0.011/12.  ![g m-3d-1] * [mol/g] = [mol m-3d-1]  C REmin (?) mean of tested values  read from BIOGEOCHEM FIXME   grcom          
+        kmeth=0.004 !  Remin*0.038  ! Zhang et al., 2020    /100. ![day-1] wq  methylation rate at 20°C Monperrus et al., 2007
+        Qbac=1.5
 c       photoreduction rate constant (Hg2d to Hg0)
 c	-------------------------------------
         kphr=0.15       ![d-1] Soerensen et al., 2016  
@@ -225,15 +228,11 @@ c	--------------------------
 c	------------------------------------------------------------------------
 c	bacterial demethylation
 c	---------------------
-c       Eadem=2 !WASP manual around 10 kcal/mol
+        Eadem=2. !WASP manual around 10 kcal/mol
 c       ksdem lignano:0.159 s.andrea:0.093 buso:0.139 morgo:0.139 grado:0.064 primero:0.064 Hines et al. 2012
         kdem=0.07      ! Calibration or site specific rates
 
-c	temp=22.	
-
 c	call rddepth (depth)	!depth of the element
-c        depth=1.        !FIXME 1 m
-c        vol=1.        !FIXME 1 m3
 
         depth= abs(depth)
         
@@ -265,8 +264,6 @@ c       assigne old value to mercury variables
 
 c --------------------------------------------------------------
 c
-c        tkel=temp+273.
-c        Rcal=R/4.184
 c	------------------------------------
 c	partition of mercury spp (HG2 and MeHg) into solid phases
 c	--------------------------------------
@@ -359,7 +356,9 @@ c       skbred=bred*HgR*Hg2       ![ug m-3 d-1]
 c	---------------------------------------------
 c	Hg2d --> MeHgd methylation
 
-        skme=kmeth*HgR*Hg2    !(Hg2d*xHg2d+Hg2DOC*xHg2DOC+Hg2sorb*xHg2sorb) 
+c        skme=kmeth*HgR*Hg2    !(Hg2d*xHg2d+Hg2DOC*xHg2DOC+Hg2sorb*xHg2sorb) 
+        ckmet=(kmeth*Qbac**((temp-20.)/10.))   !/86400.
+        skme=ckmet*(Hg2*(faq1+fdoc1+forg1))    ! [d-1] * [ug m-3] = ug m3 d-1
 c
 c	----------------------------------------------
 c	MeHg --> Hg0 photoreductive demethylation in the water column
@@ -370,13 +369,11 @@ c
 c       ----------------------------------------------
 c	MeHg --> HgII bacterial demethylation in water 
 c	
-c     ckdem=kdem*cordem
-      skdem=kdem*MeHgR*MeHg !(MeHgd*xMeHgd+MeHgDOC*xMeHgD+MeHgsorb*xMeHgsorb)
- 
-!(MeHgd*xMeHgd+MeHgDOC*xMeHgDOC+MeHgsorb*xMeHgsorb)
+c      skdem=kdem*MeHgR*MeHg !(MeHgd*xMeHgd+MeHgDOC*xMeHgD+MeHgsorb*xMeHgsorb)
+       ckdem=(kdem*exp(Eadem*1000.*(deltat/(Rcal*tkel*tkref)))) !/86400. 
+       skdem=(ckdem*MeHg*(faq2+fdoc2+forg2))    ! [d-1] * [ug m-3] = ug m3 d-1
 
 c       Compute Compute deposition fluxes and rates 
-
         Dhgsil = vds*Hg2silt   ! [m s-1]*[ug m-3]*[-]=[ug m2s-1]
         Dhgpom = vdp*Hg2org    ! [m s-1]*[ug m-3]*[-]=[ug m2s-1]
         Dmhgsil= vds*MeHgsilt  ! [m s-1]*[ug m-3]*[-]=[ug m2s-1]
