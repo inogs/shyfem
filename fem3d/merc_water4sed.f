@@ -269,38 +269,36 @@ c---------------------------------------------------------
 c       set atmospheric loading on the surface layer
 c--------------------------------------------------------
 c********************************************************************
-
-      subroutine load0ds(dt,cds,loads,vol)
+c
+c      subroutine load0ds(dt,cds,loads,vol)
 
 c integrate loadings
 
-      implicit none
+c      implicit none
 
-        integer nstate          !total number of state parameters
-        parameter( nstate =     2 )
+c        integer nstate          !total number of state parameters
+c        parameter( nstate =     2 )
 
-      real cds(nstate)      !source term [g]
-      real loads(nstate)      !loading for c [g/ day)on the element]
-      real vol            !volume of box [m**3]
-      real dt
+c      real cds(nstate)      !source term [g]
+c      real loads(nstate)      !loading for c [g/ day)on the element]
+c      real vol            !volume of box [m**3]
+c      real dt
 
-      integer i
+c     integer i
 
 c        write(6,*) cds(1),cds(2),cds(3),dt,'cds before load'
-      do i=1,nstate
-        cds(i) = cds(i) +  loads(i)*dt
-      end do
+c      do i=1,nstate
+c        cds(i) = cds(i) +  loads(i)*dt
+c      end do
 
 c        write(6,*) loads(1),loads(2),loads(3),dt,'loads'
 c        write(6,*) cds(1),cds(2),cds(3),dt,'cds after load'
 
-      end
-
-
+c      end
 
 c********************************************************************
 
-	subroutine  sed4merc_gas_exchange(salin,temp,area,visc,rhow)
+c	subroutine  sed4merc_gas_exchange(salin,temp,area,visc,rhow)
 c
 c 4.05.2017	dmc
 
@@ -310,66 +308,25 @@ c	for Air Sea Exchange of Mercury: High Concentrations over the North
 c	Atlantic
 
 
-	implicit none
-        logical bvis1		!select viscosity calculation bvis1 true
-	save bvis1		!bvis true use model output else use Soerensen
-
-c	general constant s
-
-c	 parameters
-c        real AW		!Constant based on the Weibull distribution of
-c			!wind speeds over oceans
-c        real mw		!molecular weight of water [g mol-1]\
-c        real molHg	!molal volume of mercury at its normal boiling
-                        !temperature [cm3 mol-1]
-c        real phiw	!solvent association factor introduced to define
-			!the effective molecular weight of the solvent
-			! with respect to the diffusion process
+c	implicit none
+c       logical bvis1		!select viscosity calculation bvis1 true
+c	save bvis1		!bvis true use model output else use Soerensen
 
 c	auxiliar variables
-         real a,b, p,c,d
-         real e,g,h,m,n,o
-         real v1,v2,v3,v4,v5,v6
-
+c         real a,b, p,c,d
+c         real e,g,h,m,n,o
+c         real v1,v2,v3,v4,v5,v6
 
 c	from the hydrodynamic model
-     	real temp	!water temperature °C
-     	real salin	!water salinity
+c     	real temp	!water temperature °C
+c     	real salin	!water salinity
 c       	real uwind10	!wind speed normalised at 10 m above sea surface
-     	real area	!element surface
+c     	real area	!element surface
+c     	real visc	 ! water viscosity [cP]
+c        real rhow 	! density of the (sea)water  (KG/M**3)
+c      	real tempk	!temperature [K]
 
-c  	from mercury module
-c      	real Hg0	!Hg0 concentration in water [g/ m3] or mg/L
-c       	real Hg0atm	!Hg0 concentration in air   [g/ m3] or mg/L
-
-c	variables and parameters calculated in this routine
-
-c     	real mex	!Air_sea Exchange of mercury Hg0 at each time step
-c			![kg*s-1]
-c     	real mex2	!alternative formulation for test
-c     	real flux2	!alternative formulation for test
-c     	real flux	!Hg0 air-sea exchange flux [ng m-2 h-1]
-c     	real Hlw	!dimensionless Henry's law constant
-c     	real kw		!water side mass transfer coefficient for steady winds
-c      	real kwb	!water side mass transfer coefficient Borgest et al.2004
-c			!kwb Borges et al., 2004 formulation for microtidal syst
-c      	real SchHg	!Schmidt number for mercury
-c      	real ScCO2	!Schmidt number for CO2
-c     	real kvis	!kinematic viscosity [cm2 s-1]
-c     	real diff	!diffusivity (Wilke-Cang method) [cm s-1]
-     	real visc	 ! water viscosity [cP]
-        real rhow 	! density of the (sea)water  (KG/M**3)
-      	real tempk	!temperature [K]
-
-c        mw=18.0		!molecular weight of water [g mol-1]
-c        molHg= 12.74	!molal volume of mercury at its normal boiling
-c     			!temperature [cm3 mol-1]
-c        phiw=2.26	!solvent association factor
-c       	AW=0.25		!Weibull Constant based on wind distribution
-
-c       from the hydrodynamic model
-
-       tempk=temp+273.15       !temperature Kelvin
+c       tempk=temp+273.15       !temperature Kelvin
 
 C ======================================================================
 C ======================================================================
@@ -381,25 +338,26 @@ C compute the dynamic/molecular viscosity
 c      VISC0=1.802863d-3 - 6.1086d-5*TEMP + 1.31419d-06*TEMP**2 -
 c       &1.35576d-08*TEMP**3 + 2.15123d-06*SALIN + 3.59406d-11*SALIN**2
 
-        a=0.0001529
-        b=0.000016826
-        p=1.013253
-        c=8.3885*(10E-8)
-        d=p**(2.)
-        e=0.0024727
-        g=4.8429*(10E-5)
-        h=4.7172*(10E-6)
-        m=7.5986*(10E-8)
-        n=6.0574*(10E-6)
-        o= 2.676*(10E-9)
-        v1= temp*(0.06144-temp*(0.001451-temp*b))
-        v2=a*p
-        v3=c*d
-        v4=e*salin
-        v5=(n*p-o*d)*temp
-        v6=((temp*g)-temp*(h-temp*m))*salin
-
-        visc=(1.791- v1-v2+v3+v4+ v5+v6)/1000.     ![kg m-1* s-1]
+c        a=0.0001529
+c        b=0.000016826
+c        p=1.013253
+c        c=0.000000083885      !8.3885*(10E-8)
+c        d=p*p                 !p**(2)
+c        e=0.0024727
+c        g= 0.000048429       !4.8429*(10E-5)
+c        h= 0.0000047172      !4.7172*(10E-6)
+c        m= 0.000000075986    !7.5986*(10E-8)
+c        n= 0.0000060574     !6.0574*(10E-6)
+c        o= 0.000000002676     !2.676*(10E-9)       
+c
+c        v1= temp*(0.06144-temp*(0.001451-temp*b))
+c        v2=a*p
+c        v3=c*d
+c        v4=e*salin
+c        v5=(n*p-o*d)*temp
+c        v6=((temp*g)-temp*(h-temp*m))*salin
+c
+c        visc=(1.791- v1-v2+v3+v4+ v5+v6)/1000.     ![kg m-1* s-1]
 
 c mpute the water density according to Brydon et al. 1999, J. Geoph. Res.
 C 104/C1, 1537-1540, equation 2 with Coefficient of Table 4, without pressure
@@ -413,14 +371,20 @@ C compute the water density according to EOS80, Fofonoff 198599,
 C J. Geoph. Res. 90/C2, 3332-3342, without pressure component.
 c	[kg * m-2]
 
-      RHOW=999.842594d0 +6.793952d-2*TEMP -9.095290d-3*TEMP**2.
-     &   +1.00168d-4*TEMP**3 -1.120083d-6*TEMP**4 +6.536332d-9*TEMP**5.
-     & +(8.24493d-1 -4.0899d-3*TEMP +7.6438d-5*TEMP**2.
-     &   -8.2467d-7*TEMP**3 +5.3875d-9*TEMP**4.) * SALIN
-     & +(-5.72466d-3 +1.0227d-4*TEMP -1.6546d-6*TEMP**2.) * SALIN**1.5d0
-     & +4.8314d-4*SALIN**2.
+c     RHOW=999.842594d0 +6.793952d-2*TEMP -9.095290d-3*TEMP**2.
+c    &   +1.00168d-4*TEMP**3 -1.120083d-6*TEMP**4 +6.536332d-9*TEMP**5.
+c    & +(8.24493d-1 -4.0899d-3*TEMP +7.6438d-5*TEMP**2.
+c    &   -8.2467d-7*TEMP**3 +5.3875d-9*TEMP**4.) * SALIN
+c    & +(-5.72466d-3 +1.0227d-4*TEMP -1.6546d-6*TEMP**2.) * SALIN**1.5d0
+c    & +4.8314d-4*SALIN**2.
 
-c	bvis1=.true.
+
+c      RHOW=999.842594d0+6.793952d-2*TEMP -9.095290d-3*(TEMP*TEMP)
+c     & + 1.00168d-4*TEMP**3.-1.120083d-6*TEMP**4.+6.536332d-9*TEMP**5.
+c     & + (8.24493d-1 -4.0899d-3*TEMP +7.6438d-5*(TEMP*TEMP)
+c     & - 8.2467d-7*TEMP**3. +5.3875d-9*TEMP**4.) * SALIN
+c     & + (-5.72466d-3 +1.0227d-4*TEMP -1.6546d-6*(TEMP*TEMP))
+c     & * SALIN**1.5d0 +4.8314d-4*(SALIN*SALIN)
 c	if(bvis1)then
 c
 c	kvis=(VISC/RHOW)*10000	![cm2 s-1]
@@ -429,35 +393,8 @@ c
 c	kvis=0.017*exp(-0.025*tempk)
 c
 c	end if
-c       write(*,*) 'RhoW', RHOW, 'Vis', visc, 'subroutine'
 
 C ======================================================================
 C ======================================================================
 
-c        diff=((7.4*0.00000001)*((phiw*mw)**0.5)*tempk)
-c        diff=diff/(visc*1000*(molHg**0.6))      !diffusivity
-
-c	Hlw=exp((-2403.3/tempk)+6.92)
-c	ScCO2=0.11*temp**2-6.16*temp+644.7	!Soerensen da Poissant et al 2000
-cc       ScCO2=2073.1+125.62*temp+3.6276*temp*temp-0.043219*temp**3 !Wanninkhof salt
-c c      ScCO2=1911.1+118.11*temp+3.4527*temp*temp-0.04132*temp**3 !Wanninkhof fresh
-c        SchHg=kvis/diff
-c        kw=Aw/100*24*uwind10**2*(SchHg/ScCO2)**(-0.5)  ![m day-1]
-c        flux=(kw)*(Hg0-Hg0atm/Hlw)       !g m-2 day-1] FIXMME
-cc        !mex=area*flux/1000    ![kg s-1]
-
-c	alternative equation of
-
-c        kwb=(0.1+2.26*uwind10*(SchHg/ScCO2)**(-0.5))/100*24  ! [m day-1] Borges et al., 2004
-c       flux2=(kwb)*(Hg0-Hg0atm/Hlw)        ![g m-2 day-1]
-c       !mex2=area*flux2/1000            ![kg day-1]
-
-
-cc        write(97,*)visc,RHOW,diff,temp
-cc        write(98,*)ScCO2,SchHg, Hlw
-cc	write(82,*)kw,kwb
-cc	write(77,*)uwind10,Hg0,Hg0atm,flux,flux2
-
-
-        !write(6,*) RHOW,visc,temp,salin, 'rhow,visc in gas_exchange'
-	end			!end of routine
+c     end ! end of routine

@@ -197,7 +197,8 @@ c       we compute the % of POM and weighted particle density
         real conz1,conz2
         real Dpsink, Dssink
         real Dpsink_sum, Dssink_sum   !claurent-OGS: stores sum of sinks for multiple water levels above sea bed
-
+        real temp,sal          !temperature [C] and salinity [-]
+     
         logical t1
         real t2,t3,t4
         integer t5
@@ -275,8 +276,8 @@ c       --------------------------------------------------------
         DryD=1.776-0.363*log(OC_mg_g)
 
         por=1.-(DryD/pdens)
-        siltin=DryD*10.**6.*p_silt/100.
-        POMin=DryD*10.**6.*p_pom/100.
+        siltin=DryD*1000000.*p_silt/100.
+        POMin= DryD*1000000.*p_pom/100.
 
         write(*,*) 'siltin', siltin, 'DryD', DryD
         write(*,*) 'OC%', p_poc, 'por', por
@@ -304,8 +305,8 @@ c                   una routine unica per settare tutti i parametri
         hgp   = hgp1 + hgp2
         mehgp = mehgp1 + mehgp2
 
-        hgd   = (Hg2sed *(por/k1tp))*10.**6. ![ug(hg) m-3(w+s)]
-        mehgd = (MeHgsed*(por/k2tp))*10.**6.
+        hgd   = (Hg2sed *(por/k1tp))*1000000. ![ug(hg) m-3(w+s)]
+        mehgd = (MeHgsed*(por/k2tp))*1000000.
 
 
 c ------------- total hg and mehg -----------------------
@@ -539,12 +540,14 @@ c       solids in water dynamics
 c       --------------------------------------------------------
        tCDs = 1.            ! Input critical shear stress for deposition
 
+       call sed4merc_gas_exchange(sal,temp,vis,swd)
+
        dsilt   = 2./1000000. ! silt diameter [m] -  5*10^-5 = coarse silt, 6*10^-6 very fine silt, 1*10^-6 fine clay
        dPOM    = 5./100000.  ! POM diameter [m]  - diatom cell 2*10-5 - 2*10^-4 um, picoplankton < 2*10^-6
        spd = sdens *1000.    ! silt particle density    [kg/m3]
        ppd = podens*1000.    ! POM particle density     [kg/m3]
-       swd = 1029.           !seawater density
-       vis = 0.0015006446    ! seawater viscosity       [kg m-1 s-1]
+c      swd = 1029.           !seawater density
+c      vis = 0.0015006446    ! seawater viscosity       [kg m-1 s-1]
 
 c      Compute Stoke's settling velocities for silt and POM
        ter1 = g/(18.*vis)                 ![m s-2]/[kg m-2 s-1]= [m s-1]
@@ -699,7 +702,7 @@ c          write (573,*) esedi, epela
      +                  Shgsil, Shgpom, Smhgsil, Smhgpom,
      +             faq1,faq2,fdoc1,fdoc2,
      +             silt,pom,Vr,Bvels,Bvelp,
-     +             por, sed_vol_old,sed_vol_new,dZactiv(k))
+     +             por, sed_vol_old,sed_vol_new)  !,dZactiv(k))
 
 
 c      if (kext .EQ. 70) then
@@ -961,6 +964,92 @@ c*************************************************************
         end if
 
 	end
+
+
+
+c*************************************************************
+c*************************************************************
+      subroutine sed4merc_gas_exchange(salin,temp,visc,rhow)
+c
+c 4.05.2017     dmc
+
+        implicit none
+c       auxiliar variables
+         real a,b, p,c,d
+         real e,g,h,m,n,o
+         real v1,v2,v3,v4,v5,v6
+
+c       from the hydrodynamic model
+        real temp       !water temperature °C
+        real salin      !water salinity
+        real visc        ! water viscosity [cP]
+        real rhow       ! density of the (sea)water  (KG/M**3)
+        real tempk      !temperature [K]
+
+       tempk=temp+273.15       !temperature Kelvin
+
+C ======================================================================
+C ======================================================================
+C
+C Compute the density and the dynamic viscosity of water from the
+C temperature
+C and the salinity
+
+C compute the dynamic/molecular viscosity
+c      VISC0=1.802863d-3 - 6.1086d-5*TEMP + 1.31419d-06*TEMP**2 -
+c       &1.35576d-08*TEMP**3 + 2.15123d-06*SALIN + 3.59406d-11*SALIN**2
+
+        a=0.0001529
+        b=0.000016826
+        p=1.013253
+        c=0.000000083885      !8.3885*(10E-8)
+        d=p*p                 !p**(2)
+        e=0.0024727
+        g= 0.000048429       !4.8429*(10E-5)
+        h= 0.0000047172      !4.7172*(10E-6)
+        m= 0.000000075986    !7.5986*(10E-8)
+        n= 0.0000060574     !6.0574*(10E-6)
+        o= 0.000000002676     !2.676*(10E-9)       
+
+        v1= temp*(0.06144-temp*(0.001451-temp*b))
+        v2=a*p
+        v3=c*d
+        v4=e*salin
+        v5=(n*p-o*d)*temp
+        v6=((temp*g)-temp*(h-temp*m))*salin
+
+        visc=(1.791- v1-v2+v3+v4+ v5+v6)/1000.     ![kg m-1* s-1]
+
+c mpute the water density according to Brydon et al. 1999, J. Geoph.Res.
+C 104/C1, 1537-1540, equation 2 with Coefficient of Table 4, without
+C pressure
+C component. Ranges TEMP -2 - 40øC, S 0-42, surface water.
+C      RHOW=9.20601d-2 + 5.10768d-2*TEMP + 8.05999d-1*SALIN
+C     &     -7.40849d-3*TEMP**2 - 3.01036d-3*SALIN*TEMP +
+C     %     3.32267d-5*TEMP**3 + 3.21931d-5*SALIN*TEMP**2
+C      RHOW=RHOW+1000d0
+
+C compute the water density according to EOS80, Fofonoff 198599,
+C J. Geoph. Res. 90/C2, 3332-3342, without pressure component.
+c       [kg * m-2]
+
+c     RHOW=999.842594d0 +6.793952d-2*TEMP -9.095290d-3*TEMP**2.
+c    &   +1.00168d-4*TEMP**3 -1.120083d-6*TEMP**4 +6.536332d-9*TEMP**5.
+c    & +(8.24493d-1 -4.0899d-3*TEMP +7.6438d-5*TEMP**2.
+c    &   -8.2467d-7*TEMP**3 +5.3875d-9*TEMP**4.) * SALIN
+c    & +(-5.72466d-3 +1.0227d-4*TEMP -1.6546d-6*TEMP**2.) * SALIN**1.5d0
+c    & +4.8314d-4*SALIN**2.
+
+
+      RHOW=999.842594d0+6.793952d-2*TEMP -9.095290d-3*(TEMP*TEMP)
+     & + 1.00168d-4*TEMP**3.-1.120083d-6*TEMP**4.+6.536332d-9*TEMP**5.
+     & + (8.24493d-1 -4.0899d-3*TEMP +7.6438d-5*(TEMP*TEMP)
+     & - 8.2467d-7*TEMP**3. +5.3875d-9*TEMP**4.) * SALIN
+     & + (-5.72466d-3 +1.0227d-4*TEMP -1.6546d-6*(TEMP*TEMP))
+     & * SALIN**1.5d0 +4.8314d-4*(SALIN*SALIN)
+c
+      end ! end of subroutine gas_exchange
+
 
 c*************************************************************
 c*************************************************************

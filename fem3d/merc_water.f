@@ -219,7 +219,7 @@ c	-------------------------------------
 
 c       biological reduction rate constant (Hg2 to Hg0)
         NPP=0.06        !mean of tested values  read from BIOGEOCHEM FIXME     
-        bred= 4.5*10.E-6*NPP 
+        bred= 0.0000045*NPP 
 
 c	------------------------------------
 c	photoreductive demethylation rate constant (MeHg to Hg0 and Hg2)
@@ -677,14 +677,14 @@ c       &1.35576d-08*TEMP**3 + 2.15123d-06*SALIN + 3.59406d-11*SALIN**2
         a=0.0001529
         b=0.000016826
         p=1.013253
-        c=8.3885*(10E-8)
-        d=p**(2)
+        c=0.000000083885        
+        d=p*p      !p**(2)
         e=0.0024727
-        g=4.8429*(10E-5)
-        h=4.7172*(10E-6)
-        m=7.5986*(10E-8)
-        n=6.0574*(10E-6)
-        o= 2.676*(10E-9)
+        g= 0.000048429       !4.8429*(10E-5)
+        h= 0.0000047172      !4.7172*(10E-6)
+        m= 0.000000075986    !7.5986*(10E-8)
+        n= 0.0000060574     !6.0574*(10E-6)
+        o= 0.000000002676     !2.676*(10E-9)
         v1= temp*(0.06144-temp*(0.001451-temp*b))
         v2=a*p
         v3=c*d
@@ -706,12 +706,12 @@ C compute the water density according to EOS80, Fofonoff 198599,
 C J. Geoph. Res. 90/C2, 3332-3342, without pressure component.
 c	[kg * m-2]
 
-      RHOW=999.842594d0+6.793952d-2*TEMP -9.095290d-3*TEMP**2.
+      RHOW=999.842594d0+6.793952d-2*TEMP -9.095290d-3*(TEMP*TEMP)
      &   +1.00168d-4*TEMP**3.-1.120083d-6*TEMP**4.+6.536332d-9*TEMP**5.
-     & +(8.24493d-1 -4.0899d-3*TEMP +7.6438d-5*TEMP**2.
+     & +(8.24493d-1 -4.0899d-3*TEMP +7.6438d-5*(TEMP*TEMP)
      &   -8.2467d-7*TEMP**3. +5.3875d-9*TEMP**4.) * SALIN
-     & +(-5.72466d-3 +1.0227d-4*TEMP -1.6546d-6*TEMP**2.) * SALIN**1.5d0
-     & +4.8314d-4*SALIN**2.
+     & +(-5.72466d-3 +1.0227d-4*TEMP-1.6546d-6*(TEMP*TEMP))
+     & *SALIN**1.5d0+4.8314d-4*(SALIN*SALIN)
 
       bvis1=.true.
       if(bvis1)then
@@ -730,23 +730,21 @@ C ======================================================================
 
         Hlw=exp((-2403.3/tempk)+6.92)
 
-        ScCO2=0.11*temp**2.-6.16*temp+644.7     !Soerensen da Poissant et al 2000
+        ScCO2=0.11*(temp*temp)-6.16*temp+644.7     !Soerensen da Poissant et al 2000
 c       ScCO2=2073.1+125.62*temp+3.6276*temp*temp-0.043219*temp**3 !Wanninkhof salt
 c       ScCO2=1911.1+118.11*temp+3.4527*temp*temp-0.04132*temp**3 !Wanninkhof fresh
         SchHg=kvis/diff
 c        write(*,*) Aw,uwind10, SchHg, ScCO2
-        kw=Aw/100.*24.*uwind10**2.*(SchHg/ScCO2)**(-0.5)  ![m day-1]
-        flux=(kw)*(Hg0-Hg0atm/Hlw)       !g m-2 day-1] FIXMME
+c        kw=Aw/100.*24.*(uwind10*uwind10)*(SchHg/ScCO2)**(-0.5)  ![m day-1]
+c        flux=(kw)*(Hg0-Hg0atm/Hlw)       !g m-2 day-1] FIXMME
         !mex=area*flux/1000    ![kg s-1]
 
 c	alternative equation of 
 
         kwb=(0.1+2.26*uwind10*(SchHg/ScCO2)**(-0.5))/100.*24.  ! [m day-1] Borges et al., 2004
         flux2=(kwb)*(Hg0-Hg0atm/Hlw)        ![g m-2 day-1]
+
         !mex2=area*flux2/1000            ![kg day-1]
-
-
-
 
        end          !end of routine
 
