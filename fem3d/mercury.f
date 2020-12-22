@@ -147,7 +147,7 @@ c      real, save :: esinit(nsstate) = (/0.0,0.0/)       !default in. cond. HgII
 
       real, save :: esolbound(nsolwst) = (/5.0,0.1/)   !default bound cond.solids in water  !grosati-OGS:calibration
       real, save :: esolwinit(nsolwst) = (/3.0,1./)       !default in. cond. solids in water
-      real, save :: esolsinit(nsolsst) = (/5.,0./)       !initial OC%, dummy var.
+      real, save :: esolsinit(nsolsst) = (/2.,0./)       !initial OC%, dummy var.
 c       esolsinit: initial value is the OC% in sediment. From this value
 c       we compute the % of POM and weighted particle density
 
@@ -420,6 +420,8 @@ c-------------------------------------------------------------------
         Smhgpom=0.
         Vdp=0.
         Vds=0.
+        Pd=0.
+        tau=0.
         ds_gm2s=0.
         dp_gm2s=0.
 
@@ -538,7 +540,7 @@ c      FIXME conz(l) da leggere nel ciclo sui livelli
 c ------------------------------------------------------
 c       solids in water dynamics
 c       --------------------------------------------------------
-       tCDs = 1.            ! Input critical shear stress for deposition
+       tCDs = .8            ! Input critical shear stress for deposition
 
        call sed4merc_gas_exchange(sal,temp,vis,swd)
 
@@ -1196,10 +1198,10 @@ c*************************************************************
           if( ia== 7 )  tce =.85
           if( ia== 8 )  tce =.85
 
-          if( ia== 3 )  tce =.99
-          if( ia== 4 )  tce =.99
-          if( ia== 5 )  tce =.99
-          if( ia== 9 )  tce =.99
+          if( ia== 3 )  tce =.89
+          if( ia== 4 )  tce =.89
+          if( ia== 5 )  tce =.89
+          if( ia== 9 )  tce =.89
 c types 3-4-5-9 bocche di porto
 c types 2-6-7-8 canali
 
