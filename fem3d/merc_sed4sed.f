@@ -287,11 +287,6 @@ c       end if
 c	if( c(1) < 0 ) write(6,*) '***** 3 ggu ',c
 c	if( c(1) < 0 ) call mdebug('ggu 3',k,2,c)
 
-        Bsflux=0.
-        Bpflux=0.
-        Bvels=0.
-        Bvelp=0.
-
 c___________ Compute sediment thickness variations ____________________________   
       
         dZit=( (Dpsink_sum-Pres)/POM + (Dssink_sum-Sres)/silt) 

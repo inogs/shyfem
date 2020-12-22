@@ -246,11 +246,11 @@ c      write(*,*) ' '
 c------------------------------------------------------------------------    
 c --------- Hg MeHg BURIAL  ---------------------------------------------
 c------------------------------------------------------------------------
-      bursHg  = 0.!(hgit*fsilt1 *Bvels*area) ![ug s-1]=[ug m-3]*[m s-1]*[m2]
-      burpHg  = 0.!(hgit*fpom1  *Bvelp*area)  
+      bursHg  = (hgit*fsilt1 *Bvels*area) ![ug s-1]=[ug m-3]*[m s-1]*[m2]
+      burpHg  = (hgit*fpom1  *Bvelp*area)  
        
-      bursMHg =0.! (mehgt*fsilt2*Bvels*area) ![ug s-1]=[ug m-3]*[m s-1]*[m2]
-      burpMHg =0. ! (mehgt*fpom2*Bvelp*area)          
+      bursMHg = (mehgt*fsilt2*Bvels*area) ![ug s-1]=[ug m-3]*[m s-1]*[m2]
+      burpMHg = (mehgt*fpom2*Bvelp*area)          
      
 c      if (kext .EQ. 2284) then
 c      write(*,*) Bvels, Bvelp, 'merc_SED'
