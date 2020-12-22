@@ -559,7 +559,7 @@
           h = hkv(ki)
           z = cv3all(1,ki,0)
 	  format = ' '
-	  write(format,'(a,i3,a)') '(a20,',lmax,'f8.3)'
+	  write(format,'(a,i3,a)') '(a20,',lmax,'f10.3)'
 
 	  do iv=1,nvar
 	    ivar = ivars(iv)
@@ -581,7 +581,7 @@
 	  end do
         end do
 
-	write(format,'(a,i4,a)') '(a20,',nnodes,'f8.3)'
+	write(format,'(a,i4,a)') '(a20,',nnodes,'f10.3)'
 	do iv=1,nvar
 	  ivar = ivars(iv)
 	  scals = cv3all(1,nodesi(1:nnodes),iv)
@@ -704,7 +704,7 @@
 
 	  if( .not. b3d ) cycle
 
-	  write(format,'(a,i3,a)') '(a20,',lmax,'f8.3)'
+	  write(format,'(a,i3,a)') '(a20,',lmax,'f10.3)'
 	  do l=1,lmax
 	    call c2p_ocean(u(l),v(l),s(l),d(l))
 	  end do
