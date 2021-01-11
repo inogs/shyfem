@@ -306,11 +306,11 @@ c___________ Compute sediment thickness variations ____________________________
         
         dZcrit=0.07
 
-       if(dZactivk+dZit>dZcrit)then     ! gr prova 30/06 correzione spessore sed quando depos. elevata.
-          dZactivk=0.05                 !concentrazioni invariate
-       else 
+c       if(dZactivk+dZit>dZcrit)then     ! gr prova 30/06 correzione spessore sed quando depos. elevata.
+c          dZactivk=0.05                 !concentrazioni invariate
+c       else 
         dZactivk=dZactivk+dZit+dZdig
-       endif
+c       endif
 
           sed_vol_new=area*dZactivk
 
