@@ -315,15 +315,12 @@ c       endif
           sed_vol_new=area*dZactivk
 
 
-      if (ipext(k)==70) then
-        write(7777,*), dZactivk, ipext(k), silt, POM
 
 c      write(8888,*) siltm,POMm,dZactivk,sed_vol_new,area,silt,POM
 c      write(661,*) area,wat_vol, taub
 c      write(662,*) C, Cs                                             ! Hgsed, MeHgsed, Hg0w, HgIIw, Mehgw
 c      write(663,*) Dssink_sum,Dpsink_sum,Sres,Pres,Vr,Bvels,Bvelp
 c      write(664,*) ds_gm2s, dp_gm2s,tCE,dZbedk,dZactivk
-      end if 
 c________________________________________________________________________________    
 c       
 c____________Positive burial push sediment below the active layer__________________
