@@ -1185,18 +1185,18 @@ c*************************************************************
         tce=1
 
         do k=1,nkn
-             tcek(k)=1.1
+             tcek(k)=1.
         end do
 
         do ie=1,nel
           ia = iarv(ie)
-          if( ia == 0)  tce =0.8 !FIXME
-          if( ia== 1 )  tce =0.89
+          if( ia == 0)  tce =0.6       !FIXME
+          if( ia== 1 )  tce =0.7
 
-          if( ia== 2 )  tce =.7
-          if( ia== 6 )  tce =.7
-          if( ia== 7 )  tce =.7
-          if( ia== 8 )  tce =.7
+          if( ia== 2 )  tce =.6
+          if( ia== 6 )  tce =.6
+          if( ia== 7 )  tce =.6
+          if( ia== 8 )  tce =.6
 
           if( ia== 3 )  tce =.75
           if( ia== 4 )  tce =.75
