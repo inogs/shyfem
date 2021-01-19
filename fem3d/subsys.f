@@ -2719,10 +2719,10 @@ cc non-documented -> try first	HACK	-> initial conditions
         call addfnm('bioin',' ')
         call addfnm('biosin',' ')
         call addfnm('toxi',' ')
-        call addfnm('mercin_emp',' ')	!initializes mercury emp
-        call addfnm('mercin_ems',' ')	!initializes mercury ems
-        call addfnm('mercin_solw',' ')	!initializes mercury emsolw
-        call addfnm('mercin_sols',' ')	!initializes mercury emsols
+        call addfnm('merc_emp',' ')	!initializes mercury emp
+        call addfnm('merc_ems',' ')	!initializes mercury ems
+        call addfnm('merc_solw',' ')	!initializes mercury emsolw
+        call addfnm('merc_sols',' ')	!initializes mercury emsols
 
 cc ACQUBC
 

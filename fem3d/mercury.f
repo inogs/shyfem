@@ -851,7 +851,7 @@ c initialization of mercury from file
         character*(*) valname
 
         call tracer_file_init('mercury '//trim(valname)//' init'
-     +                       ,'mercin'//"_"//trim(valname),dtime
+     +                       ,'merc'//"_"//trim(valname),dtime
      +                       ,nvar,nlvddi,nlv,nkn,val0,val)
 
         end
