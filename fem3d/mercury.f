@@ -262,30 +262,6 @@ c-------------------------------------------------------------------
            call get_first_dtime(dtime0)
         dtime0=itanf
 
-c       ___________________________________________________
-c        initialization data transformed to variables units
-c       ----------------------------------------------------
-c       solids in sediment initialization
-c       --------------------------------------------------------
-
-        p_poc=esolsinit(1)
-        p_pom=p_poc*1.7
-        p_silt=100.-p_pom
-        OC_mg_g=10.0*p_poc
-        pdens = ((1.25*p_POM)+(2.65*(100.0 - p_POM)))/100.0
-        DryD=1.776-0.363*log(OC_mg_g)
-
-        por=1.-(DryD/pdens)
-        siltin=DryD*1000000.*p_silt/100.
-        POMin= DryD*1000000.*p_pom/100.
-
-        write(*,*) 'siltin', siltin, 'DryD', DryD
-        write(*,*) 'OC%', p_poc, 'por', por
-
-        esolsinit(1)=siltin     !GINEVRA FIXME, unità di misura
-        esolsinit(2)=POMin
-
-c       write(*,*) 'esols', esolsinit
 
 c         --------------------------------------------------
 c	  initialize state variables
@@ -330,6 +306,12 @@ c         --------------------------------------------------
           nvar = nsstate
           call mercury_init_file(dtime0,nvar,    1,  1,nkn,
      +                           esinit,ems,"ems")
+	  nvar = nsolwst
+	  call mercury_init_file(dtime0,nvar,nlvdi,nlv,nkn,
+     +                           esolwinit,emsolw,'solw')
+	  nvar = nsolsst
+	  call mercury_init_file(dtime0,nvar,    1,  1,nkn,
+     +                           esolsinit,emsols,'sols')
 
 c         --------------------------------------------------------
 c         mercury in sediment initialization
@@ -363,13 +345,28 @@ c           write(*,*) 'mehgt',mehgt,  'mercury.f'
             ems(k,1)=hgit
             ems(k,2)=mehgt
           enddo
-         
-	  nvar = nsolwst
-	  call mercury_init_file(dtime0,nvar,nlvdi,nlv,nkn,
-     +                           esolwinit,emsolw,'solw')
-	  nvar = nsolsst
-	  call mercury_init_file(dtime0,nvar,    1,  1,nkn,
-     +                           esolsinit,emsols,'sols')
+
+c         ----------------------------------------------------
+c         solids in sediment initialization
+c         --------------------------------------------------------
+          do k=1,nkn		!loop on nodes
+            p_poc=emsols(k,1)
+            p_pom=p_poc*1.7
+            p_silt=100.-p_pom
+            OC_mg_g=10.0*p_poc
+            pdens = ((1.25*p_POM)+(2.65*(100.0 - p_POM)))/100.0
+            DryD=1.776-0.363*log(OC_mg_g)
+          
+            por=1.-(DryD/pdens)
+            siltin=DryD*1000000.*p_silt/100.
+            POMin= DryD*1000000.*p_pom/100.
+          
+            write(*,*) 'siltin', siltin, 'DryD', DryD
+            write(*,*) 'OC%', p_poc, 'por', por
+          
+            emsols(k,1)=siltin     !GINEVRA FIXME, unità di misura
+            emsols(k,2)=POMin
+          enddo
 
 c         --------------------------------------------------
 c	  set boundary conditions for all state variables
