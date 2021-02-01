@@ -1226,8 +1226,38 @@ c                 write(*,*) tce,k,tceaux,ia,ie
 !*************************************************************
 
         subroutine write_restart_mercury(iunit)
+
+        use mercury
+        use levels, only : nlvdi
+        use basin, only : nkndi
+
         implicit none
         integer iunit
+	integer l,k,s
+
+
+	write(6,*) 'write_restart_mercury '
+
+        write(iunit) npstate,nlvdi,nkndi,nkn, -99991
+        do s=1,npstate
+          write(iunit) ((emp(l,k,s),l=1,nlvdi),k=1,nkndi)
+        enddo
+
+        write(iunit) npstate,nkndi,nkn,-99992
+        do s=1,npstate
+          write(iunit) (ems(k,s),k=1,nkndi)
+        enddo
+
+        write(iunit) npstate,nlvdi,nkndi,nkn,-99993
+        do s=1,nsolwst
+          write(iunit) ((emsolw(l,k,s),l=1,nlvdi),k=1,nkndi)
+        enddo
+
+        write(iunit) npstate,nkndi,nkn,-99994
+        do s=1,nnsolsst
+          write(iunit) (emsols(k,s),k=1,nkndi)
+        enddo
+
         end
 
         subroutine skip_restart_mercury(iunit)
@@ -1236,8 +1266,40 @@ c                 write(*,*) tce,k,tceaux,ia,ie
         end
 
         subroutine read_restart_mercury(iunit)
+        use mercury
+        use levels, only : nlvdi
+        use basin, only : nkndi
+
         implicit none
         integer iunit
+	integer l,k,s,flag
+
+
+	write(6,*) 'read_restart_mercury '
+
+        read(iunit) npstate,nlvdi,nkndi,nkn,flag
+        if(flag\=-99991) goto 99
+        do s=1,npstate
+          read(iunit) ((emp(l,k,s),l=1,nlvdi),k=1,nkndi)
+        enddo
+
+        read(iunit) npstate,nkndi,nkn,flag
+        if(flag\=-99992) goto 99
+        do s=1,npstate
+          read(iunit) (ems(k,s),k=1,nkndi)
+        enddo
+
+        read(iunit) npstate,nlvdi,nkndi,nkn,flag
+        if(flag\=-99993) goto 99
+        do s=1,nsolwst
+          read(iunit) ((emsolw(l,k,s),l=1,nlvdi),k=1,nkndi)
+        enddo
+
+        read(iunit) npstate,nkndi,nkn,flag
+        if(flag\=-99994) goto 99
+        do s=1,nnsolsst
+          read(iunit) (emsols(k,s),k=1,nkndi)
+        enddo
         end
 
 !*************************************************************
