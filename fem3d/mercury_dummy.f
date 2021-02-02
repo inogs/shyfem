@@ -83,12 +83,12 @@
 
 !********************************************************************
 
-	subroutine mercury_init
+	subroutine mercury_init(has_restart)
 
 ! initializes mercury routines
 
 	implicit none
-
+        logical :: has_restart
 	end
 
 !*************************************************************
@@ -99,14 +99,55 @@
 	end
 
 	subroutine skip_restart_mercury(iunit)
-	implicit none
-	integer iunit
-	end
+          use mercury
+          use levels, only : nlvdi
+          use basin, only : nkndi
+        
+          implicit none
+          integer iunit
+          integer l,k,s,flag
+          integer r_ns,r_nl,r_nk,r_flag
 
-	subroutine read_restart_mercury(iunit)
-	implicit none
-	integer iunit
-	end
+            write(6,*) 'skip_restart_mercury ... '
+            read(iunit) r_ns,r_nl,r_nk,r_flag
+            if( r_flag/=-99991   ) goto 98
+            do s=1,npstate
+              read(iunit) 
+            enddo
+           
+            read(iunit) r_ns,r_nl,r_nk,r_flag
+            if(r_flag/=-99992   ) goto 98
+            do s=1,nsstate
+              read(iunit) 
+            enddo
+           
+            read(iunit) r_ns,r_nl,r_nk,r_flag
+            if(r_flag/=-99993   ) goto 98
+            do s=1,nsolwst
+              read(iunit) 
+            enddo
+           
+            read(iunit) r_ns,r_nl,r_nk,r_flag
+            if(r_flag/=-99994   ) goto 98
+            do s=1,nsolsst
+              read(iunit) 
+            enddo
+       
+            write(6,*) 'skip_restart_mercury done '
+          return 
+           
+   98     continue
+            write(6,*) 'error flag not conform in skip_restart_merc '
+            write(6,*) r_ns,r_nl,r_nk,r_flag
+            stop 'error stop skip_restart_merc'
+
+        end
+
+        subroutine read_restart_mercury(iunit)
+          implicit none
+          integer iunit
+          call skip_restart_mercury(iunit)
+        end
 
 !*************************************************************
 

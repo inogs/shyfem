@@ -78,9 +78,13 @@ c********************************************************************
 
 	integer, save :: iubp,iubs,iubsolw,iubsols
 
+        logical,save :: merc_has_restart=.False.
+        logical,save :: mercury_initialized=.False.
+        
 !====================================================================
 	end module mercury
 !====================================================================
+
 
         subroutine mercury_module
 
@@ -99,6 +103,26 @@ c general interface to mercury module
         end
 
 c********************************************************************
+
+        subroutine mercury_init(has_restart)
+          use mercury
+          use levels, only : nlvdi
+          use basin, only : nkndi
+          logical :: has_restart
+
+
+          if(.not. mercury_initialized)then
+            mercury_initialized=.True.
+            allocate(emp(nlvdi,nkndi,npstate))
+            allocate(ems(nkndi,nsstate))
+            allocate(emsolw(nlvdi,nkndi,nsolwst))
+            allocate(emsols(nkndi,nsolsst))
+          endif
+        end
+
+
+c*************************************************************
+
 
 	subroutine mercury3d(dt)
 
@@ -324,35 +348,35 @@ c      write(*,*) 'mehgt',mehgt,  'mercury.f'
 c         --------------------------------------------------
 c	  initialize state variables
 c         --------------------------------------------------
-
-	  allocate(emp(nlvdi,nkndi,npstate))
-	  allocate(ems(nkndi,nsstate))
-	  allocate(emsolw(nlvdi,nkndi,nsolwst))
-	  allocate(emsols(nkndi,nsolsst))
 	  allocate(etau(nkndi))      !claurent-OGS: created to produce outputs fields
 	  allocate(dZbed(nkndi))     !claurent-OGS: created to produce outputs fields
 	  allocate(dZactiv(nkndi))   !claurent-OGS: created to produce outputs fields
 
-
-           do i=1,npstate
-            emp(:,:,i) = epinit(i)
-          end do
-
-           do i=1,nsstate
-            ems(:,i) = esinit(i)
-          end do
-
-           do i=1,nsolwst
-            emsolw(:,:,i) = esolwinit(i)
-          end do
-
-           do i=1,nsolsst
-            emsols(:,i) = esolsinit(i)
-          end do
-
           etau(:)=0.0                  !claurent-OGS: created to produce outputs fields
           dZbed(:)=0.0    ! [meters]   !claurent-OGS: created to produce outputs fields
           dZactiv(:)=0.05 ! [meters]   !claurent-OGS: created to produce outputs fields
+
+          if(.not.mercury_initialized) then
+            call mercury_init(.False.)
+          endif
+
+          if(.not.merc_has_restart)then
+           do i=1,npstate
+            emp(:,:,i) = epinit(i)
+           end do
+
+           do i=1,nsstate
+            ems(:,i) = esinit(i)
+           end do
+
+           do i=1,nsolwst
+            emsolw(:,:,i) = esolwinit(i)
+           end do
+
+           do i=1,nsolsst
+            emsols(:,i) = esolsinit(i)
+           end do
+         endif
 c         --------------------------------------------------
 c	  initial conditions from file (only for pelagic part)
 c         --------------------------------------------------
@@ -389,7 +413,7 @@ c         --------------------------------------------------
 c	  initialize eco model
 c         --------------------------------------------------
 
-	  call mercury_init
+          !call mercury_init
 
 c         --------------------------------------------------
 c	  parameters for transport/diffusion resolution
@@ -816,16 +840,6 @@ c*************************************************************
 c*************************************************************
 c*************************************************************
 
-	subroutine mercury_init
-
-! initializes mercury routines
-
-	implicit none
-
-	end
-
-c*************************************************************
-
 	subroutine mercury_init_file(dtime,nvar,nlvddi,nlv,nkn,val0,val)
 
 c initialization of mercury from file
@@ -1227,79 +1241,140 @@ c                 write(*,*) tce,k,tceaux,ia,ie
 
         subroutine write_restart_mercury(iunit)
 
-        use mercury
-        use levels, only : nlvdi
-        use basin, only : nkndi
+          use mercury
+          use levels, only : nlvdi
+          use basin, only : nkndi
 
-        implicit none
-        integer iunit
-	integer l,k,s
+          implicit none
+          integer iunit
+          integer l,k,s
 
+            write(6,*) 'write_restart_mercury '
 
-	write(6,*) 'write_restart_mercury '
+            write(iunit) npstate,nlvdi,nkndi, -99991
+            do s=1,npstate
+              write(iunit) ((emp(l,k,s),l=1,nlvdi),k=1,nkndi)
+            enddo
 
-        write(iunit) npstate,nlvdi,nkndi,nkn, -99991
-        do s=1,npstate
-          write(iunit) ((emp(l,k,s),l=1,nlvdi),k=1,nkndi)
-        enddo
+            write(iunit) nsstate,1,nkndi,-99992
+            do s=1,nsstate
+              write(iunit) (ems(k,s),k=1,nkndi)
+            enddo
 
-        write(iunit) npstate,nkndi,nkn,-99992
-        do s=1,npstate
-          write(iunit) (ems(k,s),k=1,nkndi)
-        enddo
+            write(iunit) nsolwst,nlvdi,nkndi,-99993
+            do s=1,nsolwst
+              write(iunit) ((emsolw(l,k,s),l=1,nlvdi),k=1,nkndi)
+            enddo
 
-        write(iunit) npstate,nlvdi,nkndi,nkn,-99993
-        do s=1,nsolwst
-          write(iunit) ((emsolw(l,k,s),l=1,nlvdi),k=1,nkndi)
-        enddo
-
-        write(iunit) npstate,nkndi,nkn,-99994
-        do s=1,nnsolsst
-          write(iunit) (emsols(k,s),k=1,nkndi)
-        enddo
+            write(iunit) nsolsst,1,nkndi,-99994
+            do s=1,nsolsst
+              write(iunit) (emsols(k,s),k=1,nkndi)
+            enddo
 
         end
+
+c       -----------------------------------------
 
         subroutine skip_restart_mercury(iunit)
-        implicit none
-        integer iunit
+          use mercury
+          use levels, only : nlvdi
+          use basin, only : nkndi
+        
+          implicit none
+          integer iunit
+          integer l,k,s,flag
+          integer r_ns,r_nl,r_nk,r_flag
+
+            write(6,*) 'skip_restart_mercury ... '
+            read(iunit) r_ns,r_nl,r_nk,r_flag
+            if(r_ns/=npstate .OR. r_nl/= nlvdi   .OR.
+     +         r_nk /=nkndi  .OR. r_flag/=-99991   ) goto 98
+            do s=1,npstate
+              read(iunit) 
+            enddo
+           
+            read(iunit) r_ns,r_nl,r_nk,r_flag
+            if(r_ns/=nsstate .OR. r_nl/= 1   .OR.
+     +         r_nk /=nkndi  .OR. r_flag/=-99992   ) goto 98
+            do s=1,nsstate
+              read(iunit) 
+            enddo
+           
+            read(iunit) r_ns,r_nl,r_nk,r_flag
+            if(r_ns/=nsolwst .OR. r_nl/= nlvdi   .OR.
+     +         r_nk /=nkndi  .OR. r_flag/=-99993   ) goto 98
+            do s=1,nsolwst
+              read(iunit) 
+            enddo
+           
+            read(iunit) r_ns,r_nl,r_nk,r_flag
+            if(r_ns/=nsolsst .OR. r_nl/= 1  .OR.
+     +         r_nk /=nkndi  .OR. r_flag/=-99994   ) goto 98
+            do s=1,nsolsst
+              read(iunit) 
+            enddo
+       
+            write(6,*) 'skip_restart_mercury done '
+          return 
+           
+   98     continue
+            write(6,*) 'error parameters in skip_restart_merc '
+            write(6,*) r_ns,r_nl,r_nk,r_flag
+            stop 'error stop skip_restart_merc'
+
         end
 
+c       -----------------------------------------
+
         subroutine read_restart_mercury(iunit)
-        use mercury
-        use levels, only : nlvdi
-        use basin, only : nkndi
 
-        implicit none
-        integer iunit
-	integer l,k,s,flag
+          use mercury
+          use levels, only : nlvdi
+          use basin, only : nkndi
+        
+          implicit none
+          integer iunit
+          integer l,k,s,flag
+          integer r_ns,r_nl,r_nk,r_flag
 
+            write(6,*) 'read_restart_mercury '
 
-	write(6,*) 'read_restart_mercury '
+            read(iunit) r_ns,r_nl,r_nk,r_flag
+            write(6,*) r_ns,r_nl,r_nk,r_flag
+            if(r_ns/=npstate .OR. r_nl/= nlvdi   .OR.
+     +         r_nk /=nkndi  .OR. r_flag/=-99991   ) goto 99
+            do s=1,npstate
+              read(iunit) ((emp(l,k,s),l=1,nlvdi),k=1,nkndi)
+            enddo
+           
+            read(iunit) r_ns,r_nl,r_nk,r_flag
+            if(r_ns/=nsstate .OR. r_nl/= 1   .OR.
+     +         r_nk /=nkndi  .OR. r_flag/=-99992   ) goto 99
+            do s=1,nsstate
+              read(iunit) (ems(k,s),k=1,nkndi)
+            enddo
+           
+            read(iunit) r_ns,r_nl,r_nk,r_flag
+            if(r_ns/=nsolwst .OR. r_nl/= nlvdi   .OR.
+     +         r_nk /=nkndi  .OR. r_flag/=-99993   ) goto 99
+            do s=1,nsolwst
+              read(iunit) ((emsolw(l,k,s),l=1,nlvdi),k=1,nkndi)
+            enddo
+           
+            read(iunit) r_ns,r_nl,r_nk,r_flag
+            if(r_ns/=nsolsst .OR. r_nl/= 1  .OR.
+     +         r_nk /=nkndi  .OR. r_flag/=-99994   ) goto 99
+            do s=1,nsolsst
+              read(iunit) (emsols(k,s),k=1,nkndi)
+            enddo
+       
+          return 
+           
+   99     continue
+            write(6,*) 'error parameters in read_restart_merc '
+            write(6,*) r_ns,r_nl,r_nk,r_flag
+            stop 'error stop read_restart_merc'
 
-        read(iunit) npstate,nlvdi,nkndi,nkn,flag
-        if(flag\=-99991) goto 99
-        do s=1,npstate
-          read(iunit) ((emp(l,k,s),l=1,nlvdi),k=1,nkndi)
-        enddo
-
-        read(iunit) npstate,nkndi,nkn,flag
-        if(flag\=-99992) goto 99
-        do s=1,npstate
-          read(iunit) (ems(k,s),k=1,nkndi)
-        enddo
-
-        read(iunit) npstate,nlvdi,nkndi,nkn,flag
-        if(flag\=-99993) goto 99
-        do s=1,nsolwst
-          read(iunit) ((emsolw(l,k,s),l=1,nlvdi),k=1,nkndi)
-        enddo
-
-        read(iunit) npstate,nkndi,nkn,flag
-        if(flag\=-99994) goto 99
-        do s=1,nnsolsst
-          read(iunit) (emsols(k,s),k=1,nkndi)
-        enddo
         end
 
 !*************************************************************
