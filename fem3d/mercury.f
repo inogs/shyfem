@@ -313,14 +313,35 @@ c         --------------------------------------------------
 	  call mercury_init_file(dtime0,nvar,    1,  1,nkn,
      +                           esolsinit,emsols,'sols')
 
-c         --------------------------------------------------------
-c         mercury in sediment initialization
-c         --------------------------------------------------------
+          write(*,*)'ems=',ems
+
           k1tp=120000. !**5. !FIXME parametro che deriva dalla kd, mettere
 c                     una routine unica per settare tutti i parametri
           k2tp=32300.  !14590.  !FIXME
          
           do k=1,nkn		!loop on nodes
+c           ----------------------------------------------------
+c           solids in sediment initialization
+c           --------------------------------------------------------
+            p_poc=emsols(k,1)
+            p_pom=p_poc*1.7
+            p_silt=100.-p_pom
+            OC_mg_g=10.0*p_poc
+            pdens = ((1.25*p_POM)+(2.65*(100.0 - p_POM)))/100.0
+            DryD=1.776-0.363*log(OC_mg_g)
+          
+            por=1.-(DryD/pdens)
+            siltin=DryD*1000000.*p_silt/100.
+            POMin= DryD*1000000.*p_pom/100.
+          
+            write(*,*) 'siltin', siltin, 'DryD', DryD
+            write(*,*) 'OC%', p_poc, 'por', por
+          
+            emsols(k,1)=siltin     !GINEVRA FIXME, unità di misura
+            emsols(k,2)=POMin
+c           --------------------------------------------------------
+c           mercury in sediment initialization
+c           --------------------------------------------------------
             Hg2sed=ems(k,1)   !ug(hg)/g(sed)
             MeHgsed=ems(k,2)
        
@@ -346,27 +367,6 @@ c           write(*,*) 'mehgt',mehgt,  'mercury.f'
             ems(k,2)=mehgt
           enddo
 
-c         ----------------------------------------------------
-c         solids in sediment initialization
-c         --------------------------------------------------------
-          do k=1,nkn		!loop on nodes
-            p_poc=emsols(k,1)
-            p_pom=p_poc*1.7
-            p_silt=100.-p_pom
-            OC_mg_g=10.0*p_poc
-            pdens = ((1.25*p_POM)+(2.65*(100.0 - p_POM)))/100.0
-            DryD=1.776-0.363*log(OC_mg_g)
-          
-            por=1.-(DryD/pdens)
-            siltin=DryD*1000000.*p_silt/100.
-            POMin= DryD*1000000.*p_pom/100.
-          
-            write(*,*) 'siltin', siltin, 'DryD', DryD
-            write(*,*) 'OC%', p_poc, 'por', por
-          
-            emsols(k,1)=siltin     !GINEVRA FIXME, unità di misura
-            emsols(k,2)=POMin
-          enddo
 
 c         --------------------------------------------------
 c	  set boundary conditions for all state variables
