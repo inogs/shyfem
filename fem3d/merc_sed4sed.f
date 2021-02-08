@@ -134,7 +134,7 @@ C       processes sed4merc_sed
 c       __________________________________________________
             
         p_POM = POM/(POM+silt)*100.
-        DryD = (POM+silt)/1000000.
+c        DryD = (POM+silt)/1000000.
         if (p_POM >17.) then
         write(*,*) 'POM% >17', p_POM
         p_POM=17.
@@ -143,7 +143,7 @@ c       __________________________________________________
          OM_mg_g = 10.0 * p_POM
          OC_mg_g = OM_mg_g/1.7
          p_silt=100.-p_POM
-c         DryD=1.776-0.363*log(OC_mg_g)
+         DryD=1.776-0.363*log(OC_mg_g)
 c___________ Compute weigthed particle density [g cm-3], porosity [-], Bulk density [g(s+w) cm-3]    
 
        Pdens = ((1.25*p_POM)+(2.65*(100.0 - p_POM)))/100.0  ![g(s)/cm3(s)]   
