@@ -171,20 +171,21 @@ c
         es = 0.198/(BulkD-1.0023)
         logdme = 0.23*exp(es)
 
-c	call massert('es',k,es,0.,5.)
+	call massert('es',k,es,0.,5.)
 
-        !if( es > 1.1*esmax ) then
-        !  call mdebug('es>esmax',k,2,(/es,logdme/))
-        !  esmax = es
-        !end if
-c        if( es > esmax0 ) then
-c          esmax = max(es,esmax)
-c          !logdme = 0.23*exp(es)
-          !call mdebug('es>esmax0',k,2,(/es,logdme/))
-c          call mdebug('es adjusted',k,3,(/es,esmax/))
-c          es = esmax0
-c          logdme = 0.23*exp(es)
-c        end if
+        if( es > 1.1*esmax ) then
+          call mdebug('es>esmax',k,2,(/es,logdme/))
+          write(*,*) es,logdme,ipext(k),OC_mg_g,BulkD,'ggu hack'
+           esmax = es
+        end if
+        if( es > esmax0 ) then
+          esmax = max(es,esmax)
+          logdme = 0.23*exp(es)
+          call mdebug('es>esmax0',k,2,(/es,logdme/))
+          call mdebug('es adjusted',k,3,(/es,esmax/))
+          es = esmax0
+          logdme = 0.23*exp(es)
+        end if
 
         dme = 10.**logdme                      ![mg cm-2 hr-1]
         dme2 = ((dme/1000.)/3600.)*10.**4.     ![g m-2 s-1]       
