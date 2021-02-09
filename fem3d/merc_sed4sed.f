@@ -113,8 +113,8 @@ c     +                 rs_gm2s, rp_gm2s,
         endif
 
         dZact0=0.02
-        silt_s0 = 665106.0   !1370180. ! set equal to silt_init e POM_init FIXME move to initialization  grcom
-        POM_s0 =  23409.0 !7023.
+        silt_s0 = 1195106.0   !1370180. ! set equal to silt_init e POM_init FIXME move to initialization  grcom
+        POM_s0 =  8409.0 !7023.
 c       _______________________________________________________
 c       assigne old value to water (sw,POMw) and sediment (silt, POM) variables
 
