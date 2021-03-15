@@ -518,6 +518,9 @@ c            call dvanode(l,k,mode,d,vol,area)   !gets depth, volume and area
 
                 !write(88,*) vol,volold,'2 vols before...'
             call getts(l,k,t,s)                 !gets temp and salt
+            sal=s
+            temp=t            
+
             call getuv(l,k,u,v)                 !gets velocities u/v
             vel = sqrt(u*u+v*v)
 
