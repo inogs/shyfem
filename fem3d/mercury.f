@@ -297,64 +297,6 @@ c-------------------------------------------------------------------
            call get_first_dtime(dtime0)
         dtime0=itanf
 
-c       ___________________________________________________
-c        initialization data transformed to variables units
-c       ----------------------------------------------------
-c       solids in sediment initialization
-c       --------------------------------------------------------
-
-        p_poc=esolsinit(1)
-        p_pom=p_poc*1.7
-        p_silt=100.-p_pom
-        OC_mg_g=10.0*p_poc
-        pdens = ((1.25*p_POM)+(2.65*(100.0 - p_POM)))/100.0
-        DryD=1.776-0.363*log(OC_mg_g)
-
-        por=1.-(DryD/pdens)
-        siltin=DryD*1000000.*p_silt/100.
-        POMin= DryD*1000000.*p_pom/100.
-
-        write(*,*) 'siltin', siltin, 'DryD', DryD
-        write(*,*) 'OC%', p_poc, 'por', por
-
-        esolsinit(1)=siltin     !GINEVRA FIXME, unità di misura
-        esolsinit(2)=POMin
-
-c       write(*,*) 'esols', esolsinit
-
-c     c       --------------------------------------------------------
-c       mercury in sediment initialization
-c       --------------------------------------------------------
-        k1tp=120000. !**5. !FIXME parametro che deriva dalla kd, mettere
-c                   una routine unica per settare tutti i parametri
-        k2tp=32300.  !14590.  !FIXME
-
-        Hg2sed=esinit(1)   !ug(hg)/g(sed)
-        MeHgsed=esinit(2)
-
-        hgp1   = Hg2sed  * siltin  ! ug(hg)/m3(s+w)]
-        hgp2   = Hg2sed  * POMin
-        mehgp1 = MeHgsed * siltin
-        mehgp2 = MeHgsed * POMin
-
-        hgp   = hgp1 + hgp2
-        mehgp = mehgp1 + mehgp2
-
-        hgd   = (Hg2sed *(por/k1tp))*1000000. ![ug(hg) m-3(w+s)]
-        mehgd = (MeHgsed*(por/k2tp))*1000000.
-
-
-c ------------- total hg and mehg -----------------------
-
-      hgit =  hgp + hgd      ! [ug m-3]or [ng(hg) l(w+s)-1]  Hg in particulate AND dissolved
-      mehgt = mehgd + mehgp  ! [ug m-3]or [ng(hg) l(w+s)-1] MeHg in particulate AND dissolved
-
-c      write(*,*) 'hgit',hgit, k, 'mercury.f'
-c      write(*,*) 'mehgt',mehgt,  'mercury.f'
-
-
-        esinit(1)=hgit
-        esinit(2)=mehgt
 
 c         --------------------------------------------------
 c	  initialize state variables
@@ -365,36 +307,82 @@ c         --------------------------------------------------
           endif
 
           if(.not.merc_has_restart)then
-           write(6,*)'Default valutes of emp,ems,emsolw.emsols'
-           do i=1,npstate
-            emp(:,:,i) = epinit(i)
-           end do
-
-           do i=1,nsstate
-            ems(:,i) = esinit(i)
-           end do
-
-           do i=1,nsolwst
-            emsolw(:,:,i) = esolwinit(i)
-           end do
-
-           do i=1,nsolsst
-            emsols(:,i) = esolsinit(i)
-           end do
-
-           etau(:)=0.0                  !claurent-OGS: created to produce outputs fields
-           dZbed(:)=0.0    ! [meters]   !claurent-OGS: created to produce outputs fields
-           dZactiv(:)=0.05 ! [meters]   !claurent-OGS: created to produce outputs fields
+           
+            etau(:)=0.0                  !claurent-OGS: created to produce outputs fields
+            dZbed(:)=0.0    ! [meters]   !claurent-OGS: created to produce outputs fields
+            dZactiv(:)=0.05 ! [meters]   !claurent-OGS: created to produce outputs fields
+           
+c           --------------------------------------------------
+c	    initial conditions from file
+c           --------------------------------------------------
+           
+            nvar = npstate
+            call mercury_init_file(dtime0,nvar,nlvdi,nlv,nkn,
+     +                             epinit,emp,"emp")
+            nvar = nsstate
+            call mercury_init_file(dtime0,nvar,    1,  1,nkn,
+     +                             esinit,ems,"ems")
+	    nvar = nsolwst
+	    call mercury_init_file(dtime0,nvar,nlvdi,nlv,nkn,
+     +                             esolwinit,emsolw,'solw')
+	    nvar = nsolsst
+	    call mercury_init_file(dtime0,nvar,    1,  1,nkn,
+     +                             esolsinit,emsols,'sols')
          endif
-c         --------------------------------------------------
-c	  initial conditions from file (only for pelagic part)
-c         --------------------------------------------------
 
-c this is still not working FIXME
-c	  nvar = npstate
-c	  call mercury_init_file(dtime0,nvar,nlvdi,nlv,nkn,epinit,emp)
-c	  nvar = nsolw
-c	  call mercury_init_file(dtime0,nvar,nlvdi,nlv,nkn,esolwinit,esolw)
+
+          k1tp=120000. !**5. !FIXME parametro che deriva dalla kd, mettere
+c                     una routine unica per settare tutti i parametri
+          k2tp=32300.  !14590.  !FIXME
+         
+          do k=1,nkn		!loop on nodes
+c           ----------------------------------------------------
+c           solids in sediment initialization
+c           --------------------------------------------------------
+            p_poc=emsols(k,1)
+            p_pom=p_poc*1.7
+            p_silt=100.-p_pom
+            OC_mg_g=10.0*p_poc
+            pdens = ((1.25*p_POM)+(2.65*(100.0 - p_POM)))/100.0
+            DryD=1.776-0.363*log(OC_mg_g)
+          
+            por=1.-(DryD/pdens)
+            siltin=DryD*1000000.*p_silt/100.
+            POMin= DryD*1000000.*p_pom/100.
+          
+            write(*,*) 'siltin', siltin, 'DryD', DryD
+            write(*,*) 'OC%', p_poc, 'por', por
+          
+            emsols(k,1)=siltin     !GINEVRA FIXME, unità di misura
+            emsols(k,2)=POMin
+c           --------------------------------------------------------
+c           mercury in sediment initialization
+c           --------------------------------------------------------
+            Hg2sed=ems(k,1)   !ug(hg)/g(sed)
+            MeHgsed=ems(k,2)
+       
+            hgp1   = Hg2sed  * siltin  ! ug(hg)/m3(s+w)]
+            hgp2   = Hg2sed  * POMin
+            mehgp1 = MeHgsed * siltin
+            mehgp2 = MeHgsed * POMin
+       
+            hgp   = hgp1 + hgp2
+            mehgp = mehgp1 + mehgp2
+       
+            hgd   = (Hg2sed *(por/k1tp))*1000000. ![ug(hg) m-3(w+s)]
+            mehgd = (MeHgsed*(por/k2tp))*1000000.
+       
+c           ------- total hg and mehg -----------------------
+            hgit =  hgp + hgd      ! [ug m-3]or [ng(hg) l(w+s)-1]  Hg in particulate AND dissolved
+            mehgt = mehgd + mehgp  ! [ug m-3]or [ng(hg) l(w+s)-1] MeHg in particulate AND dissolved
+         
+c           write(*,*) 'hgit',hgit, k, 'mercury.f'
+c           write(*,*) 'mehgt',mehgt,  'mercury.f'
+         
+            ems(k,1)=hgit
+            ems(k,2)=mehgt
+          enddo
+
 
 c         --------------------------------------------------
 c	  set boundary conditions for all state variables
@@ -851,7 +839,8 @@ c*************************************************************
 c*************************************************************
 c*************************************************************
 
-	subroutine mercury_init_file(dtime,nvar,nlvddi,nlv,nkn,val0,val)
+	subroutine mercury_init_file(dtime,nvar,nlvddi,nlv,nkn,val0,val,
+     +            valname)
 
 c initialization of mercury from file
 
@@ -864,9 +853,11 @@ c initialization of mercury from file
         integer nkn
         real val0(nvar)
         real val(nlvddi,nkn,nvar)
+        character*(*) valname
 
-        call tracer_file_init('mercury init','mercin',dtime
-     +                          ,nvar,nlvddi,nlv,nkn,val0,val)
+        call tracer_file_init('mercury '//trim(valname)//' init'
+     +                       ,'merc'//"_"//trim(valname),dtime
+     +                       ,nvar,nlvddi,nlv,nkn,val0,val)
 
         end
 
