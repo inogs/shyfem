@@ -104,7 +104,7 @@ c general interface to mercury module
 
 c********************************************************************
 
-        subroutine mercury_alloc()
+        subroutine mercury_init()
           use mercury
           use levels, only : nlvdi
           use basin, only : nkndi
@@ -116,9 +116,10 @@ c********************************************************************
             allocate(ems(nkndi,nsstate))
             allocate(emsolw(nlvdi,nkndi,nsolwst))
             allocate(emsols(nkndi,nsolsst))
-	    allocate(etau(nkndi))      !claurent-OGS: created to produce outputs fields
-	    allocate(dZbed(nkndi))     !claurent-OGS: created to produce outputs fields
-	    allocate(dZactiv(nkndi))   !claurent-OGS: created to produce outputs fields
+	    allocate(dZbed(nkndi))     
+	    allocate(dZactiv(nkndi))   
+            dZbed(:)=0.0    ! [meters] 
+            dZactiv(:)=0.05 ! [meters] 
            
             write(6,*)'mercury_init allocated arrays'
           endif
@@ -303,14 +304,13 @@ c	  initialize state variables
 c         --------------------------------------------------
 
           if(.not.mercury_initialized) then
-            call mercury_alloc()
+            call mercury_init()
           endif
 
-          if(.not.merc_has_restart)then
+	  allocate(etau(nkndi))      !claurent-OGS: created to produce outputs fields
+          etau(:)=0.0                  !claurent-OGS: created to produce outputs fields
            
-            etau(:)=0.0                  !claurent-OGS: created to produce outputs fields
-            dZbed(:)=0.0    ! [meters]   !claurent-OGS: created to produce outputs fields
-            dZactiv(:)=0.05 ! [meters]   !claurent-OGS: created to produce outputs fields
+          if(.not.merc_has_restart)then
            
 c           --------------------------------------------------
 c	    initial conditions from file

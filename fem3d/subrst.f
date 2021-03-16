@@ -865,7 +865,7 @@
 	    read(iunit) imerc_rst
             if( imerc_rst .gt. 0 ) then
 	      if( rst_want_restart(7) ) then
-                call mercury_alloc()
+                call mercury_init()
                 call mercury_has_restart()
 	        call read_restart_mercury(iunit)
 	      else

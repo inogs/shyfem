@@ -83,7 +83,7 @@
 
 !********************************************************************
 
-	subroutine mercury_alloc()
+	subroutine mercury_init()
 	implicit none
 	end
 
