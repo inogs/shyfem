@@ -958,9 +958,11 @@ c-----------------------------------------------------
 
 	ivar = 1
 	call shy_write_output_record(id,dtime,ivar,nkn,1,1,1,z)
+	ivar = 2
 	call shy_write_output_record(id,dtime,ivar,nel,3,1,1,ze)
 	ivar = 3
 	call shy_write_output_record(id,dtime,ivar,nel,1,nlv,nlvddi,u)
+	ivar = 4
 	call shy_write_output_record(id,dtime,ivar,nel,1,nlv,nlvddi,v)
 
 	end
