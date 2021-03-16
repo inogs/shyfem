@@ -93,7 +93,6 @@ c     +                 rs_gm2s, rp_gm2s,
       real dZit              !active layer variation during current iteration        [m] 
       real dZbedk            !total variation of the sea bed depth since the beginning of the simulation 
       real prct_0,prct_c     !fraction of solids from layer0 and active layer        [-]   
-      real dZbed
       real wdep
       real, save :: esmax = 0.
       real, save :: esmax0 = 4.
@@ -414,7 +413,7 @@ c     +                        wat_vol, c,cold,cd)
      +                        wat_vol+(dZbedk+dZit)*area, c,cold,cd)  
     
 
-        dZbed  = dZbedk+dZit  ! Celia: update sea bed depth
+        dZbedk  = dZbedk+dZit  ! Celia: update sea bed depth
 
 c	if( c(1) < 0 ) write(6,*) '***** 6 ggu ',c
 c	if( c(1) < 0 ) call mdebug('ggu 6a',k,2,c)
