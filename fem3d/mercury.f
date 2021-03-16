@@ -104,12 +104,11 @@ c general interface to mercury module
 
 c********************************************************************
 
-        subroutine mercury_init(has_restart)
+        subroutine mercury_alloc()
           use mercury
           use levels, only : nlvdi
           use basin, only : nkndi
-          logical :: has_restart
-
+	  implicit none
 
           if(.not. mercury_initialized)then
             mercury_initialized=.True.
@@ -117,9 +116,22 @@ c********************************************************************
             allocate(ems(nkndi,nsstate))
             allocate(emsolw(nlvdi,nkndi,nsolwst))
             allocate(emsols(nkndi,nsolsst))
+	    allocate(etau(nkndi))      !claurent-OGS: created to produce outputs fields
+	    allocate(dZbed(nkndi))     !claurent-OGS: created to produce outputs fields
+	    allocate(dZactiv(nkndi))   !claurent-OGS: created to produce outputs fields
+           
+            write(6,*)'mercury_init allocated arrays'
           endif
         end
 
+c********************************************************************
+
+        subroutine mercury_has_restart()
+          use mercury
+	  implicit none
+
+          merc_has_restart=.True.
+        end
 
 c*************************************************************
 
@@ -152,7 +164,6 @@ c eco-model cosimo
 
 	real epela(npstate)
 	real esedi(nsstate)
-
 
 	real esolw(nsolwst)
 	real esols(nsolsst)
@@ -348,19 +359,13 @@ c      write(*,*) 'mehgt',mehgt,  'mercury.f'
 c         --------------------------------------------------
 c	  initialize state variables
 c         --------------------------------------------------
-	  allocate(etau(nkndi))      !claurent-OGS: created to produce outputs fields
-	  allocate(dZbed(nkndi))     !claurent-OGS: created to produce outputs fields
-	  allocate(dZactiv(nkndi))   !claurent-OGS: created to produce outputs fields
-
-          etau(:)=0.0                  !claurent-OGS: created to produce outputs fields
-          dZbed(:)=0.0    ! [meters]   !claurent-OGS: created to produce outputs fields
-          dZactiv(:)=0.05 ! [meters]   !claurent-OGS: created to produce outputs fields
 
           if(.not.mercury_initialized) then
-            call mercury_init(.False.)
+            call mercury_alloc()
           endif
 
           if(.not.merc_has_restart)then
+           write(6,*)'Default valutes of emp,ems,emsolw.emsols'
            do i=1,npstate
             emp(:,:,i) = epinit(i)
            end do
@@ -376,6 +381,10 @@ c         --------------------------------------------------
            do i=1,nsolsst
             emsols(:,i) = esolsinit(i)
            end do
+
+           etau(:)=0.0                  !claurent-OGS: created to produce outputs fields
+           dZbed(:)=0.0    ! [meters]   !claurent-OGS: created to produce outputs fields
+           dZactiv(:)=0.05 ! [meters]   !claurent-OGS: created to produce outputs fields
          endif
 c         --------------------------------------------------
 c	  initial conditions from file (only for pelagic part)
@@ -537,6 +546,8 @@ c            call dvanode(l,k,mode,d,vol,area)   !gets depth, volume and area
 
                 !write(88,*) vol,volold,'2 vols before...'
             call getts(l,k,t,s)                 !gets temp and salt
+            sal=s
+            temp=t
             call getuv(l,k,u,v)                 !gets velocities u/v
             vel = sqrt(u*u+v*v)
 
@@ -887,7 +898,7 @@ c*************************************************************
         call init_output_d('itmcon','idtcon',da_out)
         if( ishyff == 0 ) da_out = 0
         if( has_output_d(da_out) ) then
-          nvar = npstate + nsstate+nsolwst+nsolsst
+          nvar = npstate+nsstate+nsolwst+nsolsst+3 ! (add 3 for dZbed,dZactiv,etau)
           call shyfem_init_scalar_file('merc',nvar,.false.,id)
           da_out(4) = id
         end if
@@ -1271,6 +1282,12 @@ c                 write(*,*) tce,k,tceaux,ia,ie
               write(iunit) (emsols(k,s),k=1,nkndi)
             enddo
 
+            write(iunit) 1,1,nkndi,-99995
+            write(iunit) (dZbed(k),k=1,nkndi)
+
+            write(iunit) 1,1,nkndi,-99996
+            write(iunit) (dZactiv(k),k=1,nkndi)
+
         end
 
 c       -----------------------------------------
@@ -1313,6 +1330,16 @@ c       -----------------------------------------
             do s=1,nsolsst
               read(iunit) 
             enddo
+           
+            read(iunit) r_ns,r_nl,r_nk,r_flag
+            if(r_ns/=1 .OR. r_nl/= 1  .OR.
+     +         r_nk /=nkndi  .OR. r_flag/=-99995   ) goto 98
+              read(iunit) 
+           
+            read(iunit) r_ns,r_nl,r_nk,r_flag
+            if(r_ns/=1 .OR. r_nl/= 1  .OR.
+     +         r_nk /=nkndi  .OR. r_flag/=-99996   ) goto 98
+              read(iunit) 
        
             write(6,*) 'skip_restart_mercury done '
           return 
@@ -1367,6 +1394,16 @@ c       -----------------------------------------
             do s=1,nsolsst
               read(iunit) (emsols(k,s),k=1,nkndi)
             enddo
+           
+            read(iunit) r_ns,r_nl,r_nk,r_flag
+            if(r_ns/=1 .OR. r_nl/= 1  .OR.
+     +         r_nk /=nkndi  .OR. r_flag/=-99995   ) goto 99
+              read(iunit) (dZbed(k),k=1,nkndi)
+           
+            read(iunit) r_ns,r_nl,r_nk,r_flag
+            if(r_ns/=1 .OR. r_nl/= 1  .OR.
+     +         r_nk /=nkndi  .OR. r_flag/=-99996   ) goto 99
+              read(iunit) (dZactiv(k),k=1,nkndi)
        
           return 
            

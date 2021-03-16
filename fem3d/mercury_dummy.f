@@ -83,12 +83,14 @@
 
 !********************************************************************
 
-	subroutine mercury_init(has_restart)
-
-! initializes mercury routines
-
+	subroutine mercury_alloc()
 	implicit none
-        logical :: has_restart
+	end
+
+!********************************************************************
+
+	subroutine mercury_has_restart()
+	implicit none
 	end
 
 !*************************************************************
@@ -108,7 +110,6 @@
           integer l,k,s,flag
           integer r_ns,r_nl,r_nk,r_flag
 
-            write(6,*) 'skip_restart_mercury ... '
             read(iunit) r_ns,r_nl,r_nk,r_flag
             if( r_flag/=-99991   ) goto 98
             do s=1,npstate
@@ -132,8 +133,15 @@
             do s=1,nsolsst
               read(iunit) 
             enddo
+           
+            read(iunit) r_ns,r_nl,r_nk,r_flag
+            if(r_flag/=-99995   ) goto 98
+              read(iunit) 
+           
+            read(iunit) r_ns,r_nl,r_nk,r_flag
+            if(r_flag/=-99996   ) goto 98
+              read(iunit) 
        
-            write(6,*) 'skip_restart_mercury done '
           return 
            
    98     continue
